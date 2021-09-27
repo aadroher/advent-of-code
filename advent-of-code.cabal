@@ -37,6 +37,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.11 && <10
+    , path
     , rio >=0.1.12.0
   default-language: Haskell2010
 
@@ -51,6 +52,7 @@ executable advent-of-code-exe
       advent-of-code
     , base >=4.11 && <10
     , optparse-simple
+    , path
     , rio >=0.1.12.0
   default-language: Haskell2010
 
@@ -67,5 +69,6 @@ test-suite advent-of-code-test
       advent-of-code
     , base >=4.11 && <10
     , hspec
+    , path
     , rio >=0.1.12.0
   default-language: Haskell2010
