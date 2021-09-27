@@ -8,7 +8,7 @@ import RIO.Process
 -- | Command line arguments
 data Options = Options
   { optionsVerbose :: !Bool,
-    dayToRun :: !String
+    exerciseName :: !String
   }
 
 data App = App

@@ -23,6 +23,7 @@ dependencies:
   - base >= 4.11 && < 10
   - rio >= 0.1.12.0
   - path
+  - pretty-simple
 
 ghc-options:
   - -Wall

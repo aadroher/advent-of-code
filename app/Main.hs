@@ -14,8 +14,8 @@ main = do
   (options, ()) <-
     simpleOptions
       $(simpleVersion Paths_advent_of_code.version)
-      "Header for command line arguments"
-      "Program description, also for command line arguments"
+      "Advent of Code"
+      "Solutions for Advent of Code 2019"
       ( Options
           <$> switch
             ( long "verbose"
@@ -24,7 +24,7 @@ main = do
             )
             <*> argument
               str
-              ( metavar "day"
+              ( metavar "exercise"
               )
       )
       empty
