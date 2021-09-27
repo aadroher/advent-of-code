@@ -5,13 +5,22 @@ module Run (run) where
 
 import qualified Days.Day1 as D1
 import Import
+import qualified RIO.List as L
+import qualified RIO.Partial as P
 import qualified RIO.Text as T
 
+getSolver :: String -> (FilePath -> IO Integer)
+getSolver "1.1" = D1.calculateFirstResult
+getSolver "1.2" = D1.calculateSecondResult
+getSolver _ = undefined
+
+getFilePath :: String -> Maybe FilePath
+getFilePath exName = (\num -> "./data/day" ++ [num] ++ ".txt") <$> L.headMaybe exName
+
 getResult :: String -> RIO App Text
-getResult "1.1" = do
-  res <- liftIO $ D1.calculateResult "./data/day1-1.txt"
+getResult exName = do
+  res <- liftIO $ P.fromJust $ getSolver exName <$> getFilePath exName
   pure $ T.pack $ show res
-getResult _ = undefined
 
 run :: RIO App ()
 run = do
