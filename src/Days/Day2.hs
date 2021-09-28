@@ -15,6 +15,7 @@ type State = [Integer]
 type Quartet = (Integer, Integer, Integer, Integer)
 
 data Op = Add | Mult | End
+  deriving (Eq)
 
 type Pos = Integer
 
@@ -41,10 +42,16 @@ decode (a, b, c, d) =
     }
 
 bitsToQuartet :: [Integer] -> Quartet
-bitsToQuartet [a, b, c, d] = (a, b, c, d)
-bitsToQuartet _ = error "Does not have 4 elements"
+bitsToQuartet is@(o : ns) = case decodeOp o of
+  End -> case ns of
+    [a, b, c] -> (o, a, b, c)
+    _ -> (o, 0, 0, 0)
+  _ -> case ns of
+    [a, b, c] -> (o, a, b, c)
+    _ -> error ("Dont know how to parse " ++ show is)
+bitsToQuartet ns = error ("Dont know how to parse " ++ show ns)
 
-getInstructions :: [Integer] -> [Instruction]
+getInstructions :: State -> [Instruction]
 getInstructions ns = decode . bitsToQuartet <$> chunksOf 4 ns
 
 writeAt :: State -> Integer -> Integer -> State
@@ -52,12 +59,8 @@ writeAt s k x = case L.splitAt (fromInteger k) s of
   (ns, _ : ms) -> ns ++ [x] ++ ms
   (ns, []) -> ns ++ [x]
 
--- ([], _ : ms) -> x : ms
-
--- ([], []) -> []
-
-execute :: State -> Instruction -> State
-execute s Instruction {op = o, src0 = i, src1 = j, dest = k} =
+executeInstruction :: State -> Instruction -> State
+executeInstruction s Instruction {op = o, src0 = i, src1 = j, dest = k} =
   case o of
     Add -> writeAt s k (a + b)
     Mult -> writeAt s k (a * b)
@@ -66,7 +69,16 @@ execute s Instruction {op = o, src0 = i, src1 = j, dest = k} =
     a = s !! fromInteger i
     b = s !! fromInteger j
 
-executeIntCode :: [Integer] -> [Integer]
-executeIntCode ns =
-  let i : _ = getInstructions ns
-   in execute ns i
+execute :: State -> Integer -> State
+execute oldState pointer =
+  if o == End
+    then oldState
+    else
+      ( let newState = executeInstruction oldState i
+         in execute newState (pointer + 1)
+      )
+  where
+    i@Instruction {op = o} = getInstructions oldState !! fromInteger pointer
+
+executeIntCode :: State -> State
+executeIntCode ns = execute ns 0
