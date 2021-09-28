@@ -2,7 +2,6 @@ module Days.Day1 where
 
 import RIO
 import qualified RIO.Text as T
-import Text.Pretty.Simple (pPrint)
 
 getFuelRequirements :: Integer -> Integer
 getFuelRequirements n = n `div` 3 - 2
@@ -15,19 +14,19 @@ getTotalFuelRequirements n =
   where
     fr = getFuelRequirements n
 
-loadFuelRequirements :: FilePath -> IO [Integer]
-loadFuelRequirements f = do
+loadMassess :: FilePath -> IO [Integer]
+loadMassess f = do
   fileContents <- readFileUtf8 f
   let ns = read <$> lines (T.unpack fileContents)
   pure ns
 
-calculateResult :: (Integer -> Integer) -> FilePath -> IO Integer
+calculateResult :: (Integer -> Integer) -> FilePath -> IO Text
 calculateResult f p = do
-  result <- loadFuelRequirements p
-  pure $ sum $ f <$> result
+  result <- loadMassess p
+  pure $ (T.pack . show) $ sum $ f <$> result
 
-calculateFirstResult :: FilePath -> IO Integer
+calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult getFuelRequirements
 
-calculateSecondResult :: FilePath -> IO Integer
+calculateSecondResult :: FilePath -> IO Text
 calculateSecondResult = calculateResult getTotalFuelRequirements
