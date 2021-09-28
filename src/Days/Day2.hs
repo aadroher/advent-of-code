@@ -1,12 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Days.Day2 where
 
-import Data.List.Split (chunksOf, splitPlaces)
+import Data.List.Split (chunksOf, splitOn)
 import RIO
 import qualified RIO.List as L
-import RIO.List.Partial ((!!))
+-- import RIO.List.Partial ((!!))
 import qualified RIO.Text as T
 import Text.Pretty.Simple (pPrint)
 
@@ -82,3 +81,15 @@ execute oldState pointer =
 
 executeIntCode :: State -> State
 executeIntCode ns = execute ns 0
+
+loadData :: FilePath -> IO [Integer]
+loadData f = do
+  fileContents <- readFileUtf8 f
+  pPrint fileContents
+  let ns = read <$> splitOn "," (T.unpack fileContents)
+  pure ns
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult p = do
+  initialState <- loadData p
+  pure $ (T.pack . show) $ executeIntCode initialState

@@ -4,14 +4,16 @@
 module Run (run) where
 
 import qualified Days.Day1 as D1
+import qualified Days.Day2 as D2
 import Import
 import qualified RIO.List as L
 import qualified RIO.Partial as P
 import qualified RIO.Text as T
 
-getSolver :: String -> (FilePath -> IO Integer)
+getSolver :: String -> (FilePath -> IO Text)
 getSolver "1.1" = D1.calculateFirstResult
 getSolver "1.2" = D1.calculateSecondResult
+getSolver "2.1" = D2.calculateFirstResult
 getSolver _ = undefined
 
 getFilePath :: String -> Maybe FilePath
@@ -29,4 +31,4 @@ run = do
   let e = exerciseName $ appOptions app
   logInfo $ displayShow $ "Results for day " ++ e ++ ":"
   res1 <- getResult e
-  logInfo $ displayShow res1
+  logInfo $ display res1
