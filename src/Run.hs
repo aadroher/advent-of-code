@@ -14,6 +14,7 @@ getSolver :: String -> (FilePath -> IO Text)
 getSolver "1.1" = D1.calculateFirstResult
 getSolver "1.2" = D1.calculateSecondResult
 getSolver "2.1" = D2.calculateFirstResult
+getSolver "2.2" = D2.calculateSecondResult
 getSolver _ = undefined
 
 getFilePath :: String -> Maybe FilePath
