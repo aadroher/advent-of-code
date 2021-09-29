@@ -84,7 +84,7 @@ executeIntCode ns = execute ns 0
 
 setInitialState :: State -> Integer -> Integer -> State
 setInitialState (res : _ : _ : ns) noun verb = res : noun : verb : ns
-setInitialState _ _ _ = error "State does not have valid format"
+setInitialState _ _ _ = error "State does not have a valid format"
 
 getResult :: State -> Integer -> Integer -> Integer
 getResult s noun verb =
