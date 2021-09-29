@@ -27,6 +27,7 @@ library
   exposed-modules:
       Days.Day1
       Days.Day2
+      Days.Day3
       Import
       Run
       Types

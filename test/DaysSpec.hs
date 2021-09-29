@@ -5,6 +5,8 @@ module DaysSpec (spec) where
 
 import qualified Days.Day1 as D1
 import qualified Days.Day2 as D2
+import Days.Day3 (Direction (..))
+import qualified Days.Day3 as D3
 import Import
 import Test.Hspec
 
@@ -37,3 +39,13 @@ spec = do
       it "(12, 2) -> 3058646 is True" $ do
         initialMemory <- D2.loadData "./data/day2.txt"
         D2.resultIn initialMemory 12 2 3058646 `shouldBe` True
+  describe "day 3" $ do
+    describe "exercise 3.1" $ do
+      describe "getRoute" $ do
+        it "[R2,U1] -> [(0,0), (1,0), (2,0), (2, 1)]" $ do
+          D3.getRoute [(0, 0)] [(R, 2), (U, 1)] `shouldBe` [(0, 0), (1, 0), (2, 0), (2, 1)]
+      describe "getDistToClosestIntersection" $ do
+        it "([R8,U5,L5,D3], [U7,R6,D4,L4]) -> 6" $ do
+          let p = [(R, 8), (U, 5), (L, 5), (D, 3)]
+          let q = [(U, 7), (R, 6), (D, 4), (L, 4)]
+          D3.getDistToClosestIntersection p q `shouldBe` 6
