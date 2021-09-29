@@ -86,6 +86,14 @@ setInitialState :: State -> Integer -> Integer -> State
 setInitialState (res : _ : _ : ns) noun verb = res : noun : verb : ns
 setInitialState _ _ _ = error "State does not have valid format"
 
+getResult :: State -> Integer -> Integer -> Integer
+getResult s noun verb =
+  let initialState = setInitialState s noun verb
+   in head $ executeIntCode initialState
+
+resultIn :: State -> Integer -> Integer -> Integer -> Bool
+resultIn m s v expectedResult = getResult m s v == expectedResult
+
 loadData :: FilePath -> IO [Integer]
 loadData f = do
   fileContents <- readFileUtf8 f
@@ -97,6 +105,8 @@ calculateFirstResult p = do
   let initialNoun = 12
   let initialVerb = 2
   initialMemory <- loadData p
-  let initialState = setInitialState initialMemory initialNoun initialVerb
-  let result = head (executeIntCode initialState)
+  let result = getResult initialMemory initialNoun initialVerb
   pure $ (T.pack . show) result
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult p = undefined
