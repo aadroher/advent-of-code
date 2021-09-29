@@ -5,9 +5,9 @@ module Days.Day2 where
 import Data.List.Split (chunksOf, splitOn)
 import RIO
 import qualified RIO.List as L
--- import RIO.List.Partial ((!!))
 import qualified RIO.Text as T
-import Text.Pretty.Simple (pPrint)
+
+-- import Text.Pretty.Simple (pPrint)
 
 type State = [Integer]
 
@@ -20,9 +20,9 @@ type Pos = Integer
 
 data Instruction = Instruction
   { op :: Op,
-    src0 :: Pos,
-    src1 :: Pos,
-    dest :: Pos
+    nounAddr :: Pos,
+    verbAddr :: Pos,
+    resultAddr :: Pos
   }
 
 decodeOp :: Integer -> Op
@@ -35,9 +35,9 @@ decode :: Quartet -> Instruction
 decode (a, b, c, d) =
   Instruction
     { op = decodeOp a,
-      src0 = b,
-      src1 = c,
-      dest = d
+      nounAddr = b,
+      verbAddr = c,
+      resultAddr = d
     }
 
 bitsToQuartet :: [Integer] -> Quartet
@@ -59,7 +59,7 @@ writeAt s k x = case L.splitAt (fromInteger k) s of
   (ns, []) -> ns ++ [x]
 
 executeInstruction :: State -> Instruction -> State
-executeInstruction s Instruction {op = o, src0 = i, src1 = j, dest = k} =
+executeInstruction s Instruction {op = o, nounAddr = i, verbAddr = j, resultAddr = k} =
   case o of
     Add -> writeAt s k (a + b)
     Mult -> writeAt s k (a * b)
@@ -82,14 +82,21 @@ execute oldState pointer =
 executeIntCode :: State -> State
 executeIntCode ns = execute ns 0
 
+setInitialState :: State -> Integer -> Integer -> State
+setInitialState (res : _ : _ : ns) noun verb = res : noun : verb : ns
+setInitialState _ _ _ = error "State does not have valid format"
+
 loadData :: FilePath -> IO [Integer]
 loadData f = do
   fileContents <- readFileUtf8 f
-  pPrint fileContents
   let ns = read <$> splitOn "," (T.unpack fileContents)
   pure ns
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult p = do
-  initialState <- loadData p
-  pure $ (T.pack . show) $ executeIntCode initialState
+  let initialNoun = 12
+  let initialVerb = 2
+  initialMemory <- loadData p
+  let initialState = setInitialState initialMemory initialNoun initialVerb
+  let result = head (executeIntCode initialState)
+  pure $ (T.pack . show) result
