@@ -97,8 +97,7 @@ resultIn m s v expectedResult = getResult m s v == expectedResult
 loadData :: FilePath -> IO [Integer]
 loadData f = do
   fileContents <- readFileUtf8 f
-  let ns = read <$> splitOn "," (T.unpack fileContents)
-  pure ns
+  pure $ read <$> splitOn "," (T.unpack fileContents)
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult p = do
@@ -109,4 +108,12 @@ calculateFirstResult p = do
   pure $ (T.pack . show) result
 
 calculateSecondResult :: FilePath -> IO Text
-calculateSecondResult p = undefined
+calculateSecondResult p = do
+  initialMemory <- loadData p
+  let expectedResult = 19690720
+  let ns = [0 .. 99]
+  let cs = [(x, y) | x <- ns, y <- ns]
+  let matches = \(x, y) -> resultIn initialMemory x y expectedResult
+  case L.find matches cs of
+    Nothing -> error "Solution not found"
+    Just (noun, verb) -> pure $ (T.pack . show) (100 * noun + verb)
