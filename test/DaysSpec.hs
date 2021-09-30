@@ -44,8 +44,20 @@ spec = do
       describe "getRoute" $ do
         it "[R2,U1] -> [(0,0), (1,0), (2,0), (2, 1)]" $ do
           D3.getRoute [(0, 0)] [(R, 2), (U, 1)] `shouldBe` [(0, 0), (1, 0), (2, 0), (2, 1)]
+
+      describe "parseInstructions" $ do
+        it "parses [R75,D30,R83,U83,L12,D49,R71,U7,L72]" $ do
+          let expected = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]
+          D3.parseInstructions "R75,D30,R83,U83,L12,D49,R71,U7,L72" `shouldBe` expected
+        it "parses [U62,R66,U55,R34,D71,R55,D58,R83]" $ do
+          let expected = [(U, 62), (R, 66), (U, 55), (R, 34), (D, 71), (R, 55), (D, 58), (R, 83)]
+          D3.parseInstructions "U62,R66,U55,R34,D71,R55,D58,R83" `shouldBe` expected
       describe "getDistToClosestIntersection" $ do
         it "([R8,U5,L5,D3], [U7,R6,D4,L4]) -> 6" $ do
           let p = [(R, 8), (U, 5), (L, 5), (D, 3)]
           let q = [(U, 7), (R, 6), (D, 4), (L, 4)]
           D3.getDistToClosestIntersection p q `shouldBe` 6
+        it "([R75,D30,R83,U83,L12,D49,R71,U7,L72], [U62,R66,U55,R34,D71,R55,D58,R83]) -> 159" $ do
+          let p = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]
+          let q = [(U, 62), (R, 66), (U, 55), (R, 34), (D, 71), (R, 55), (D, 58), (R, 83)]
+          D3.getDistToClosestIntersection p q `shouldBe` 159
