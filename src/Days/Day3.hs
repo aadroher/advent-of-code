@@ -46,12 +46,12 @@ parseDirection s = case s of
   _ -> error "Could not parse Direction"
 
 parseInstruction :: Text -> Instruction
-parseInstruction s = case T'.head s of
-  dirStr ->
-    let dir = (parseDirection . fromString) [dirStr]
-     in case readMaybe $ T.unpack (T'.tail s) of
-          Just steps -> (dir, steps)
-          Nothing -> error ("Could not read " ++ T.unpack s)
+parseInstruction s =
+  case readMaybe $ T.unpack (T'.tail s) of
+    Just steps -> (dir, steps)
+    Nothing -> error ("Could not read " ++ T.unpack s)
+  where
+    dir = (parseDirection . fromString) [T'.head s]
 
 parseInstructions :: Text -> [Instruction]
 parseInstructions s = parseInstruction <$> T'.splitOn "," s
@@ -70,8 +70,8 @@ loadData f = do
   fileContents <- readFileUtf8 f
   -- pPrint fileContents
   let (isStr0, isStr1) = T'.breakOn "\n" fileContents
-  -- pPrint isStr0
-  -- pPrint isStr1
+  pPrint isStr0
+  pPrint (T'.tail isStr1)
   pure (parseInstructions isStr0, parseInstructions (T'.tail isStr1))
 
 calculateFirstResult :: FilePath -> IO Text
