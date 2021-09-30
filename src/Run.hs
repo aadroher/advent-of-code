@@ -5,6 +5,7 @@ module Run (run) where
 
 import qualified Days.Day1 as D1
 import qualified Days.Day2 as D2
+import qualified Days.Day3 as D3
 import Import
 import qualified RIO.List as L
 import qualified RIO.Partial as P
@@ -15,6 +16,7 @@ getSolver "1.1" = D1.calculateFirstResult
 getSolver "1.2" = D1.calculateSecondResult
 getSolver "2.1" = D2.calculateFirstResult
 getSolver "2.2" = D2.calculateSecondResult
+getSolver "3.1" = D3.calculateFirstResult
 getSolver _ = undefined
 
 getFilePath :: String -> Maybe FilePath
