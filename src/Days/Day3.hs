@@ -74,14 +74,21 @@ neighbours (x, y) =
     (x, y - 1)
   ]
 
+circle :: Position -> Int -> [Position]
+circle p r = prodPos r <$> neighbours p
+
 scan :: Position -> [Position]
 scan p = concat [prodPos r <$> neighbours p | r <- [1 .. 10000]]
 
-getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
-getDistToClosestIntersection is0 is1 =
-  case L.find (\p -> p `Set.member` (routeStepsSet0 `Set.intersection` routeStepsSet1)) (scan centre) of
-    Just p -> distance centre p
-    Nothing -> error "Could not find intersection"
+getDistToClosestIntersection :: Int -> [Instruction] -> [Instruction] -> Int
+getDistToClosestIntersection r is0 is1 =
+  let matches = \p -> (p `Set.member` (routeStepsSet0 `Set.intersection` routeStepsSet1)) && (p /= centre)
+   in case L.find matches (circle centre r) of
+        Just p -> distance centre p
+        Nothing ->
+          if r < 10000
+            then getDistToClosestIntersection (r + 1) is0 is1
+            else error ("Could not find intersection in a radius of " ++ show r)
   where
     routeStepsSet0 = Set.fromList $ getRouteFromCenter is0
     routeStepsSet1 = Set.fromList $ getRouteFromCenter is1
@@ -98,5 +105,5 @@ loadData f = do
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult p = do
   (is0, is1) <- loadData p
-  let res = getDistToClosestIntersection is0 is1
+  let res = getDistToClosestIntersection 0 is0 is1
   pure $ (T.pack . show) res
