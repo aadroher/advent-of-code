@@ -5,7 +5,7 @@ module Days.Day3 where
 import Data.List.Split (splitOn)
 import RIO
 import qualified RIO.List as L
-import qualified RIO.List.Partial as L'
+import qualified RIO.Set as Set
 import qualified RIO.Text as T
 import qualified RIO.Text.Partial as T'
 import Text.Pretty.Simple (pPrint)
@@ -56,14 +56,35 @@ parseInstruction s =
 parseInstructions :: Text -> [Instruction]
 parseInstructions s = parseInstruction <$> T'.splitOn "," s
 
+-- (|+|) :: Position -> Position -> Position
+-- (x0, y0) |+| (x1, y1) = (x0 + x1, y0 + y1)
+
+prodPos :: Int -> Position -> Position
+prodPos r (x, y) = (r * x, r * y)
+
+neighbours :: Position -> [Position]
+neighbours (x, y) =
+  [ (x + 1, y + 1),
+    (x + 1, y - 1),
+    (x + 1, y),
+    (x - 1, y + 1),
+    (x - 1, y - 1),
+    (x - 1, y),
+    (x, y + 1),
+    (x, y - 1)
+  ]
+
+scan :: Position -> [Position]
+scan p = concat [prodPos r <$> neighbours p | r <- [1 .. 10000]]
+
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =
-  L'.minimum $
-    distance centre
-      <$> [p | p <- L.intersect route0 route1, p /= centre]
+  case L.find (\p -> p `Set.member` (routeStepsSet0 `Set.intersection` routeStepsSet1)) (scan centre) of
+    Just p -> distance centre p
+    Nothing -> error "Could not find intersection"
   where
-    route0 = getRouteFromCenter is0
-    route1 = getRouteFromCenter is1
+    routeStepsSet0 = Set.fromList $ getRouteFromCenter is0
+    routeStepsSet1 = Set.fromList $ getRouteFromCenter is1
 
 loadData :: FilePath -> IO ([Instruction], [Instruction])
 loadData f = do
