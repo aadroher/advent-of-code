@@ -35,7 +35,7 @@ getRouteFromCenter :: [Instruction] -> [Position]
 getRouteFromCenter = getRoute [centre]
 
 distance :: Position -> Position -> Int
-distance (x0, y0) (x1, y1) = (x1 - x0) + (y1 - y0)
+distance (x0, y0) (x1, y1) = abs (x1 - x0) + abs (y1 - y0)
 
 parseDirection :: Text -> Direction
 parseDirection s = case s of
