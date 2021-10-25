@@ -48,6 +48,18 @@ spec = do
       describe "getPerimeter" $ do
         it "(0, 0) -> 1 -> [(1, 0), (0, -1), (-1, 0), (0, 1)]" $ do
           D3.getPerimeter (0, 0) 1 `shouldBe` S.fromList [(1, 0), (0, -1), (-1, 0), (0, 1)]
+        it "(0, 0) -> 1 -> [(2, 0), (1, -1), (0, -2), (-1, -1), (-2, 0), (-1, 1), (0, 2), (1, 1)]" $ do
+          D3.getPerimeter (0, 0) 2
+            `shouldBe` S.fromList
+              [ (2, 0),
+                (1, -1),
+                (0, -2),
+                (-1, -1),
+                (-2, 0),
+                (-1, 1),
+                (0, 2),
+                (1, 1)
+              ]
       describe "parseInstructions" $ do
         it "parses [R75,D30,R83,U83,L12,D49,R71,U7,L72]" $ do
           let expected = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]

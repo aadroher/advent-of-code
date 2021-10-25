@@ -2,6 +2,7 @@
 
 module Days.Day3 where
 
+import Control.Monad as M
 import Data.List.Split (splitOn)
 import RIO
 import qualified RIO.List as L
@@ -12,7 +13,7 @@ import qualified RIO.Text as T
 import qualified RIO.Text.Partial as T'
 import Text.Pretty.Simple (pPrint)
 
-data Direction = L | R | U | D | Z
+data Direction = L | R | U | D
   deriving (Show, Eq)
 
 type Instruction = (Direction, Int)
@@ -22,12 +23,18 @@ type Position = (Int, Int)
 centre :: Position
 centre = (0, 0)
 
+isOpposite :: Direction -> Direction -> Bool
+isOpposite L R = True
+isOpposite R L = True
+isOpposite U D = True
+isOpposite D U = True
+isOpposite _ _ = False
+
 getInstructionSteps :: Instruction -> Position -> [Position]
 getInstructionSteps (L, d) (x, y) = [(x - s, y) | s <- [1 .. d]]
 getInstructionSteps (R, d) (x, y) = [(x + s, y) | s <- [1 .. d]]
 getInstructionSteps (U, d) (x, y) = [(x, y + s) | s <- [1 .. d]]
 getInstructionSteps (D, d) (x, y) = [(x, y - s) | s <- [1 .. d]]
-getInstructionSteps (Z, _) _ = []
 
 getRoute :: [Position] -> [Instruction] -> [Position]
 getRoute =
@@ -61,8 +68,12 @@ parseInstructions s = parseInstruction <$> T'.splitOn "," s
 
 getPerimeter :: Position -> Int -> Set Position
 getPerimeter c r =
-  let dirs = [L, R, U, D]
-   in S.fromList $ concat [tail $ getRoute [c] [(dir, r)] | dir <- dirs]
+  let permsWithRep = M.replicateM r [L, R, U, D]
+   in S.fromList $
+        L.filter
+          (\(a, b) -> (abs a + abs b) == r)
+          [ last (getRoute [c] [(dir, 1) | dir <- stepsDir]) | stepsDir <- permsWithRep
+          ]
 
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =
