@@ -77,12 +77,14 @@ getPerimeter c r =
 
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =
-  L'.minimum $
-    distance centre
-      <$> [p | p <- L.intersect route0 route1, p /= centre]
+  fst $
+    head $
+      L.filter
+        (\(_, ps) -> S.size (S.intersection ps route0) > 0 || S.size (S.intersection ps route1) > 0)
+        [(r, getPerimeter centre r) | r <- [1 ..]]
   where
-    route0 = getRouteFromCenter is0
-    route1 = getRouteFromCenter is1
+    route0 = S.fromList $ getRouteFromCenter is0
+    route1 = S.fromList $ getRouteFromCenter is1
 
 loadData :: FilePath -> IO ([Instruction], [Instruction])
 loadData f = do
