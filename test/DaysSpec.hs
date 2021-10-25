@@ -8,6 +8,7 @@ import qualified Days.Day2 as D2
 import Days.Day3 (Direction (..))
 import qualified Days.Day3 as D3
 import Import
+import qualified RIO.Set as S
 import Test.Hspec
 
 spec :: Spec
@@ -44,7 +45,9 @@ spec = do
       describe "getRoute" $ do
         it "[R2,U1] -> [(0,0), (1,0), (2,0), (2, 1)]" $ do
           D3.getRoute [(0, 0)] [(R, 2), (U, 1)] `shouldBe` [(0, 0), (1, 0), (2, 0), (2, 1)]
-
+      describe "getPerimeter" $ do
+        it "(0, 0) -> 1 -> [(1, 0), (0, -1), (-1, 0), (0, 1)]" $ do
+          D3.getPerimeter (0, 0) 1 `shouldBe` S.fromList [(1, 0), (0, -1), (-1, 0), (0, 1)]
       describe "parseInstructions" $ do
         it "parses [R75,D30,R83,U83,L12,D49,R71,U7,L72]" $ do
           let expected = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]

@@ -6,11 +6,13 @@ import Data.List.Split (splitOn)
 import RIO
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
+import RIO.Set (Set (..))
+import qualified RIO.Set as S
 import qualified RIO.Text as T
 import qualified RIO.Text.Partial as T'
 import Text.Pretty.Simple (pPrint)
 
-data Direction = L | R | U | D
+data Direction = L | R | U | D | Z
   deriving (Show, Eq)
 
 type Instruction = (Direction, Int)
@@ -25,6 +27,7 @@ getInstructionSteps (L, d) (x, y) = [(x - s, y) | s <- [1 .. d]]
 getInstructionSteps (R, d) (x, y) = [(x + s, y) | s <- [1 .. d]]
 getInstructionSteps (U, d) (x, y) = [(x, y + s) | s <- [1 .. d]]
 getInstructionSteps (D, d) (x, y) = [(x, y - s) | s <- [1 .. d]]
+getInstructionSteps (Z, _) _ = []
 
 getRoute :: [Position] -> [Instruction] -> [Position]
 getRoute =
@@ -55,6 +58,11 @@ parseInstruction s =
 
 parseInstructions :: Text -> [Instruction]
 parseInstructions s = parseInstruction <$> T'.splitOn "," s
+
+getPerimeter :: Position -> Int -> Set Position
+getPerimeter c r =
+  let dirs = [L, R, U, D]
+   in S.fromList $ concat [tail $ getRoute [c] [(dir, r)] | dir <- dirs]
 
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =
