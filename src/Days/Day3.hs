@@ -4,6 +4,7 @@ module Days.Day3 where
 
 import Control.Monad as M
 import Data.List.Split (splitOn)
+import qualified GHC.OldList as L
 import RIO
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
@@ -74,6 +75,9 @@ getPerimeter c r =
           (\(a, b) -> (abs a + abs b) == r)
           [ last (getRoute [c] [(dir, 1) | dir <- stepsDir]) | stepsDir <- permsWithRep
           ]
+
+getRouteIntersections :: [Position] -> [Position] -> Set Position
+getRouteIntersections v w = S.fromList $ L.intersect v w
 
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =

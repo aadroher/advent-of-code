@@ -42,6 +42,13 @@ spec = do
         D2.resultIn initialMemory 12 2 3058646 `shouldBe` True
   describe "day 3" $ do
     describe "exercise 3.1" $ do
+      describe "parseInstructions" $ do
+        it "parses [R75,D30,R83,U83,L12,D49,R71,U7,L72]" $ do
+          let expected = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]
+          D3.parseInstructions "R75,D30,R83,U83,L12,D49,R71,U7,L72" `shouldBe` expected
+        it "parses [U62,R66,U55,R34,D71,R55,D58,R83]" $ do
+          let expected = [(U, 62), (R, 66), (U, 55), (R, 34), (D, 71), (R, 55), (D, 58), (R, 83)]
+          D3.parseInstructions "U62,R66,U55,R34,D71,R55,D58,R83" `shouldBe` expected
       describe "getRoute" $ do
         it "[R2,U1] -> [(0,0), (1,0), (2,0), (2, 1)]" $ do
           D3.getRoute [(0, 0)] [(R, 2), (U, 1)] `shouldBe` [(0, 0), (1, 0), (2, 0), (2, 1)]
@@ -60,13 +67,11 @@ spec = do
                 (0, 2),
                 (1, 1)
               ]
-      describe "parseInstructions" $ do
-        it "parses [R75,D30,R83,U83,L12,D49,R71,U7,L72]" $ do
-          let expected = [(R, 75), (D, 30), (R, 83), (U, 83), (L, 12), (D, 49), (R, 71), (U, 7), (L, 72)]
-          D3.parseInstructions "R75,D30,R83,U83,L12,D49,R71,U7,L72" `shouldBe` expected
-        it "parses [U62,R66,U55,R34,D71,R55,D58,R83]" $ do
-          let expected = [(U, 62), (R, 66), (U, 55), (R, 34), (D, 71), (R, 55), (D, 58), (R, 83)]
-          D3.parseInstructions "U62,R66,U55,R34,D71,R55,D58,R83" `shouldBe` expected
+      describe "getRouteIntersections" $ do
+        it "([(0,0)], []) -> {(0, 0)}" $ do
+          D3.getRouteIntersections [(0, 0)] [] `shouldBe` S.empty
+        it "([(0,0)], [(0,0)]) -> {(0, 0)}" $ do
+          D3.getRouteIntersections [(0, 0)] [(0, 0)] `shouldBe` S.singleton (0, 0)
       describe "getDistToClosestIntersection" $ do
         it "([R8,U5,L5,D3], [U7,R6,D4,L4]) -> 6" $ do
           let p = [(R, 8), (U, 5), (L, 5), (D, 3)]
