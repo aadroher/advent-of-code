@@ -1,4 +1,4 @@
-module Days.Day1 where
+module Days2019.Day1 where
 
 import RIO
 import qualified RIO.Text as T

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Days.Day3 where
+module Days2019.Day3 where
 
 import Control.Monad as M
 import Data.List.Split (splitOn)

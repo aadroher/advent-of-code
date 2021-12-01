@@ -3,9 +3,9 @@
 
 module Run (run) where
 
-import qualified Days.Day1 as D1
-import qualified Days.Day2 as D2
-import qualified Days.Day3 as D3
+import qualified Days2019.Day1 as D1
+import qualified Days2019.Day2 as D2
+import qualified Days2019.Day3 as D3
 import Import
 import qualified RIO.List as L
 import qualified RIO.Partial as P
