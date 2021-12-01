@@ -25,9 +25,10 @@ source-repository head
 
 library
   exposed-modules:
-      Days.Day1
-      Days.Day2
-      Days.Day3
+      Days2019.Day1
+      Days2019.Day2
+      Days2019.Day3
+      Days2021.Day1
       Import
       Run
       Types
@@ -66,7 +67,7 @@ test-suite advent-of-code-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      DaysSpec
+      Days2019Spec
       Paths_advent_of_code
   hs-source-dirs:
       test

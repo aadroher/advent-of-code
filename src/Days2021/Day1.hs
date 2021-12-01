@@ -1,0 +1,1 @@
+module Days2021.Day1 where

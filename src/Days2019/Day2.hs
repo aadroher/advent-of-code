@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Days.Day2 where
+module Days2019.Day2 where
 
 import Data.List.Split (chunksOf, splitOn)
 import RIO

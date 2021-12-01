@@ -3,28 +3,30 @@
 
 module Run (run) where
 
-import qualified Days.Day1 as D1
-import qualified Days.Day2 as D2
-import qualified Days.Day3 as D3
+import qualified Days2019.Day1 as D1of2019
+import qualified Days2019.Day2 as D2of2019
+import qualified Days2019.Day3 as D3of2019
 import Import
 import qualified RIO.List as L
-import qualified RIO.Partial as P
 import qualified RIO.Text as T
 
 getSolver :: String -> (FilePath -> IO Text)
-getSolver "1.1" = D1.calculateFirstResult
-getSolver "1.2" = D1.calculateSecondResult
-getSolver "2.1" = D2.calculateFirstResult
-getSolver "2.2" = D2.calculateSecondResult
-getSolver "3.1" = D3.calculateFirstResult
+getSolver "19-1-1" = D1of2019.calculateFirstResult
+getSolver "19-1-2" = D1of2019.calculateSecondResult
+getSolver "19-2-1" = D2of2019.calculateFirstResult
+getSolver "19-2-2" = D2of2019.calculateSecondResult
+getSolver "19-3-1" = D3of2019.calculateFirstResult
 getSolver _ = undefined
 
-getFilePath :: String -> Maybe FilePath
-getFilePath exName = (\num -> "./data/day" ++ [num] ++ ".txt") <$> L.headMaybe exName
+getFilePath :: String -> FilePath
+getFilePath exName = "./data/day/" ++ year ++ num ++ ".txt"
+  where
+    year = L.take 2 exName
+    num = (L.drop 3 . L.take 1) exName
 
 getResult :: String -> RIO App Text
 getResult exName = do
-  res <- liftIO $ P.fromJust $ getSolver exName <$> getFilePath exName
+  res <- liftIO $ getSolver exName $ getFilePath exName
   pure $ T.pack $ show res
 
 run :: RIO App ()
