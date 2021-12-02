@@ -1,11 +1,11 @@
-# Advent of Code 2019
+# Advent of Code
 
-Some solutions for Advent of Code 2019 in Haskell
+Some solutions for Advent of Code event in Haskell
 
 ## Execute  
 
-* Run `stack exec -- advent-of-code-exe` to see "We're inside the application!"
-* With `stack exec -- advent-of-code-exe --verbose` you will see the same message, with more logging.
+* Run `stack exec -- advent-of-code-exe`
+* With `stack exec -- advent-of-code-exe --verbose`
 
 ## Run tests
 
