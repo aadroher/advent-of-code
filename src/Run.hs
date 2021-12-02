@@ -6,6 +6,7 @@ module Run (run) where
 import qualified Days2019.Day1 as D1of2019
 import qualified Days2019.Day2 as D2of2019
 import qualified Days2019.Day3 as D3of2019
+import qualified Days2021.Day1 as D1of2021
 import Import
 import qualified RIO.List as L
 import qualified RIO.Text as T
@@ -16,13 +17,14 @@ getSolver "19-1-2" = D1of2019.calculateSecondResult
 getSolver "19-2-1" = D2of2019.calculateFirstResult
 getSolver "19-2-2" = D2of2019.calculateSecondResult
 getSolver "19-3-1" = D3of2019.calculateFirstResult
+getSolver "21-1-1" = D1of2021.calculateFirstResult
 getSolver _ = undefined
 
 getFilePath :: String -> FilePath
-getFilePath exName = "./data/day/" ++ year ++ num ++ ".txt"
+getFilePath exName = "./data/" ++ year ++ "/day" ++ num ++ ".txt"
   where
     year = L.take 2 exName
-    num = (L.drop 3 . L.take 1) exName
+    num = (L.drop 3 . L.take 4) exName
 
 getResult :: String -> RIO App Text
 getResult exName = do
