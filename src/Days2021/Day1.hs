@@ -3,6 +3,7 @@
 module Days2021.Day1 where
 
 import qualified Data.List.Split as S
+import qualified Data.Maybe as M
 import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
@@ -36,9 +37,19 @@ getWindowSequenceAt i xs =
   where
     pairs = L.zip ([0, 1 ..] :: [Int]) xs
 
+getWindowAt :: [(Int, Int)] -> [Window]
+getWindowAt (x@(i, _) : xs) = f <$> L.take 3 $ L.drop i (x : xs)
+  where
+    f ys = case mkWindow ys of
+      Just w -> [w]
+      Nothing -> []
+getWindowAt [] = []
+
 generateWindows :: [Int] -> [Window]
 generateWindows xs =
-  L.sort $ L.concatMap (`getWindowSequenceAt` xs) [0 .. 3]
+  L.sort $ L.concatMap getWindowAt $ L.tails pairs
+  where
+    pairs = L.zip ([0, 1 ..] :: [Int]) xs
 
 compareInitialPair :: [Int] -> Int
 compareInitialPair [] = 0
