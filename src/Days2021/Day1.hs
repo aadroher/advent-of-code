@@ -18,10 +18,7 @@ generateWindows xs =
 compareInitialPair :: [Int] -> Int
 compareInitialPair [] = 0
 compareInitialPair [_] = 0
-compareInitialPair (x0 : x1 : _) =
-  if x0 < x1
-    then 1
-    else 0
+compareInitialPair (x0 : x1 : _) = bool 0 1 (x0 < x1)
 
 countWindowIncreases :: [Int] -> Int
 countWindowIncreases xs =
@@ -31,7 +28,7 @@ countWindowIncreases xs =
 
 countIncreases :: [Int] -> Int
 countIncreases xs =
-  L.sum $ L.map compareInitialPair (L.tails xs)
+  L.sum $ compareInitialPair <$> L.tails xs
 
 loadReadings :: FilePath -> IO [Int]
 loadReadings f = do
