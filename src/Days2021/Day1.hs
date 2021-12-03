@@ -46,3 +46,6 @@ calculateResult f p = do
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult countIncreases
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult countWindowIncreases

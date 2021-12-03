@@ -18,6 +18,7 @@ getSolver "19-2-1" = D2of2019.calculateFirstResult
 getSolver "19-2-2" = D2of2019.calculateSecondResult
 getSolver "19-3-1" = D3of2019.calculateFirstResult
 getSolver "21-1-1" = D1of2021.calculateFirstResult
+getSolver "21-1-2" = D1of2021.calculateSecondResult
 getSolver _ = undefined
 
 getFilePath :: String -> FilePath
