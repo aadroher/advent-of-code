@@ -15,41 +15,16 @@ import qualified RIO.Text as T
 --   }
 --   deriving (Eq, Ord, Show)
 
-type Window = (Int, (Int, Int, Int))
-
-mkWindow :: [(Int, Int)] -> Maybe Window
-mkWindow [(i, a), (_, b), (_, c)] = Just (i, (a, b, c))
-mkWindow [(i, a), (_, b)] = Just (i, (a, b, 0))
-mkWindow [(i, a)] = Just (i, (a, 0, 0))
-mkWindow _ = Nothing
-
-getWindowSequence :: [(Int, Int)] -> [Window]
-getWindowSequence [] = []
-getWindowSequence xs =
-  let nextWindowData = L'.init $ L.take 4 xs
-   in case mkWindow nextWindowData of
-        Just newWindow -> newWindow : getWindowSequence (L.drop 4 xs)
-        Nothing -> getWindowSequence (L.drop 4 xs)
-
-getWindowSequenceAt :: Int -> [Int] -> [Window]
-getWindowSequenceAt i xs =
-  getWindowSequence (drop i pairs)
-  where
-    pairs = L.zip ([0, 1 ..] :: [Int]) xs
-
-getWindowAt :: [(Int, Int)] -> [Window]
-getWindowAt (x@(i, _) : xs) = f <$> L.take 3 $ L.drop i (x : xs)
-  where
-    f ys = case mkWindow ys of
-      Just w -> [w]
-      Nothing -> []
-getWindowAt [] = []
-
-generateWindows :: [Int] -> [Window]
+generateWindows :: [Int] -> [(Int, Int, Int)]
+generateWindows [] = []
 generateWindows xs =
-  L.sort $ L.concatMap getWindowAt $ L.tails pairs
+  w : generateWindows (tail xs)
   where
-    pairs = L.zip ([0, 1 ..] :: [Int]) xs
+    w = case take 3 xs of
+      [a, b, c] -> (a, b, c)
+      [a, b] -> (a, b, 0)
+      [a] -> (a, 0, 0)
+      _ -> (0, 0, 0)
 
 compareInitialPair :: [Int] -> Int
 compareInitialPair [] = 0
