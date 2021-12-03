@@ -23,6 +23,12 @@ compareInitialPair (x0 : x1 : _) =
     then 1
     else 0
 
+countWindowIncreases :: [Int] -> Int
+countWindowIncreases xs =
+  countIncreases ws
+  where
+    ws = (\(a, b, c) -> L.sum [a, b, c]) <$> generateWindows xs
+
 countIncreases :: [Int] -> Int
 countIncreases xs =
   L.sum $ L.map compareInitialPair (L.tails xs)

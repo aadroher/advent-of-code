@@ -29,3 +29,7 @@ spec = do
                          (240, 269, 0),
                          (269, 0, 0)
                        ]
+      describe "countWindowIncreases" $ do
+        it "[199, 200, 208, 210, 200, 207, 240, 269, 260, 263] -> 5" $ do
+          D1.countWindowIncreases [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+            `shouldBe` 5
