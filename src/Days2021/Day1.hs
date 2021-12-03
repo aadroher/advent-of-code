@@ -1,5 +1,3 @@
-{--# LANGUAGE NoImplicitPrelude #-}
-
 module Days2021.Day1 where
 
 import Import
