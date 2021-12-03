@@ -2,18 +2,9 @@
 
 module Days2021.Day1 where
 
-import qualified Data.List.Split as S
-import qualified Data.Maybe as M
 import Import
 import qualified RIO.List as L
-import qualified RIO.List.Partial as L'
 import qualified RIO.Text as T
-
--- data Window = Window
---   { windowIndex :: Int,
---     windowReadings :: (Int, Int, Int)
---   }
---   deriving (Eq, Ord, Show)
 
 generateWindows :: [Int] -> [(Int, Int, Int)]
 generateWindows [] = []
