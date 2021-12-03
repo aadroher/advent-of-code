@@ -16,9 +16,8 @@ generateWindows xs =
       _ -> (0, 0, 0)
 
 compareInitialPair :: [Int] -> Int
-compareInitialPair [] = 0
-compareInitialPair [_] = 0
 compareInitialPair (x0 : x1 : _) = bool 0 1 (x0 < x1)
+compareInitialPair _ = 0
 
 countWindowIncreases :: [Int] -> Int
 countWindowIncreases xs =

@@ -3,7 +3,6 @@
 
 module Days2021Spec (spec) where
 
--- import Days2021.Day1 (Window)
 import qualified Days2021.Day1 as D1
 import Import
 import Test.Hspec
