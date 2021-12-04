@@ -8,6 +8,8 @@ import qualified RIO.Text as T
 
 type Position = (Int, Int)
 
+type Bearing = (Int, Position)
+
 data Command = F Int | U Int | D Int
   deriving (Eq, Show)
 
@@ -17,11 +19,17 @@ parseCommand (T.stripPrefix "up " -> Just ds) = U (read $ T.unpack ds)
 parseCommand (T.stripPrefix "down " -> Just ds) = D (read $ T.unpack ds)
 parseCommand _ = undefined
 
-move :: Position -> [Command] -> Position
-move p [] = p
-move (x, y) (F n : cs) = move (x + n, y) cs
-move (x, y) (U n : cs) = move (x, y - n) cs
-move (x, y) (D n : cs) = move (x, y + n) cs
+stepMove :: Position -> [Command] -> Position
+stepMove p [] = p
+stepMove (x, y) (F n : cs) = stepMove (x + n, y) cs
+stepMove (x, y) (U n : cs) = stepMove (x, y - n) cs
+stepMove (x, y) (D n : cs) = stepMove (x, y + n) cs
+
+bearingMove :: Bearing -> [Command] -> Bearing
+bearingMove p [] = p
+bearingMove (a, (x, y)) (F n : cs) = bearingMove (a, (x + n, y + (a * n))) cs
+bearingMove (a, (x, y)) (U n : cs) = bearingMove (a - n, (x, y)) cs
+bearingMove (a, (x, y)) (D n : cs) = bearingMove (a + n, (x, y)) cs
 
 loadCommands :: FilePath -> IO [Command]
 loadCommands f = do
@@ -36,4 +44,4 @@ calculateResult f p = do
   pure $ (T.pack . show) (x * y)
 
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult (move (0, 0))
+calculateFirstResult = calculateResult (stepMove (0, 0))
