@@ -5,6 +5,7 @@ module Days2021.Day2 where
 
 import Import
 import qualified RIO.Text as T
+import Util (calculateResult)
 
 type Position = (Int, Int)
 
@@ -41,19 +42,8 @@ bearingResult cs = x * y
   where
     (_, (x, y)) = bearingMove (0, (0, 0)) cs
 
-loadCommands :: FilePath -> IO [Command]
-loadCommands f = do
-  fileContents <- readFileUtf8 f
-  let cs = parseCommand <$> T.lines fileContents
-  pure cs
-
-calculateResult :: ([Command] -> Int) -> FilePath -> IO Text
-calculateResult f p = do
-  cs <- loadCommands p
-  pure $ (T.pack . show) $ f cs
-
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult stepsResult
+calculateFirstResult = calculateResult parseCommand stepsResult
 
 calculateSecondResult :: FilePath -> IO Text
-calculateSecondResult = calculateResult bearingResult
+calculateSecondResult = calculateResult parseCommand bearingResult
