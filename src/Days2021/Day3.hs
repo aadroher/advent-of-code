@@ -10,6 +10,8 @@ import qualified RIO.Text as T
 data Bit = Zero | One
   deriving (Eq, Show)
 
+data RateType = Gamma | Epsilon
+
 type BinNum = (Bit, Bit, Bit, Bit, Bit)
 
 bitToFloat :: Floating a => Bit -> a
@@ -38,8 +40,8 @@ getColumnAt i bns = sel <$> bns
       4 -> S.sel5
       _ -> error "Index out of bounds"
 
-calculateGammaRate :: [BinNum] -> BinNum
-calculateGammaRate bs =
+calculateRate :: ([Bit] -> Bit) -> [BinNum] -> BinNum
+calculateRate agg bs =
   ( colAgg 0,
     colAgg 1,
     colAgg 2,
@@ -47,18 +49,13 @@ calculateGammaRate bs =
     colAgg 4
   )
   where
-    colAgg = \i -> getMostCommon $ getColumnAt i bs
+    colAgg = \i -> agg $ getColumnAt i bs
+
+calculateGammaRate :: [BinNum] -> BinNum
+calculateGammaRate = calculateRate getMostCommon
 
 calculateEpsilonRate :: [BinNum] -> BinNum
-calculateEpsilonRate bs =
-  ( colAgg 0,
-    colAgg 1,
-    colAgg 2,
-    colAgg 3,
-    colAgg 4
-  )
-  where
-    colAgg = \i -> getMostCommon $ getColumnAt i bs
+calculateEpsilonRate = calculateRate getLeastCommon
 
 parseBit :: Char -> Bit
 parseBit '0' = Zero
