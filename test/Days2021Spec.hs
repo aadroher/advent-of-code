@@ -79,11 +79,37 @@ spec = do
           (D3.binNumToInt . D3.getEpsilonRate) bitNums `shouldBe` 9
       describe "filterByMostCommon" $ do
         it "00100, 11110, 10110, 10111, 10101, 01111, 00111, 11100, 10000, 11001, 00010, 01010 -> 23" $ do
-          let bitNumStrings = ["00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010"]
+          let bitNumStrings =
+                [ "00100",
+                  "11110",
+                  "10110",
+                  "10111",
+                  "10101",
+                  "01111",
+                  "00111",
+                  "11100",
+                  "10000",
+                  "11001",
+                  "00010",
+                  "01010"
+                ]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByMostCommon 0 bitNums `shouldBe` [23]
       describe "filterByLeastCommon" $ do
         it "00100, 11110, 10110, 10111, 10101, 01111, 00111, 11100, 10000, 11001, 00010, 01010 -> 10" $ do
-          let bitNumStrings = ["00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010"]
+          let bitNumStrings =
+                [ "00100",
+                  "11110",
+                  "10110",
+                  "10111",
+                  "10101",
+                  "01111",
+                  "00111",
+                  "11100",
+                  "10000",
+                  "11001",
+                  "00010",
+                  "01010"
+                ]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByLeastCommon 0 bitNums `shouldBe` [10]

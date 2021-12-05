@@ -93,7 +93,7 @@ filterByMostCommon i bns =
 filterByLeastCommon :: Int -> [BinNum] -> [BinNum]
 filterByLeastCommon _ [bn] = [bn]
 filterByLeastCommon i bns =
-  filterByMostCommon (i + 1) $
+  filterByLeastCommon (i + 1) $
     L.filter (\bn -> bn !! i == mostCommon) bns
   where
     epsilon = getEpsilonRate bns
