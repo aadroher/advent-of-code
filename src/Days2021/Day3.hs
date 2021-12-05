@@ -10,13 +10,27 @@ import qualified RIO.Text as T
 data Bit = Zero | One
   deriving (Eq, Show)
 
-data RateType = Gamma | Epsilon
-
 type BinNum = (Bit, Bit, Bit, Bit, Bit)
+
+parseBit :: Char -> Bit
+parseBit '0' = Zero
+parseBit '1' = One
+parseBit _ = undefined
+
+parseBinNum :: Text -> BinNum
+parseBinNum t = (b0, b1, b2, b3, b4)
+  where
+    [b0, b1, b2, b3, b4] = parseBit <$> T.unpack t
 
 bitToFloat :: Floating a => Bit -> a
 bitToFloat Zero = 0.0
 bitToFloat One = 1.0
+
+binNumToInt :: BinNum -> Int
+binNumToInt (b0, b1, b2, b3, b4) =
+  sum $
+    (\(i, b) -> round (bitToFloat b) * 2 ^ i)
+      <$> zip [0 ..] (L.reverse [b0, b1, b2, b3, b4])
 
 getCommonalityByComparator :: Floating a => (a -> a -> Bool) -> [Bit] -> Bit
 getCommonalityByComparator comp bs =
@@ -24,10 +38,10 @@ getCommonalityByComparator comp bs =
    in bool Zero One (avg `comp` 0.5)
 
 getLeastCommon :: [Bit] -> Bit
-getLeastCommon = getCommonalityByComparator (>)
+getLeastCommon = getCommonalityByComparator (<)
 
 getMostCommon :: [Bit] -> Bit
-getMostCommon = getCommonalityByComparator (<)
+getMostCommon = getCommonalityByComparator (>)
 
 getColumnAt :: Int -> [BinNum] -> [Bit]
 getColumnAt i bns = sel <$> bns
@@ -51,18 +65,8 @@ calculateRate agg bs =
   where
     colAgg = \i -> agg $ getColumnAt i bs
 
-calculateGammaRate :: [BinNum] -> BinNum
-calculateGammaRate = calculateRate getMostCommon
+getGammaRate :: [BinNum] -> BinNum
+getGammaRate = calculateRate getMostCommon
 
-calculateEpsilonRate :: [BinNum] -> BinNum
-calculateEpsilonRate = calculateRate getLeastCommon
-
-parseBit :: Char -> Bit
-parseBit '0' = Zero
-parseBit '1' = One
-parseBit _ = undefined
-
-parseBinNum :: Text -> BinNum
-parseBinNum t = (b0, b1, b2, b3, b4)
-  where
-    [b0, b1, b2, b3, b4] = parseBit <$> T.unpack t
+getEpsilonRate :: [BinNum] -> BinNum
+getEpsilonRate = calculateRate getLeastCommon
