@@ -2,16 +2,19 @@
 
 module Days2021.Day3 where
 
+import qualified Data.List as L
+import qualified Data.List as L'
 import Data.Tuple.Select as S
 import Import
 import qualified RIO.List as L
+import qualified RIO.List.Partial ((!!))
 import qualified RIO.Text as T
 import Util (calculateResult)
 
 data Bit = Zero | One
   deriving (Eq, Show)
 
-type BinNum = (Bit, Bit, Bit, Bit, Bit)
+type BinNum = [Bit]
 
 parseBit :: Char -> Bit
 parseBit '0' = Zero
@@ -19,20 +22,17 @@ parseBit '1' = One
 parseBit _ = undefined
 
 parseBinNum :: Text -> BinNum
-parseBinNum t =
-  case parseBit <$> T.unpack t of
-    [b0, b1, b2, b3, b4] -> (b0, b1, b2, b3, b4)
-    _ -> error "Could not parse num"
+parseBinNum t = parseBit <$> T.unpack t
 
 bitToFloat :: Floating a => Bit -> a
 bitToFloat Zero = 0.0
 bitToFloat One = 1.0
 
 binNumToInt :: BinNum -> Int
-binNumToInt (b0, b1, b2, b3, b4) =
+binNumToInt bn =
   sum $
     (\(i, b) -> round (bitToFloat b) * 2 ^ i)
-      <$> zip [0 ..] (L.reverse [b0, b1, b2, b3, b4])
+      <$> zip [0 ..] (L.reverse bn)
 
 getCommonalityByComparator :: Floating a => (a -> a -> Bool) -> [Bit] -> Bit
 getCommonalityByComparator comp bs =
@@ -46,26 +46,13 @@ getMostCommon :: [Bit] -> Bit
 getMostCommon = getCommonalityByComparator (>)
 
 getColumnAt :: Int -> [BinNum] -> [Bit]
-getColumnAt i bns = sel <$> bns
-  where
-    sel = case i of
-      0 -> S.sel1
-      1 -> S.sel2
-      2 -> S.sel3
-      3 -> S.sel4
-      4 -> S.sel5
-      _ -> error "Index out of bounds"
+getColumnAt i bns = (!! i) <$> bns
 
 calculateRate :: ([Bit] -> Bit) -> [BinNum] -> BinNum
 calculateRate agg bs =
-  ( colAgg 0,
-    colAgg 1,
-    colAgg 2,
-    colAgg 3,
-    colAgg 4
-  )
-  where
-    colAgg = \i -> agg $ getColumnAt i bs
+  let colAgg = \i -> agg $ getColumnAt i bs
+   in let colWidth = L.length $ L'.head bs
+       in (colAgg <$> L.init [0 .. colWidth])
 
 getGammaRate :: [BinNum] -> BinNum
 getGammaRate = calculateRate getMostCommon
