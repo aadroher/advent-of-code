@@ -6,6 +6,7 @@ import Data.Tuple.Select as S
 import Import
 import qualified RIO.List as L
 import qualified RIO.Text as T
+import Util (calculateResult)
 
 data Bit = Zero | One
   deriving (Eq, Show)
@@ -18,9 +19,10 @@ parseBit '1' = One
 parseBit _ = undefined
 
 parseBinNum :: Text -> BinNum
-parseBinNum t = (b0, b1, b2, b3, b4)
-  where
-    [b0, b1, b2, b3, b4] = parseBit <$> T.unpack t
+parseBinNum t =
+  case parseBit <$> T.unpack t of
+    [b0, b1, b2, b3, b4] -> (b0, b1, b2, b3, b4)
+    _ -> error "Could not parse num"
 
 bitToFloat :: Floating a => Bit -> a
 bitToFloat Zero = 0.0
@@ -70,3 +72,12 @@ getGammaRate = calculateRate getMostCommon
 
 getEpsilonRate :: [BinNum] -> BinNum
 getEpsilonRate = calculateRate getLeastCommon
+
+getRatesProduct :: [BinNum] -> Int
+getRatesProduct bs = gamma * epsilon
+  where
+    gamma = binNumToInt $ getGammaRate bs
+    epsilon = binNumToInt $ getEpsilonRate bs
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult = calculateResult parseBinNum getRatesProduct
