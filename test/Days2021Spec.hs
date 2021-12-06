@@ -260,17 +260,22 @@ spec = do
         let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
         it "returns 4512 for the previous winning board" $ do
           D4.getScore sequenceToWinningMove b `shouldBe` 4512
-
--- it "parses 22" $ do
---   D4.parseFigure "2" `shouldBe` (Right 2)
--- describe "parseBoard" $ do
---   it "parses board" $ do
---     let t =
---           "22 13 17 11  0\n\
---           \ 8  2 23  4 24\n\
---           \21  9 14 16  7\n\
---           \ 6 10  3 18  5\n\
---           \ 1 12 20 15 19"
---     let board = D4.parseBoard t
---     pPrint board
---     board `shouldBe` [[3, 4]]
+      describe "parseFigure" $ do
+        it "parses 22" $ do
+          D4.parseFigure "22" `shouldBe` 22
+      describe "parseBoard" $ do
+        it "parses board" $ do
+          let t =
+                "22 13 17 11  0\n\
+                \ 8  2 23  4 24\n\
+                \21  9 14 16  7\n\
+                \ 6 10  3 18  5\n\
+                \ 1 12 20 15 19"
+          let expectedBoard =
+                [ [22, 13, 17, 11, 0],
+                  [8, 2, 23, 4, 24],
+                  [21, 9, 14, 16, 7],
+                  [6, 10, 3, 18, 5],
+                  [1, 12, 20, 15, 19]
+                ]
+          D4.parseBoard t `shouldBe` expectedBoard

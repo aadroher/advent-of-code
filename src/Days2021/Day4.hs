@@ -7,8 +7,10 @@ import Import
 import qualified RIO.List as L
 import RIO.List.Partial ((!!))
 import qualified RIO.List.Partial as L'
+import RIO.Partial (read)
 import qualified RIO.Prelude as P
 import qualified RIO.Text as T
+import qualified RIO.Text.Partial as T'
 import Text.Pretty.Simple (pPrint)
 
 type DrawnNummber = Int
@@ -70,7 +72,21 @@ play g ns = case getWinningBoard g of
           gameBoards = gameBoards g
         }
 
--- parseFigure :: Text -> Either String Int
+parseFigure :: String -> Int
+parseFigure = read
+
+parseBoard :: String -> Board
+parseBoard s =
+  ( \stringRow ->
+      parseFigure . T.unpack <$> stringRow
+  )
+    <$> stringRows
+  where
+    filterEmptyText = L.filter (\token -> token /= " " && token /= "")
+    stringRows =
+      filterEmptyText . T.split (== ' ')
+        <$> T.lines (T.pack s)
+
 -- parseFigure t = case (P.readMaybe . P.show) t :: Maybe Int of
 --   Just n -> Right n
 --   Nothing -> Left ("Could not parse: " ++ P.show t)
