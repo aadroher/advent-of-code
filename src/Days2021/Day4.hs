@@ -19,6 +19,7 @@ data Game = Game
   { gameDrawnNumbers :: [DrawnNummber],
     gameBoards :: [Board]
   }
+  deriving (Eq, Show)
 
 boardSide :: Int
 boardSide = 5
@@ -51,11 +52,11 @@ getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
 
 play :: Game -> [Int] -> Game
 play g [] = g
-play g (n : ns) = case getWinningBoard newGame of
+play g ns = case getWinningBoard g of
   Just _ -> g
-  Nothing -> play newGame ns
+  Nothing -> play newGame (L'.tail ns)
   where
-    newDrawnNumbers = gameDrawnNumbers g ++ [n]
+    newDrawnNumbers = gameDrawnNumbers g ++ [L'.head ns]
     newGame =
       Game
         { gameDrawnNumbers = newDrawnNumbers,
