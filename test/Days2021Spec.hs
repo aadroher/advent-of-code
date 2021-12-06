@@ -232,7 +232,21 @@ spec = do
           it "returns a new game with all the called numbers as drawn numbers" $ do
             let finalGame = D4.play game numbersToCall
             D4.gameDrawnNumbers finalGame `shouldBe` numbersToCall
-          it "returns a new game with no winning board" $ do
+          it "returns a new game with the winning board" $ do
+            let finalGame = D4.play game numbersToCall
+            D4.getWinningBoard finalGame `shouldBe` Just b2
+        describe "when the sequence of called numbers go beyond the winning move for a board" $ do
+          let game =
+                Game
+                  { gameDrawnNumbers = [],
+                    gameBoards = [b0, b1, b2]
+                  }
+          let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1]
+          let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
+          it "returns a new game with only the sequence to the winning move" $ do
+            let finalGame = D4.play game numbersToCall
+            D4.gameDrawnNumbers finalGame `shouldBe` sequenceToWinningMove
+          it "returns a new game with the winning board" $ do
             let finalGame = D4.play game numbersToCall
             D4.getWinningBoard finalGame `shouldBe` Just b2
 
