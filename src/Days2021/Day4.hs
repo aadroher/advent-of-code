@@ -3,6 +3,7 @@
 
 module Days2021.Day4 where
 
+import qualified Data.List.Split as S
 import Import
 import qualified RIO.List as L
 import RIO.List.Partial ((!!))
@@ -75,6 +76,9 @@ play g ns = case getWinningBoard g of
 parseFigure :: String -> Int
 parseFigure = read
 
+parseCalledNumbers :: String -> [Int]
+parseCalledNumbers s = parseFigure . T.unpack <$> T.split (== ',') (T.pack s)
+
 parseBoard :: String -> Board
 parseBoard s =
   ( \stringRow ->
@@ -87,20 +91,26 @@ parseBoard s =
       filterEmptyText . T.split (== ' ')
         <$> T.lines (T.pack s)
 
--- parseFigure t = case (P.readMaybe . P.show) t :: Maybe Int of
---   Just n -> Right n
---   Nothing -> Left ("Could not parse: " ++ P.show t)
+parseInput :: String -> IO ([Int], [Board])
+parseInput s = do
+  let textLines = T.lines (T.pack s)
+  let calledNumbers = parseCalledNumbers $ T.unpack $ L'.head textLines
+  let boardTextLines = S.chunksOf 5 (L.filter (/= "") $ L'.tail textLines)
+  let textBoards = T.unpack . T.intercalate "\n" <$> boardTextLines
+  let boards = parseBoard <$> textBoards
+  pure (calledNumbers, boards)
 
--- parseBoard :: Text -> Board
--- parseBoard t =
---   ( \l ->
---       -- error $ show l
---       ( \d -> case parseFigure d of
---           Right n -> n
---           Left errorString -> error errorString
---       )
---         <$> l
---   )
---     <$> ls
---   where
---     ls = L.filter (\s -> s /= " " && s /= "") . T.split (== ' ') <$> T.lines t
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult filePath = do
+  fileContents <- readFileUtf8 filePath
+  (calledNumbers, boards) <- (parseInput . T.unpack) fileContents
+  let initialGame =
+        Game
+          { gameDrawnNumbers = [],
+            gameBoards = boards
+          }
+  let endGame = play initialGame calledNumbers
+  let sequenceToWinningMove = gameDrawnNumbers endGame
+  case getWinningBoard endGame of
+    Nothing -> pure "No solution!"
+    Just b -> pure $ (T.pack . show) $ getScore sequenceToWinningMove b

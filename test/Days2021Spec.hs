@@ -260,6 +260,9 @@ spec = do
         let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
         it "returns 4512 for the previous winning board" $ do
           D4.getScore sequenceToWinningMove b `shouldBe` 4512
+      describe "parseCalledNumbers" $ do
+        it "parses 7,4,9,5,11,17,23,2,0,14,21,24" $ do
+          D4.parseCalledNumbers "7,4,9,5,11,17,23,2,0,14,21,24" `shouldBe` [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
       describe "parseFigure" $ do
         it "parses 22" $ do
           D4.parseFigure "22" `shouldBe` 22
