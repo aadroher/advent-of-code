@@ -8,6 +8,7 @@ import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
+import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
 import Import
 import Test.Hspec
@@ -117,14 +118,86 @@ spec = do
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByLeastCommon 0 bitNums `shouldBe` [10]
     describe "exercise 4.1" $ do
-      describe "parseBoard" $ do
-        it "parses board" $ do
-          let t =
-                "22 13 17 11  0\n\
-                \ 8  2 23  4 24\n\
-                \21  9 14 16  7\n\
-                \ 6 10  3 18  5\n\
-                \ 1 12 20 15 19"
-          let board = D4.parseBoard t
-          pPrint board
-          board `shouldBe` [[3, 4]]
+      let board =
+            [ [22, 13, 17, 11, 0],
+              [8, 2, 23, 4, 24],
+              [21, 9, 14, 16, 7],
+              [6, 10, 3, 18, 5],
+              [1, 12, 20, 15, 19]
+            ]
+      describe "getColumn" $ do
+        it "retrieves the right column" $ do
+          D4.getColumn board 2 `shouldBe` [17, 23, 14, 3, 20]
+      describe "isWinningLine" $ do
+        let line = [17, 23, 14, 3, 20]
+        it "returns false for no called numbers" $ do
+          let calledNumbers = []
+          D4.isWinningLine calledNumbers line `shouldBe` False
+      describe "isWinningBoard" $ do
+        it "returns false for no called numbers" $ do
+          let calledNumbers = []
+          D4.isWinningBoard calledNumbers board `shouldBe` False
+        it "returns false for a partial match" $ do
+          let calledNumbers = [17, 14, 3, 5, 19]
+          D4.isWinningBoard calledNumbers board `shouldBe` False
+        it "returns true for a matched row" $ do
+          let calledNumbers = [8, 2, 23, 4, 24]
+          D4.isWinningBoard calledNumbers board `shouldBe` True
+        it "returns true for a matched column" $ do
+          let calledNumbers = [17, 23, 14, 3, 20]
+          D4.isWinningBoard calledNumbers board `shouldBe` True
+        it "returns true for a matched row with additional numbers" $ do
+          let calledNumbers = [8, 17, 2, 33, 21, 23, 4, 19, 24]
+          D4.isWinningBoard calledNumbers board `shouldBe` True
+      describe "getWinningBoard" $ do
+        let b0 =
+              [ [22, 13, 17, 11, 0],
+                [8, 2, 23, 4, 24],
+                [21, 9, 14, 16, 7],
+                [6, 10, 3, 18, 5],
+                [1, 12, 20, 15, 19]
+              ]
+        let b1 =
+              [ [3, 15, 0, 2, 22],
+                [9, 18, 13, 17, 5],
+                [19, 8, 7, 25, 23],
+                [20, 11, 10, 24, 4],
+                [14, 21, 16, 12, 6]
+              ]
+        let b2 =
+              [ [14, 21, 17, 24, 4],
+                [10, 16, 15, 9, 19],
+                [18, 8, 23, 26, 20],
+                [22, 11, 13, 6, 5],
+                [2, 0, 12, 3, 7]
+              ]
+        it "returns no board if none is winning" $ do
+          let calledNumbers = [7, 4, 9, 5, 11]
+          let game =
+                Game
+                  { gameDrawnNumbers = calledNumbers,
+                    gameBoards = [b0, b1, b2]
+                  }
+          D4.getWinningBoard game `shouldBe` Nothing
+        it "returns the first winning board" $ do
+          let calledNumbers = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
+          let game =
+                Game
+                  { gameDrawnNumbers = calledNumbers,
+                    gameBoards = [b0, b1, b2]
+                  }
+          D4.getWinningBoard game `shouldBe` Just b2
+
+-- it "parses 22" $ do
+--   D4.parseFigure "2" `shouldBe` (Right 2)
+-- describe "parseBoard" $ do
+--   it "parses board" $ do
+--     let t =
+--           "22 13 17 11  0\n\
+--           \ 8  2 23  4 24\n\
+--           \21  9 14 16  7\n\
+--           \ 6 10  3 18  5\n\
+--           \ 1 12 20 15 19"
+--     let board = D4.parseBoard t
+--     pPrint board
+--     board `shouldBe` [[3, 4]]
