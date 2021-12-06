@@ -1,11 +1,14 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+
 -- | Silly utility module, used to demonstrate how to write a test
 -- case.
-module Util
-  ( plus2
-  ) where
+module Util where
 
 import RIO
+import qualified RIO.Text as T
 
-plus2 :: Int -> Int
-plus2 = (+ 2)
+calculateResult :: Show b => (Text -> a) -> ([a] -> b) -> FilePath -> IO Text
+calculateResult parse process filePath = do
+  fileContents <- readFileUtf8 filePath
+  let inputValues = parse <$> T.lines fileContents
+  pure $ (T.pack . show) $ process inputValues
