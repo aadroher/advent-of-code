@@ -8,8 +8,10 @@ import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
+import qualified Days2021.Day4 as D4
 import Import
 import Test.Hspec
+import Text.Pretty.Simple (pPrint)
 
 spec :: Spec
 spec = do
@@ -77,6 +79,7 @@ spec = do
           let bitNumStrings = ["00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010"]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           (D3.binNumToInt . D3.getEpsilonRate) bitNums `shouldBe` 9
+    describe "exercise 3.2" $ do
       describe "filterByMostCommon" $ do
         it "00100, 11110, 10110, 10111, 10101, 01111, 00111, 11100, 10000, 11001, 00010, 01010 -> 23" $ do
           let bitNumStrings =
@@ -113,3 +116,15 @@ spec = do
                 ]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByLeastCommon 0 bitNums `shouldBe` [10]
+    describe "exercise 4.1" $ do
+      describe "parseBoard" $ do
+        it "parses board" $ do
+          let t =
+                "22 13 17 11  0\n\
+                \ 8  2 23  4 24\n\
+                \21  9 14 16  7\n\
+                \ 6 10  3 18  5\n\
+                \ 1 12 20 15 19"
+          let board = D4.parseBoard t
+          pPrint board
+          board `shouldBe` [[3, 4]]
