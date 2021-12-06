@@ -45,7 +45,14 @@ isWinningBoard ns b =
     cols = getColumn b <$> range
 
 getScore :: [DrawnNummber] -> Board -> Int
-getScore = undefined
+getScore ns b =
+  L.sum unmarkedNums * lastCalledNum
+  where
+    unmarkedNums =
+      L.filter
+        (\boardNum -> not $ L.elem boardNum ns)
+        (concat b)
+    lastCalledNum = L'.last ns
 
 getWinningBoard :: Game -> Maybe Board
 getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)

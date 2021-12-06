@@ -249,6 +249,17 @@ spec = do
           it "returns a new game with the winning board" $ do
             let finalGame = D4.play game numbersToCall
             D4.getWinningBoard finalGame `shouldBe` Just b2
+      describe "getScore" $ do
+        let b =
+              [ [14, 21, 17, 24, 4],
+                [10, 16, 15, 9, 19],
+                [18, 8, 23, 26, 20],
+                [22, 11, 13, 6, 5],
+                [2, 0, 12, 3, 7]
+              ]
+        let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
+        it "returns 4512 for the previous winning board" $ do
+          D4.getScore sequenceToWinningMove b `shouldBe` 4512
 
 -- it "parses 22" $ do
 --   D4.parseFigure "2" `shouldBe` (Right 2)
