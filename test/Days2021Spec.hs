@@ -10,6 +10,7 @@ import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
 import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
+import qualified Days2021.Day5 as D5
 import Import
 import qualified RIO.Set as S
 import Test.Hspec
@@ -118,7 +119,7 @@ spec = do
                 ]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByLeastCommon 0 bitNums `shouldBe` [10]
-    describe "exercise 4.1" $ do
+    describe "exercise 4" $ do
       let board =
             [ [22, 13, 17, 11, 0],
               [8, 2, 23, 4, 24],
@@ -209,3 +210,9 @@ spec = do
                   [1, 12, 20, 15, 19]
                 ]
           D4.parseBoard t `shouldBe` expectedBoard
+    fdescribe "exercise 5" $ do
+      describe "expandLinePoints" $ do
+        it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
+          D5.expandLinePoints ((1, 1), (1, 3)) `shouldBe` [(1, 1), (1, 2), (1, 3)]
+        it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
+          D5.expandLinePoints ((9,7), (7,7))  `shouldBe` [(9,7), (8,7), (7,7)]
