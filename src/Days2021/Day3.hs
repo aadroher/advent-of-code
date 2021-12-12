@@ -38,8 +38,8 @@ binNumToInt bn =
     (\(i, b) -> bitToIntegral b * 2 ^ i)
       <$> zip [0 ..] (L.reverse bn)
 
-countOccurrences :: [Bit] -> ((Bit, Int), (Bit, Int))
-countOccurrences bs = ((Zero, numZeroes), (One, numOnes))
+countOccurrences :: [Bit] -> (Int, Int)
+countOccurrences bs = (numZeroes, numOnes)
   where
     numOnes = L.sum (bitToIntegral <$> bs)
     numZeroes = L.length bs - numOnes
@@ -50,7 +50,7 @@ getLeastCommon bs =
     then Zero
     else One
   where
-    ((_, numZeroes), (_, numOnes)) = countOccurrences bs
+    (numZeroes, numOnes) = countOccurrences bs
 
 getMostCommon :: [Bit] -> Bit
 getMostCommon bs =
@@ -58,7 +58,7 @@ getMostCommon bs =
     then One
     else Zero
   where
-    ((_, numZeroes), (_, numOnes)) = countOccurrences bs
+    (numZeroes, numOnes) = countOccurrences bs
 
 getColumnAt :: Int -> [BinNum] -> [Bit]
 getColumnAt i bns = (!! i) <$> bns
@@ -76,10 +76,10 @@ getEpsilonRate :: [BinNum] -> BinNum
 getEpsilonRate = calculateRate getLeastCommon
 
 getRatesProduct :: [BinNum] -> Int
-getRatesProduct bs = gamma * epsilon
+getRatesProduct bs = L.product $ binNumToInt <$> [gamma, epsilon]
   where
-    gamma = binNumToInt $ getGammaRate bs
-    epsilon = binNumToInt $ getEpsilonRate bs
+    gamma = getGammaRate bs
+    epsilon = getEpsilonRate bs
 
 filterByMostCommon :: Int -> [BinNum] -> [BinNum]
 filterByMostCommon _ [bn] = [bn]
@@ -90,6 +90,9 @@ filterByMostCommon i bns =
     gamma = getGammaRate bns
     mostCommon = gamma !! i
 
+getOxigenGeneratorRating :: [BinNum] -> BinNum
+getOxigenGeneratorRating = L'.head . filterByMostCommon 0
+
 filterByLeastCommon :: Int -> [BinNum] -> [BinNum]
 filterByLeastCommon _ [bn] = [bn]
 filterByLeastCommon i bns =
@@ -99,5 +102,17 @@ filterByLeastCommon i bns =
     epsilon = getEpsilonRate bns
     mostCommon = epsilon !! i
 
+getCO2ScrubberRating :: [BinNum] -> BinNum
+getCO2ScrubberRating = L'.head . filterByLeastCommon 0
+
+getRatingsProduct :: [BinNum] -> Int
+getRatingsProduct bs = L.product $ binNumToInt <$> [oxigenGenerator, co2scrubber]
+  where
+    oxigenGenerator = getOxigenGeneratorRating bs
+    co2scrubber = getCO2ScrubberRating bs
+
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parseBinNum getRatesProduct
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parseBinNum getRatingsProduct

@@ -9,6 +9,7 @@ import qualified Days2019.Day3 as D3of2019
 import qualified Days2021.Day1 as D1of2021
 import qualified Days2021.Day2 as D2of2021
 import qualified Days2021.Day3 as D3of2021
+import qualified Days2021.Day4 as D4of2021
 import Import
 import qualified RIO.List as L
 import qualified RIO.Text as T
@@ -24,6 +25,9 @@ getSolver "21-1-2" = D1of2021.calculateSecondResult
 getSolver "21-2-1" = D2of2021.calculateFirstResult
 getSolver "21-2-2" = D2of2021.calculateSecondResult
 getSolver "21-3-1" = D3of2021.calculateFirstResult
+getSolver "21-3-2" = D3of2021.calculateSecondResult
+getSolver "21-4-1" = D4of2021.calculateFirstResult
+getSolver "21-4-2" = D4of2021.calculateSecondResult
 getSolver _ = undefined
 
 getFilePath :: String -> FilePath
