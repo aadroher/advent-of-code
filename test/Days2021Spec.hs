@@ -211,8 +211,16 @@ spec = do
                 ]
           D4.parseBoard t `shouldBe` expectedBoard
     fdescribe "exercise 5" $ do
+      describe "parseLine" $ do
+        it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
+          D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
       describe "expandLinePoints" $ do
         it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
           D5.expandLinePoints ((1, 1), (1, 3)) `shouldBe` [(1, 1), (1, 2), (1, 3)]
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
-          D5.expandLinePoints ((9,7), (7,7))  `shouldBe` [(9,7), (8,7), (7,7)]
+          D5.expandLinePoints ((9, 7), (7, 7)) `shouldBe` [(9, 7), (8, 7), (7, 7)]
+      describe "isOrthogonal" $ do
+        it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
+          D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
+        it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
+          D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
