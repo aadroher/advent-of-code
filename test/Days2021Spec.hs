@@ -150,153 +150,7 @@ spec = do
         it "returns true for a matched row with additional numbers" $ do
           let calledNumbers = [8, 17, 2, 33, 21, 23, 4, 19, 24]
           D4.isWinningBoard calledNumbers board `shouldBe` True
-      describe "getWinningBoard" $ do
-        let b0 =
-              [ [22, 13, 17, 11, 0],
-                [8, 2, 23, 4, 24],
-                [21, 9, 14, 16, 7],
-                [6, 10, 3, 18, 5],
-                [1, 12, 20, 15, 19]
-              ]
-        let b1 =
-              [ [3, 15, 0, 2, 22],
-                [9, 18, 13, 17, 5],
-                [19, 8, 7, 25, 23],
-                [20, 11, 10, 24, 4],
-                [14, 21, 16, 12, 6]
-              ]
-        let b2 =
-              [ [14, 21, 17, 24, 4],
-                [10, 16, 15, 9, 19],
-                [18, 8, 23, 26, 20],
-                [22, 11, 13, 6, 5],
-                [2, 0, 12, 3, 7]
-              ]
-        it "returns no board if none is winning" $ do
-          let calledNumbers = [7, 4, 9, 5, 11]
-          let game =
-                Game
-                  { gameDrawnNumbers = calledNumbers,
-                    gameBoards = [b0, b1, b2]
-                  }
-          D4.getWinningBoard game `shouldBe` Nothing
-        it "returns the first winning board" $ do
-          let calledNumbers = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-          let game =
-                Game
-                  { gameDrawnNumbers = calledNumbers,
-                    gameBoards = [b0, b1, b2]
-                  }
-          D4.getWinningBoard game `shouldBe` Just b2
-      describe "getWinningBoards" $ do
-        let b0 =
-              [ [22, 13, 17, 11, 0],
-                [8, 2, 23, 4, 24],
-                [21, 9, 14, 16, 7],
-                [6, 10, 3, 18, 5],
-                [1, 12, 20, 15, 19]
-              ]
-        let b1 =
-              [ [3, 15, 0, 2, 22],
-                [9, 18, 13, 17, 5],
-                [19, 8, 7, 25, 23],
-                [20, 11, 10, 24, 4],
-                [14, 21, 16, 12, 6]
-              ]
-        let b2 =
-              [ [14, 21, 17, 24, 4],
-                [10, 16, 15, 9, 19],
-                [18, 8, 23, 26, 20],
-                [22, 11, 13, 6, 5],
-                [2, 0, 12, 3, 7]
-              ]
-        it "returns no board if none is winning" $ do
-          let calledNumbers = [7, 4, 9, 5, 11]
-          let game =
-                Game
-                  { gameDrawnNumbers = calledNumbers,
-                    gameBoards = [b0, b1, b2]
-                  }
-          D4.getWinningBoards game `shouldBe` []
-        it "returns the first winning board" $ do
-          let calledNumbers = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-          let game =
-                Game
-                  { gameDrawnNumbers = calledNumbers,
-                    gameBoards = [b0, b1, b2]
-                  }
-          D4.getWinningBoards game `shouldBe` [b2]
-        it "returns the all winning boards" $ do
-          let calledNumbers = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1]
-          let game =
-                Game
-                  { gameDrawnNumbers = calledNumbers,
-                    gameBoards = [b0, b1, b2]
-                  }
-          S.fromList (D4.getWinningBoards game) `shouldBe` S.fromList [b0, b1, b2]
-      describe "play" $ do
-        let b0 =
-              [ [22, 13, 17, 11, 0],
-                [8, 2, 23, 4, 24],
-                [21, 9, 14, 16, 7],
-                [6, 10, 3, 18, 5],
-                [1, 12, 20, 15, 19]
-              ]
-        let b1 =
-              [ [3, 15, 0, 2, 22],
-                [9, 18, 13, 17, 5],
-                [19, 8, 7, 25, 23],
-                [20, 11, 10, 24, 4],
-                [14, 21, 16, 12, 6]
-              ]
-        let b2 =
-              [ [14, 21, 17, 24, 4],
-                [10, 16, 15, 9, 19],
-                [18, 8, 23, 26, 20],
-                [22, 11, 13, 6, 5],
-                [2, 0, 12, 3, 7]
-              ]
-        describe "when there is no winning board yet" $ do
-          let game =
-                Game
-                  { gameDrawnNumbers = [],
-                    gameBoards = [b0, b1, b2]
-                  }
-          let numbersToCall = [7, 4, 9, 5, 11]
-          it "returns a new game with all the called numbers as drawn numbers" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.gameDrawnNumbers finalGame `shouldBe` numbersToCall
-          it "returns a new game with no winning board" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.getWinningBoard finalGame `shouldBe` Nothing
-        describe "when the sequence of called numbers end at the a winning move for a board" $ do
-          let game =
-                Game
-                  { gameDrawnNumbers = [],
-                    gameBoards = [b0, b1, b2]
-                  }
-          let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-          it "returns a new game with all the called numbers as drawn numbers" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.gameDrawnNumbers finalGame `shouldBe` numbersToCall
-          it "returns a new game with the winning board" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.getWinningBoard finalGame `shouldBe` Just b2
-        describe "when the sequence of called numbers go beyond the winning move for a board" $ do
-          let game =
-                Game
-                  { gameDrawnNumbers = [],
-                    gameBoards = [b0, b1, b2]
-                  }
-          let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1]
-          let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-          it "returns a new game with only the sequence to the winning move" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.gameDrawnNumbers finalGame `shouldBe` sequenceToWinningMove
-          it "returns a new game with the winning board" $ do
-            let finalGame = D4.play game numbersToCall
-            D4.getWinningBoard finalGame `shouldBe` Just b2
-      describe "callNumbers" $ do
+      describe "getWinningSequence" $ do
         let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1]
         let b0 =
               [ [22, 13, 17, 11, 0],
@@ -319,49 +173,9 @@ spec = do
                 [22, 11, 13, 6, 5],
                 [2, 0, 12, 3, 7]
               ]
-        fit "returns the winning boards in the right order" $ do
+        it "returns the winning boards in the right order" $ do
           let winningSequence = D4.getWinningSequence [b0, b1, b2] numbersToCall ([], [])
           winningSequence `shouldBe` [(b2, 4512), (b0, 2192), (b1, 1924)]
-      -- describe "when there is no winning board yet" $ do
-      --   let game =
-      --         Game
-      --           { gameDrawnNumbers = [],
-      --             gameBoards = [b0, b1, b2]
-      --           }
-      --   let numbersToCall = [7, 4, 9, 5, 11]
-      --   it "returns a new game with all the called numbers as drawn numbers" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.gameDrawnNumbers finalGame `shouldBe` numbersToCall
-      --   it "returns a new game with no winning board" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.getWinningBoard finalGame `shouldBe` Nothing
-      -- describe "when the sequence of called numbers end at the a winning move for a board" $ do
-      --   let game =
-      --         Game
-      --           { gameDrawnNumbers = [],
-      --             gameBoards = [b0, b1, b2]
-      --           }
-      --   let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-      --   it "returns a new game with all the called numbers as drawn numbers" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.gameDrawnNumbers finalGame `shouldBe` numbersToCall
-      --   it "returns a new game with the winning board" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.getWinningBoard finalGame `shouldBe` Just b2
-      -- describe "when the sequence of called numbers go beyond the winning move for a board" $ do
-      --   let game =
-      --         Game
-      --           { gameDrawnNumbers = [],
-      --             gameBoards = [b0, b1, b2]
-      --           }
-      --   let numbersToCall = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1]
-      --   let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
-      --   it "returns a new game with only the sequence to the winning move" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.gameDrawnNumbers finalGame `shouldBe` sequenceToWinningMove
-      --   it "returns a new game with the winning board" $ do
-      --     let finalGame = D4.play game numbersToCall
-      --     D4.getWinningBoard finalGame `shouldBe` Just b2
       describe "getScore" $ do
         let b =
               [ [14, 21, 17, 24, 4],
@@ -370,7 +184,7 @@ spec = do
                 [22, 11, 13, 6, 5],
                 [2, 0, 12, 3, 7]
               ]
-        let sequenceToWinningMove = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
+        let sequenceToWinningMove = reverse [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24]
         it "returns 4512 for the previous winning board" $ do
           D4.getScore sequenceToWinningMove b `shouldBe` 4512
       describe "parseCalledNumbers" $ do

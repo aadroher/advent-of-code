@@ -10,10 +10,7 @@ import qualified RIO.List as L
 import RIO.List.Partial ((!!))
 import qualified RIO.List.Partial as L'
 import RIO.Partial (read)
-import qualified RIO.Prelude as P
 import qualified RIO.Text as T
-import qualified RIO.Text.Partial as T'
-import Text.Pretty.Simple (pPrint)
 
 type DrawnNummber = Int
 
@@ -85,12 +82,6 @@ getScore ns b =
         (concat b)
     lastCalledNum = L'.head ns
 
-getWinningBoard :: Game -> Maybe Board
-getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
-
-getWinningBoards :: Game -> [Board]
-getWinningBoards g = L.filter (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
-
 getWinningSequence :: [Board] -> [Int] -> ([(Board, Int)], [Int]) -> [(Board, Int)]
 getWinningSequence _ [] (winners, _) = winners
 getWinningSequence playing (n : ns) (winners, drawn) =
@@ -101,30 +92,10 @@ getWinningSequence playing (n : ns) (winners, drawn) =
     newWinners = winners ++ ((\w -> (w, getScore newDrawn w)) <$> stepWinners)
     newPlaying = playing \\ stepWinners
 
-play :: Game -> [Int] -> Game
-play g [] = g
-play g ns = case getWinningBoard g of
-  Just _ -> g
-  Nothing -> play newGame (L'.tail ns)
-  where
-    newDrawnNumbers = gameDrawnNumbers g ++ [L'.head ns]
-    newGame =
-      Game
-        { gameDrawnNumbers = newDrawnNumbers,
-          gameBoards = gameBoards g
-        }
-
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult filePath = do
   fileContents <- readFileUtf8 filePath
   (calledNumbers, boards) <- (parseInput . T.unpack) fileContents
-  let initialGame =
-        Game
-          { gameDrawnNumbers = [],
-            gameBoards = boards
-          }
-  let endGame = play initialGame calledNumbers
-  let sequenceToWinningMove = gameDrawnNumbers endGame
   case getWinningSequence boards calledNumbers ([], []) of
     [] -> pure "No solution!"
     ((_, score) : _) -> pure $ (T.pack . show) score
@@ -133,13 +104,6 @@ calculateSecondResult :: FilePath -> IO Text
 calculateSecondResult filePath = do
   fileContents <- readFileUtf8 filePath
   (calledNumbers, boards) <- (parseInput . T.unpack) fileContents
-  let initialGame =
-        Game
-          { gameDrawnNumbers = [],
-            gameBoards = boards
-          }
-  let endGame = play initialGame calledNumbers
-  let sequenceToWinningMove = gameDrawnNumbers endGame
   case reverse $ getWinningSequence boards calledNumbers ([], []) of
     [] -> pure "No solution!"
     ((_, score) : _) -> pure $ (T.pack . show) score
