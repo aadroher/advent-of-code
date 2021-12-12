@@ -37,63 +37,6 @@ getColumn b i =
   where
     range = L'.init [0 .. boardSide]
 
-isWinningLine :: [DrawnNummber] -> [Int] -> Bool
-isWinningLine ns = L.all (`L.elem` ns)
-
-isWinningBoard :: [Int] -> Board -> Bool
-isWinningBoard ns b =
-  L.any (isWinningLine ns) (rows ++ cols)
-  where
-    range = L'.init [0 .. boardSide]
-    rows = getRow b <$> range
-    cols = getColumn b <$> range
-
-getScore :: [DrawnNummber] -> Board -> Int
-getScore ns b =
-  L.sum unmarkedNums * lastCalledNum
-  where
-    unmarkedNums =
-      L.filter
-        (\boardNum -> not $ L.elem boardNum ns)
-        (concat b)
-    lastCalledNum = L'.last ns
-
-getWinningBoard :: Game -> Maybe Board
-getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
-
-getWinningBoards :: Game -> [Board]
-getWinningBoards g = L.filter (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
-
-callNumbers :: [Board] -> [Int] -> [Int] -> [Board] -> [Board]
-callNumbers _ [] _ winners = winners
-callNumbers playing (n : ns) drawn winners =
-  callNumbers newPlaying ns newDrawn newWinners
-  where
-    newDrawn = n : drawn
-    newWinners = L.filter (isWinningBoard newDrawn) playing ++ winners
-    newPlaying = playing \\ newWinners
-
--- getWinningSequence :: Game -> [Board]
--- getWinningSequence g = foldl (b -> a -> b) [] $ gameDrawnNumbers g
---   where
---     addWinningBoards =
---       (\winningSequence n ->
---         let new
---       )
-
-play :: Game -> [Int] -> Game
-play g [] = g
-play g ns = case getWinningBoard g of
-  Just _ -> g
-  Nothing -> play newGame (L'.tail ns)
-  where
-    newDrawnNumbers = gameDrawnNumbers g ++ [L'.head ns]
-    newGame =
-      Game
-        { gameDrawnNumbers = newDrawnNumbers,
-          gameBoards = gameBoards g
-        }
-
 parseFigure :: String -> Int
 parseFigure = read
 
@@ -121,6 +64,56 @@ parseInput s = do
   let boards = parseBoard <$> textBoards
   pure (calledNumbers, boards)
 
+isWinningLine :: [DrawnNummber] -> [Int] -> Bool
+isWinningLine ns = L.all (`L.elem` ns)
+
+isWinningBoard :: [Int] -> Board -> Bool
+isWinningBoard ns b =
+  L.any (isWinningLine ns) (rows ++ cols)
+  where
+    range = L'.init [0 .. boardSide]
+    rows = getRow b <$> range
+    cols = getColumn b <$> range
+
+getScore :: [Int] -> Board -> Int
+getScore ns b =
+  L.sum unmarkedNums * lastCalledNum
+  where
+    unmarkedNums =
+      L.filter
+        (\boardNum -> not $ L.elem boardNum ns)
+        (concat b)
+    lastCalledNum = L'.head ns
+
+getWinningBoard :: Game -> Maybe Board
+getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
+
+getWinningBoards :: Game -> [Board]
+getWinningBoards g = L.filter (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
+
+getWinningSequence :: [Board] -> [Int] -> ([(Board, Int)], [Int]) -> [(Board, Int)]
+getWinningSequence _ [] (winners, _) = winners
+getWinningSequence playing (n : ns) (winners, drawn) =
+  getWinningSequence newPlaying ns (newWinners, newDrawn)
+  where
+    newDrawn = n : drawn
+    stepWinners = L.filter (isWinningBoard newDrawn) playing
+    newWinners = winners ++ ((\w -> (w, getScore newDrawn w)) <$> stepWinners)
+    newPlaying = playing \\ stepWinners
+
+play :: Game -> [Int] -> Game
+play g [] = g
+play g ns = case getWinningBoard g of
+  Just _ -> g
+  Nothing -> play newGame (L'.tail ns)
+  where
+    newDrawnNumbers = gameDrawnNumbers g ++ [L'.head ns]
+    newGame =
+      Game
+        { gameDrawnNumbers = newDrawnNumbers,
+          gameBoards = gameBoards g
+        }
+
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult filePath = do
   fileContents <- readFileUtf8 filePath
@@ -132,6 +125,21 @@ calculateFirstResult filePath = do
           }
   let endGame = play initialGame calledNumbers
   let sequenceToWinningMove = gameDrawnNumbers endGame
-  case getWinningBoard endGame of
-    Nothing -> pure "No solution!"
-    Just b -> pure $ (T.pack . show) $ getScore sequenceToWinningMove b
+  case getWinningSequence boards calledNumbers ([], []) of
+    [] -> pure "No solution!"
+    ((_, score) : _) -> pure $ (T.pack . show) score
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult filePath = do
+  fileContents <- readFileUtf8 filePath
+  (calledNumbers, boards) <- (parseInput . T.unpack) fileContents
+  let initialGame =
+        Game
+          { gameDrawnNumbers = [],
+            gameBoards = boards
+          }
+  let endGame = play initialGame calledNumbers
+  let sequenceToWinningMove = gameDrawnNumbers endGame
+  case reverse $ getWinningSequence boards calledNumbers ([], []) of
+    [] -> pure "No solution!"
+    ((_, score) : _) -> pure $ (T.pack . show) score
