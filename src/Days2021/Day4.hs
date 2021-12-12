@@ -5,6 +5,7 @@ module Days2021.Day4 where
 
 import qualified Data.List.Split as S
 import Import
+import RIO.List ((\\))
 import qualified RIO.List as L
 import RIO.List.Partial ((!!))
 import qualified RIO.List.Partial as L'
@@ -39,7 +40,7 @@ getColumn b i =
 isWinningLine :: [DrawnNummber] -> [Int] -> Bool
 isWinningLine ns = L.all (`L.elem` ns)
 
-isWinningBoard :: [DrawnNummber] -> Board -> Bool
+isWinningBoard :: [Int] -> Board -> Bool
 isWinningBoard ns b =
   L.any (isWinningLine ns) (rows ++ cols)
   where
@@ -59,6 +60,26 @@ getScore ns b =
 
 getWinningBoard :: Game -> Maybe Board
 getWinningBoard g = L.find (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
+
+getWinningBoards :: Game -> [Board]
+getWinningBoards g = L.filter (isWinningBoard $ gameDrawnNumbers g) (gameBoards g)
+
+callNumbers :: [Board] -> [Int] -> [Int] -> [Board] -> [Board]
+callNumbers _ [] _ winners = winners
+callNumbers playing (n : ns) drawn winners =
+  callNumbers newPlaying ns newDrawn newWinners
+  where
+    newDrawn = n : drawn
+    newWinners = L.filter (isWinningBoard newDrawn) playing ++ winners
+    newPlaying = playing \\ newWinners
+
+-- getWinningSequence :: Game -> [Board]
+-- getWinningSequence g = foldl (b -> a -> b) [] $ gameDrawnNumbers g
+--   where
+--     addWinningBoards =
+--       (\winningSequence n ->
+--         let new
+--       )
 
 play :: Game -> [Int] -> Game
 play g [] = g
