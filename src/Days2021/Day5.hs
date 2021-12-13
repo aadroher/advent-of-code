@@ -44,5 +44,12 @@ getLinePointsCount l =
     [ (p, 1) | p <- expandLinePoints l
     ]
 
+getTotalPointsCount :: [Line] -> HashMap Point Int
+getTotalPointsCount =
+  L.foldl
+    (\hm l -> HM.unionWith (+) hm (getLinePointsCount l))
+    HM.empty
+
 countOverlappingPoints :: [Line] -> Int
-countOverlappingPoints = undefined
+countOverlappingPoints ls =
+  HM.size $ HM.filter (== 2) $ getTotalPointsCount ls

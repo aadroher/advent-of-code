@@ -225,7 +225,7 @@ spec = do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
-      describe "addLinePointsCount" $ do
+      describe "getLinePointsCount$" $ do
         it "counts point instances" $ do
           D5.getLinePointsCount ((9, 6), (7, 7))
             `shouldBe` HM.fromList
@@ -236,8 +236,23 @@ spec = do
                 ((8, 6), 1),
                 ((8, 7), 1)
               ]
-
       describe "countOverlappingPoints" $ do
+        fit "should work for 1 overlapping point" $ do
+          let lines =
+                D5.parseLine
+                  <$> [ "0,1 -> 2,1",
+                        "1,0 -> 1,2"
+                      ]
+          pPrint lines
+          D5.countOverlappingPoints lines `shouldBe` 1
+        it "should be 0 for 1 overlapping point" $ do
+          let lines =
+                D5.parseLine
+                  <$> [ "0,1 -> 2,1",
+                        "1,0 -> 1,2"
+                      ]
+          pPrint lines
+          D5.countOverlappingPoints lines `shouldBe` 1
         it "counts the overlapping points correctly" $ do
           let lines =
                 D5.parseLine
