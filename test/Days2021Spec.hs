@@ -12,6 +12,7 @@ import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
 import qualified Days2021.Day5 as D5
 import Import
+import qualified RIO.HashMap as HM
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -225,8 +226,17 @@ spec = do
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
       describe "addLinePointsCount" $ do
-        it "" $ do
-          undefined
+        it "counts point instances" $ do
+          D5.getLinePointsCount ((9, 6), (7, 7))
+            `shouldBe` HM.fromList
+              [ ((7, 7), 1),
+                ((7, 6), 1),
+                ((9, 7), 1),
+                ((9, 6), 1),
+                ((8, 6), 1),
+                ((8, 7), 1)
+              ]
+
       describe "countOverlappingPoints" $ do
         it "counts the overlapping points correctly" $ do
           let lines =

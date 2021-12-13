@@ -4,7 +4,7 @@
 module Days2021.Day5 where
 
 import Import
-import RIO.HashMap (HashMap (..))
+import RIO.HashMap (HashMap)
 import qualified RIO.HashMap as HM
 import qualified RIO.List as L
 import RIO.Partial (read)
