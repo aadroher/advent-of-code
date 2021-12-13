@@ -224,3 +224,22 @@ spec = do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
+      describe "addLinePointsCount" $ do
+        it "" $ do
+          undefined
+      describe "countOverlappingPoints" $ do
+        it "counts the overlapping points correctly" $ do
+          let lines =
+                D5.parseLine
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          D5.countOverlappingPoints lines `shouldBe` 5

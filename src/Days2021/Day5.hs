@@ -4,6 +4,8 @@
 module Days2021.Day5 where
 
 import Import
+import RIO.HashMap (HashMap (..))
+import qualified RIO.HashMap as HM
 import qualified RIO.List as L
 import RIO.Partial (read)
 import qualified RIO.Text as T
@@ -34,3 +36,13 @@ expandLinePoints ((x0, y0), (x1, y1)) =
 
 isOrthogonal :: Line -> Bool
 isOrthogonal ((x0, y0), (x1, y1)) = x0 == x1 || y0 == y1
+
+getLinePointsCount :: Line -> HashMap Point Int
+getLinePointsCount l =
+  HM.fromListWith
+    (+)
+    [ (p, 1) | p <- expandLinePoints l
+    ]
+
+countOverlappingPoints :: [Line] -> Int
+countOverlappingPoints = undefined
