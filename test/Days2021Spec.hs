@@ -252,6 +252,7 @@ spec = do
                         "1,0 -> 1,6"
                       ]
           D5.countOverlappingPoints parsedlines `shouldBe` 2
+      describe "countOrthogonalOverlappingPoints" $ do
         it "counts the orthogonal overlapping points correctly" $ do
           let parsedlines =
                 D5.parseLine
