@@ -237,24 +237,23 @@ spec = do
                 ((8, 7), 1)
               ]
       describe "countOverlappingPoints" $ do
-        fit "should work for 1 overlapping point" $ do
-          let lines =
+        it "should work for 1 overlapping point" $ do
+          let parsedlines =
                 D5.parseLine
                   <$> [ "0,1 -> 2,1",
                         "1,0 -> 1,2"
                       ]
-          pPrint lines
-          D5.countOverlappingPoints lines `shouldBe` 1
-        it "should be 0 for 1 overlapping point" $ do
-          let lines =
+          D5.countOverlappingPoints parsedlines `shouldBe` 1
+        it "should be 0 for 2 overlapping point" $ do
+          let parsedlines =
                 D5.parseLine
                   <$> [ "0,1 -> 2,1",
-                        "1,0 -> 1,2"
+                        "1,0 -> 1,2",
+                        "1,0 -> 1,6"
                       ]
-          pPrint lines
-          D5.countOverlappingPoints lines `shouldBe` 1
-        it "counts the overlapping points correctly" $ do
-          let lines =
+          D5.countOverlappingPoints parsedlines `shouldBe` 2
+        it "counts the orthogonal overlapping points correctly" $ do
+          let parsedlines =
                 D5.parseLine
                   <$> [ "0,9 -> 5,9",
                         "8,0 -> 0,8",
@@ -267,4 +266,4 @@ spec = do
                         "0,0 -> 8,8",
                         "5,5 -> 8,2"
                       ]
-          D5.countOverlappingPoints lines `shouldBe` 5
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 5

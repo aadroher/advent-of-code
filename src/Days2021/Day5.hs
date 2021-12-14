@@ -53,3 +53,7 @@ getTotalPointsCount =
 countOverlappingPoints :: [Line] -> Int
 countOverlappingPoints ls =
   HM.size $ HM.filter (== 2) $ getTotalPointsCount ls
+
+countOrthogonalOverlappingPoints :: [Line] -> Int
+countOrthogonalOverlappingPoints ls =
+  countOverlappingPoints $ L.filter isOrthogonal ls
