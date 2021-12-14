@@ -65,7 +65,7 @@ getTotalPointsCount expand =
 
 countOverlappingPoints :: (Line -> [Point]) -> [Line] -> Int
 countOverlappingPoints expand ls =
-  HM.size $ HM.filter (== 2) $ getTotalPointsCount expand ls
+  HM.size $ HM.filter (>= 2) $ getTotalPointsCount expand ls
 
 countOrthogonalOverlappingPoints :: [Line] -> Int
 countOrthogonalOverlappingPoints ls =

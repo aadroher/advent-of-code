@@ -274,15 +274,15 @@ spec = do
                         "1,0 -> 1,2"
                       ]
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 1
-        it "should be 0 for 2 overlapping point" $ do
+        it "should be 3 for 3 overlapping points" $ do
           let parsedlines =
                 D5.parseLine
                   <$> [ "0,1 -> 2,1",
                         "1,0 -> 1,2",
                         "1,0 -> 1,6"
                       ]
-          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 2
-        it "counts the orthogonal overlapping points correctly" $ do
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 3
+        it "counts the orthogonal overlapping points correctly for first example" $ do
           let parsedlines =
                 D5.parseLine
                   <$> [ "0,9 -> 5,9",
@@ -302,3 +302,7 @@ spec = do
             let filePath = getFilePath "21-5-1"
             firstResult <- D5.calculateFirstResult filePath
             firstResult `shouldNotBe` "4531"
+          it "should be 4655?" $ do
+            let filePath = getFilePath "21-5-1"
+            firstResult <- D5.calculateFirstResult filePath
+            firstResult `shouldBe` "4655"
