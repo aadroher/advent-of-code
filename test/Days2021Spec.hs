@@ -16,6 +16,7 @@ import qualified RIO.HashMap as HM
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
+import Util (getFilePath)
 
 spec :: Spec
 spec = do
@@ -268,3 +269,8 @@ spec = do
                         "5,5 -> 8,2"
                       ]
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 5
+        describe "for actual input" $ do
+          it "should not be 4531" $ do
+            let filePath = getFilePath "21-5-1"
+            firstResult <- D5.calculateFirstResult filePath
+            firstResult `shouldNotBe` "4531"
