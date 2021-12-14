@@ -108,6 +108,10 @@ countOrthogonalOverlappingPoints ps =
   where
     orthogonalLines = pair2Line <$> L.filter isOrthogonal ps
 
+countAllOverlappingPoints :: [Pair] -> Int
+countAllOverlappingPoints ps =
+  countOverlappingPointsUpTo2 $ pair2Line <$> ps
+
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
   calculateResult parseLine countOrthogonalOverlappingPoints

@@ -293,6 +293,21 @@ spec = do
                         "5,5 -> 8,2"
                       ]
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 5
+        it "counts the all overlapping points correctly for second example" $ do
+          let parsedlines =
+                D5.parseLine
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          D5.countAllOverlappingPoints parsedlines `shouldBe` 12
         describe "for actual input" $ do
           it "should not be 4531" $ do
             let filePath = getFilePath "21-5-1"
