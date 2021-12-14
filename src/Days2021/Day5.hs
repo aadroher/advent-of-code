@@ -14,7 +14,13 @@ import Util (calculateResult)
 
 type Point = (Int, Int)
 
-type Line = (Point, Point)
+data OthorgonalLine = FixedX Int (Int, Int) | FixedY (Int, Int) Int
+
+data DiagonalLine = Up (Int, Int) Int | Down (Int, Int) Int
+
+type Pair = (Point, Point)
+
+data Line = OrthogonalLine | DiagonalLine
 
 parseFigure :: Text -> Int
 parseFigure = read . T.unpack
@@ -24,7 +30,7 @@ parsePoint s = case T.split (== ',') s of
   [x, y] -> (parseFigure x, parseFigure y)
   _ -> error ("could not parse '" ++ T.unpack s ++ "' as Point")
 
-parseLine :: Text -> Line
+parseLine :: Text -> Pair
 parseLine s = case T.split (== ' ') s of
   [p0, _, p1] -> (parsePoint p0, parsePoint p1)
   _ -> error ("could not parse '" ++ T.unpack s ++ "' as Line")
