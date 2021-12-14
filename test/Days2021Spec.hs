@@ -3,6 +3,7 @@
 
 module Days2021Spec (spec) where
 
+import qualified Data.List as L
 import qualified Days2021.Day1 as D1
 import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
@@ -216,35 +217,63 @@ spec = do
       describe "parseLine" $ do
         it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
           D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
-      describe "expandLinePoints" $ do
+      describe "expandOrthogonalLinePoints" $ do
         it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
-          D5.expandLinePoints ((1, 1), (1, 3)) `shouldBe` [(1, 1), (1, 2), (1, 3)]
+          D5.expandOrthogonalLinePoints ((1, 1), (1, 3))
+            `shouldBe` [ (1, 1),
+                         (1, 2),
+                         (1, 3)
+                       ]
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
-          D5.expandLinePoints ((9, 7), (7, 7)) `shouldBe` [(9, 7), (8, 7), (7, 7)]
+          D5.expandOrthogonalLinePoints ((9, 7), (7, 7))
+            `shouldBe` [ (9, 7),
+                         (8, 7),
+                         (7, 7)
+                       ]
+      -- it "((7,7), (0,0)) -> [(9,7), (8,7), (7,7)]" $ do
+      --   D5.expandOrthogonalLinePoints ((7, 7), (0, 0))
+      --     `shouldBe` [ (7, 7),
+      --                  (6, 6),
+      --                  (5, 5)
+      --                ]
       describe "isOrthogonal" $ do
-        it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
+        it "((1,1), (1,3)) -> True" $ do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
-        it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
+        it "((9,7), (7,7)) -> False" $ do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
       describe "getLinePointsCount$" $ do
-        it "counts point instances" $ do
-          D5.getLinePointsCount ((9, 6), (7, 7))
+        it "counts point instances for one line" $ do
+          let expectedExpansion = [(10, 7), (9, 7), (8, 7), (7, 7)]
+          let expand = const expectedExpansion
+          D5.getLinePointsCount expand ((10, 7), (7, 7))
+            `shouldBe` HM.fromList (L.zip expectedExpansion (L.repeat 1))
+      -- [ ((10, 7), 1),
+      --   ((9, 7), 1),
+      --   ((8, 7), 1),
+      --   ((7, 7), 1)
+      -- ]
+      describe "getTotalPointsCont" $ do
+        it "counts point instances for 2 lines" $ do
+          let l0 = ((10, 7), (8, 7))
+          let l1 = ((9, 10), (9, 6))
+          D5.getTotalPointsCount D5.expandOrthogonalLinePoints [l0, l1]
             `shouldBe` HM.fromList
-              [ ((7, 7), 1),
-                ((7, 6), 1),
-                ((9, 7), 1),
+              [ ((9, 10), 1),
+                ((9, 9), 1),
+                ((9, 8), 1),
+                ((10, 7), 1),
+                ((9, 7), 2),
                 ((9, 6), 1),
-                ((8, 6), 1),
                 ((8, 7), 1)
               ]
-      describe "countOverlappingPoints" $ do
+      describe "countOrthogonalOverlappingPoints" $ do
         it "should work for 1 overlapping point" $ do
           let parsedlines =
                 D5.parseLine
                   <$> [ "0,1 -> 2,1",
                         "1,0 -> 1,2"
                       ]
-          D5.countOverlappingPoints parsedlines `shouldBe` 1
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 1
         it "should be 0 for 2 overlapping point" $ do
           let parsedlines =
                 D5.parseLine
@@ -252,8 +281,7 @@ spec = do
                         "1,0 -> 1,2",
                         "1,0 -> 1,6"
                       ]
-          D5.countOverlappingPoints parsedlines `shouldBe` 2
-      describe "countOrthogonalOverlappingPoints" $ do
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 2
         it "counts the orthogonal overlapping points correctly" $ do
           let parsedlines =
                 D5.parseLine
