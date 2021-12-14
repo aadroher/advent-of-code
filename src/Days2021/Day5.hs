@@ -14,13 +14,39 @@ import Util (calculateResult)
 
 type Point = (Int, Int)
 
-data OthorgonalLine = FixedX Int (Int, Int) | FixedY (Int, Int) Int
+-- data OthorgonalLine = Ver Int (Int, Int) | Hor (Int, Int) Int
 
-data DiagonalLine = Up (Int, Int) Int | Down (Int, Int) Int
+data DiagonalDir = UpDir | DownDir
+
+-- data DiagonalLine = DiagonalUp (Int, Int) Int | DiagonalDown (Int, Int) Int
 
 type Pair = (Point, Point)
 
-data Line = OrthogonalLine | DiagonalLine
+data Line
+  = Ver Int (Int, Int)
+  | Hor (Int, Int) Int
+  | DiagUp (Int, Int) Int
+  | DiagDown (Int, Int) Int
+
+isVertical :: Pair -> Bool
+isVertical ((x0, _), (x1, _)) = x0 == x1
+
+isHorizontal :: Pair -> Bool
+isHorizontal ((_, y0), (_, y1)) = y0 == y1
+
+isOrthogonal :: Pair -> Bool
+isOrthogonal p = isVertical p || isHorizontal p
+
+isDiagonal :: Pair -> Bool
+isDiagonal ((x0, y0), (x1, y1)) = abs (x0 - x1) == abs (y0 - y1)
+
+getDiagonalDir :: Pair -> DiagonalDir
+getDiagonalDir (p0, p1) =
+  if ((y1 - y0) / (x1 - x0)) >= 0
+    then UpDir
+    else DownDir
+  where
+    [(x0, y0), (x1, y1)] = L.sort [p0, p1]
 
 parseFigure :: Text -> Int
 parseFigure = read . T.unpack
@@ -30,40 +56,57 @@ parsePoint s = case T.split (== ',') s of
   [x, y] -> (parseFigure x, parseFigure y)
   _ -> error ("could not parse '" ++ T.unpack s ++ "' as Point")
 
+pair2Line :: Pair -> Line
+pair2Line p
+  | isVertical p =
+    let ((x, y0), (_, y1)) = p in Ver x (y0, y1)
+  | isHorizontal p =
+    let ((x0, y), (x1, _)) = p in Hor (x0, x1) y
+  | isDiagonal p && getDiagonalDir p == UpDir =
+    let ((x0, y0), (_, y1)) = p
+     in DiagUp (x0, y0) (abs (y1 - y0))
+  | isDiagonal p && getDiagonalDir p == DownDir =
+    let ((x0, y0), (_, y1)) = p
+     in DiagDown (x0, y0) (abs (y1 - y0))
+  | otherwise = error "Cannot parse line"
+
 parseLine :: Text -> Pair
 parseLine s = case T.split (== ' ') s of
   [p0, _, p1] -> (parsePoint p0, parsePoint p1)
   _ -> error ("could not parse '" ++ T.unpack s ++ "' as Line")
 
-expandOrthogonalLinePoints :: Line -> [Point]
-expandOrthogonalLinePoints ((x0, y0), (x1, y1)) =
-  case (x0 == x1, y0 == y1) of
-    (False, False) -> error "Not an orthogonal line"
-    (True, False) -> [(x0, y) | y <- [y0, (secondElem y0 y1) .. y1]]
-    (False, True) -> [(x, y0) | x <- [x0, (secondElem x0 x1) .. x1]]
-    (True, True) -> [(x0, y0)]
+getOrthRange :: Int -> Int -> [Int]
+getOrthRange z0 zn = [z0, z1 .. zn]
   where
-    secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
+    z1 = bool (z0 + 1) (z0 - 1) (zn < z0)
 
-expandDiagonalLinePoints :: Line -> [Point]
-expandDiagonalLinePoints ((x0, y0), (x1, y1)) =
-  L.zip
-    [x0, (secondElem x0 x1) .. x1]
-    [y0, (secondElem y0 y1) .. y1]
-  where
-    secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
+-- expandOrthogonalLinePoints :: Line -> [Point]
+-- expandOrthogonalLinePoints ((x0, y0), (x1, y1)) =
+--   case (x0 == x1, y0 == y1) of
+--     (False, False) -> error "Not an orthogonal line"
+--     (True, False) -> [(x0, y) | y <- [y0, (secondElem y0 y1) .. y1]]
+--     (False, True) -> [(x, y0) | x <- [x0, (secondElem x0 x1) .. x1]]
+--     (True, True) -> [(x0, y0)]
+--   where
+--     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
+
+-- expandDiagonalLinePoints :: Line -> [Point]
+-- expandDiagonalLinePoints ((x0, y0), (x1, y1)) =
+--   L.zip
+--     [x0, (secondElem x0 x1) .. x1]
+--     [y0, (secondElem y0 y1) .. y1]
+--   where
+--     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
 
 expandLinePoints :: Line -> [Point]
-expandLinePoints l
-  | isOrthogonal l = expandOrthogonalLinePoints l
-  | isDiagonal l = expandOrthogonalLinePoints l
-  | otherwise = error "Not orthogonal or diagonal"
+expandLinePoints (Ver x (y0, y1)) = [(x, y) | y <- getOrthRange y0 y1]
+expandLinePoints (Hor (x0, x1) y) = [(x, y) | x <- getOrthRange x0 x1]
+expandLinePoints _ = error "Could not span lines"
 
-isOrthogonal :: Line -> Bool
-isOrthogonal ((x0, y0), (x1, y1)) = x0 == x1 || y0 == y1
-
-isDiagonal :: Line -> Bool
-isDiagonal ((x0, y0), (x1, y1)) = x1 - x0 == y1 - y0
+-- expandLinePoints l
+--   | isOrthogonal l = expandOrthogonalLinePoints l
+--   | isDiagonal l = expandOrthogonalLinePoints l
+--   | otherwise = error "Not orthogonal or diagonal"
 
 getLinePointsCount :: Line -> HashMap Point Int
 getLinePointsCount l =
