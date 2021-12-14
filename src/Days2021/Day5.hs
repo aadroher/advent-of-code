@@ -1,11 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module Days2021.Day5 where
 
 import Import
-import RIO.HashMap (HashMap)
 import qualified RIO.HashMap as HM
 import qualified RIO.List as L
 import RIO.Partial (read)
@@ -14,12 +12,8 @@ import Util (calculateResult)
 
 type Point = (Int, Int)
 
--- data OthorgonalLine = Ver Int (Int, Int) | Hor (Int, Int) Int
-
 data DiagonalDir = UpDir | DownDir
   deriving (Eq)
-
--- data DiagonalLine = DiagonalUp (Int, Int) Int | DiagonalDown (Int, Int) Int
 
 type Pair = (Point, Point)
 
@@ -82,34 +76,11 @@ getOrthRange z0 zn = [z0, z1 .. zn]
   where
     z1 = bool (z0 + 1) (z0 - 1) (zn < z0)
 
--- expandOrthogonalLinePoints :: Line -> [Point]
--- expandOrthogonalLinePoints ((x0, y0), (x1, y1)) =
---   case (x0 == x1, y0 == y1) of
---     (False, False) -> error "Not an orthogonal line"
---     (True, False) -> [(x0, y) | y <- [y0, (secondElem y0 y1) .. y1]]
---     (False, True) -> [(x, y0) | x <- [x0, (secondElem x0 x1) .. x1]]
---     (True, True) -> [(x0, y0)]
---   where
---     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
-
--- expandDiagonalLinePoints :: Line -> [Point]
--- expandDiagonalLinePoints ((x0, y0), (x1, y1)) =
---   L.zip
---     [x0, (secondElem x0 x1) .. x1]
---     [y0, (secondElem y0 y1) .. y1]
---   where
---     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
-
 expandLinePoints :: Line -> [Point]
 expandLinePoints (Ver x (y0, y1)) = [(x, y) | y <- getOrthRange y0 y1]
 expandLinePoints (Hor (x0, x1) y) = [(x, y) | x <- getOrthRange x0 x1]
 expandLinePoints (DiagUp (x0, y0) n) = [(x0 + i, y0 + i) | i <- [0 .. n]]
 expandLinePoints (DiagDown (x0, y0) n) = [(x0 + i, y0 - i) | i <- [0 .. n]]
-
--- expandLinePoints l
---   | isOrthogonal l = expandOrthogonalLinePoints l
---   | isDiagonal l = expandOrthogonalLinePoints l
---   | otherwise = error "Not orthogonal or diagonal"
 
 getLinePointsCount :: Line -> HashMap Point Int
 getLinePointsCount l =
@@ -136,10 +107,6 @@ countOrthogonalOverlappingPoints ps =
   countOverlappingPointsUpTo2 orthogonalLines
   where
     orthogonalLines = pair2Line <$> L.filter isOrthogonal ps
-
--- isOrthogonalLine (Ver _ _) = True
--- isOrthogonalLine (Hor _ _) = True
--- isOrthogonalLine _ = False
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
