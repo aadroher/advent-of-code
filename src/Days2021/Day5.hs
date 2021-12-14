@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module Days2021.Day5 where
@@ -38,38 +39,51 @@ expandOrthogonalLinePoints ((x0, y0), (x1, y1)) =
   where
     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
 
-expandLinePoints :: Line -> [Point]
-expandLinePoints ((x0, y0), (x1, y1)) =
-  [ (x, y)
-    | x <- [x0, (secondElem x0 x1) .. x1],
-      y <- [y0, (secondElem y0 y1) .. y1]
-  ]
+expandDiagonalLinePoints :: Line -> [Point]
+expandDiagonalLinePoints ((x0, y0), (x1, y1)) =
+  L.zip
+    [x0, (secondElem x0 x1) .. x1]
+    [y0, (secondElem y0 y1) .. y1]
   where
     secondElem z0 z1 = bool (z0 + 1) (z0 - 1) (z1 < z0)
+
+expandLinePoints :: Line -> [Point]
+expandLinePoints l
+  | isOrthogonal l = expandOrthogonalLinePoints l
+  | isDiagonal l = expandOrthogonalLinePoints l
+  | otherwise = error "Not orthogonal or diagonal"
 
 isOrthogonal :: Line -> Bool
 isOrthogonal ((x0, y0), (x1, y1)) = x0 == x1 || y0 == y1
 
-getLinePointsCount :: (Line -> [Point]) -> Line -> HashMap Point Int
-getLinePointsCount expand l =
+isDiagonal :: Line -> Bool
+isDiagonal ((x0, y0), (x1, y1)) = x1 - x0 == y1 - y0
+
+getLinePointsCount :: Line -> HashMap Point Int
+getLinePointsCount l =
   HM.fromListWith
     (+)
-    [ (p, 1) | p <- expand l
+    [ (p, 1) | p <- expandLinePoints l
     ]
 
-getTotalPointsCount :: (Line -> [Point]) -> [Line] -> HashMap Point Int
-getTotalPointsCount expand =
+getTotalPointsCount :: [Line] -> HashMap Point Int
+getTotalPointsCount =
   L.foldl
-    (\hm l -> HM.unionWith (+) hm (getLinePointsCount expand l))
+    (\hm l -> HM.unionWith (+) hm (getLinePointsCount l))
     HM.empty
 
-countOverlappingPoints :: (Line -> [Point]) -> [Line] -> Int
-countOverlappingPoints expand ls =
-  HM.size $ HM.filter (>= 2) $ getTotalPointsCount expand ls
+countOverlappingPoints :: (Int -> Bool) -> (Line -> Bool) -> [Line] -> Int
+countOverlappingPoints countOnly linesFilter ls =
+  HM.size $ HM.filter countOnly $ getTotalPointsCount filteredLines
+  where
+    filteredLines = L.filter linesFilter ls
+
+countOverlappingPointsUpTo2 :: (Line -> Bool) -> [Line] -> Int
+countOverlappingPointsUpTo2 = countOverlappingPoints (>= 2)
 
 countOrthogonalOverlappingPoints :: [Line] -> Int
 countOrthogonalOverlappingPoints ls =
-  countOverlappingPoints expandOrthogonalLinePoints $ L.filter isOrthogonal ls
+  countOverlappingPointsUpTo2 isOrthogonal $ L.filter isOrthogonal ls
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =

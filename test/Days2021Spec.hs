@@ -213,7 +213,7 @@ spec = do
                   [1, 12, 20, 15, 19]
                 ]
           D4.parseBoard t `shouldBe` expectedBoard
-    fdescribe "exercise 5" $ do
+    describe "exercise 5" $ do
       describe "parseLine" $ do
         it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
           D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
@@ -244,19 +244,18 @@ spec = do
       describe "getLinePointsCount$" $ do
         it "counts point instances for one line" $ do
           let expectedExpansion = [(10, 7), (9, 7), (8, 7), (7, 7)]
-          let expand = const expectedExpansion
-          D5.getLinePointsCount expand ((10, 7), (7, 7))
-            `shouldBe` HM.fromList (L.zip expectedExpansion (L.repeat 1))
-      -- [ ((10, 7), 1),
-      --   ((9, 7), 1),
-      --   ((8, 7), 1),
-      --   ((7, 7), 1)
-      -- ]
+          D5.getLinePointsCount ((10, 7), (7, 7))
+            `shouldBe` HM.fromList
+              [ ((10, 7), 1),
+                ((9, 7), 1),
+                ((8, 7), 1),
+                ((7, 7), 1)
+              ]
       describe "getTotalPointsCont" $ do
         it "counts point instances for 2 lines" $ do
           let l0 = ((10, 7), (8, 7))
           let l1 = ((9, 10), (9, 6))
-          D5.getTotalPointsCount D5.expandOrthogonalLinePoints [l0, l1]
+          D5.getTotalPointsCount [l0, l1]
             `shouldBe` HM.fromList
               [ ((9, 10), 1),
                 ((9, 9), 1),
@@ -306,3 +305,19 @@ spec = do
             let filePath = getFilePath "21-5-1"
             firstResult <- D5.calculateFirstResult filePath
             firstResult `shouldBe` "4655"
+      describe "isDiagonal" $ do
+        it "0,0 -> 0,5 => False" $ do
+          let l = D5.parseLine "0,0 -> 0,5"
+          D5.isDiagonal l `shouldBe` False
+        it "7,6 -> 0,6 => False" $ do
+          let l = D5.parseLine "7,6 -> 0,6"
+          D5.isDiagonal l `shouldBe` False
+        it "7,0 -> 0,5 => False" $ do
+          let l = D5.parseLine "7,0 -> 0,5"
+          D5.isDiagonal l `shouldBe` False
+        it "0,0 -> 5,5 => True" $ do
+          let l = D5.parseLine "0,0 -> 5,5"
+          D5.isDiagonal l `shouldBe` True
+        it "7,7 -> 5,5 => True" $ do
+          let l = D5.parseLine "7,7 -> 5,5"
+          D5.isDiagonal l `shouldBe` True
