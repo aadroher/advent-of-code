@@ -3,6 +3,7 @@
 
 module Days2021Spec (spec) where
 
+import qualified Data.List as L
 import qualified Days2021.Day1 as D1
 import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
@@ -10,10 +11,13 @@ import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
 import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
+import qualified Days2021.Day5 as D5
 import Import
+import qualified RIO.HashMap as HM
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
+import Util (getFilePath)
 
 spec :: Spec
 spec = do
@@ -118,7 +122,7 @@ spec = do
                 ]
           let bitNums = D3.parseBinNum <$> bitNumStrings
           D3.binNumToInt <$> D3.filterByLeastCommon 0 bitNums `shouldBe` [10]
-    describe "exercise 4.1" $ do
+    describe "exercise 4" $ do
       let board =
             [ [22, 13, 17, 11, 0],
               [8, 2, 23, 4, 24],
@@ -209,3 +213,96 @@ spec = do
                   [1, 12, 20, 15, 19]
                 ]
           D4.parseBoard t `shouldBe` expectedBoard
+    fdescribe "exercise 5" $ do
+      describe "parseLine" $ do
+        it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
+          D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
+      describe "expandOrthogonalLinePoints" $ do
+        it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
+          D5.expandOrthogonalLinePoints ((1, 1), (1, 3))
+            `shouldBe` [ (1, 1),
+                         (1, 2),
+                         (1, 3)
+                       ]
+        it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
+          D5.expandOrthogonalLinePoints ((9, 7), (7, 7))
+            `shouldBe` [ (9, 7),
+                         (8, 7),
+                         (7, 7)
+                       ]
+      -- it "((7,7), (0,0)) -> [(9,7), (8,7), (7,7)]" $ do
+      --   D5.expandOrthogonalLinePoints ((7, 7), (0, 0))
+      --     `shouldBe` [ (7, 7),
+      --                  (6, 6),
+      --                  (5, 5)
+      --                ]
+      describe "isOrthogonal" $ do
+        it "((1,1), (1,3)) -> True" $ do
+          D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
+        it "((9,7), (7,7)) -> False" $ do
+          D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
+      describe "getLinePointsCount$" $ do
+        it "counts point instances for one line" $ do
+          let expectedExpansion = [(10, 7), (9, 7), (8, 7), (7, 7)]
+          let expand = const expectedExpansion
+          D5.getLinePointsCount expand ((10, 7), (7, 7))
+            `shouldBe` HM.fromList (L.zip expectedExpansion (L.repeat 1))
+      -- [ ((10, 7), 1),
+      --   ((9, 7), 1),
+      --   ((8, 7), 1),
+      --   ((7, 7), 1)
+      -- ]
+      describe "getTotalPointsCont" $ do
+        it "counts point instances for 2 lines" $ do
+          let l0 = ((10, 7), (8, 7))
+          let l1 = ((9, 10), (9, 6))
+          D5.getTotalPointsCount D5.expandOrthogonalLinePoints [l0, l1]
+            `shouldBe` HM.fromList
+              [ ((9, 10), 1),
+                ((9, 9), 1),
+                ((9, 8), 1),
+                ((10, 7), 1),
+                ((9, 7), 2),
+                ((9, 6), 1),
+                ((8, 7), 1)
+              ]
+      describe "countOrthogonalOverlappingPoints" $ do
+        it "should work for 1 overlapping point" $ do
+          let parsedlines =
+                D5.parseLine
+                  <$> [ "0,1 -> 2,1",
+                        "1,0 -> 1,2"
+                      ]
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 1
+        it "should be 3 for 3 overlapping points" $ do
+          let parsedlines =
+                D5.parseLine
+                  <$> [ "0,1 -> 2,1",
+                        "1,0 -> 1,2",
+                        "1,0 -> 1,6"
+                      ]
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 3
+        it "counts the orthogonal overlapping points correctly for first example" $ do
+          let parsedlines =
+                D5.parseLine
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 5
+        describe "for actual input" $ do
+          it "should not be 4531" $ do
+            let filePath = getFilePath "21-5-1"
+            firstResult <- D5.calculateFirstResult filePath
+            firstResult `shouldNotBe` "4531"
+          it "should be 4655?" $ do
+            let filePath = getFilePath "21-5-1"
+            firstResult <- D5.calculateFirstResult filePath
+            firstResult `shouldBe` "4655"

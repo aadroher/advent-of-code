@@ -10,9 +10,9 @@ import qualified Days2021.Day1 as D1of2021
 import qualified Days2021.Day2 as D2of2021
 import qualified Days2021.Day3 as D3of2021
 import qualified Days2021.Day4 as D4of2021
+import qualified Days2021.Day5 as D5of2021
 import Import
-import qualified RIO.List as L
-import qualified RIO.Text as T
+import Util (getResult)
 
 getSolver :: String -> (FilePath -> IO Text)
 getSolver "19-1-1" = D1of2019.calculateFirstResult
@@ -28,18 +28,8 @@ getSolver "21-3-1" = D3of2021.calculateFirstResult
 getSolver "21-3-2" = D3of2021.calculateSecondResult
 getSolver "21-4-1" = D4of2021.calculateFirstResult
 getSolver "21-4-2" = D4of2021.calculateSecondResult
+getSolver "21-5-1" = D5of2021.calculateFirstResult
 getSolver _ = undefined
-
-getFilePath :: String -> FilePath
-getFilePath exName = "./data/" ++ year ++ "/day" ++ num ++ ".txt"
-  where
-    year = L.take 2 exName
-    num = (L.drop 3 . L.take 4) exName
-
-getResult :: String -> RIO App Text
-getResult exName = do
-  res <- liftIO $ getSolver exName $ getFilePath exName
-  pure $ T.pack $ show res
 
 run :: RIO App ()
 run = do
@@ -47,5 +37,5 @@ run = do
   app <- ask
   let e = exerciseName $ appOptions app
   logInfo $ displayShow $ "Results for day " ++ e ++ ":"
-  res1 <- getResult e
+  res1 <- liftIO $ getResult (getSolver e) e
   logInfo $ display res1
