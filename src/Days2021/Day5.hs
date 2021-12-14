@@ -17,6 +17,7 @@ type Point = (Int, Int)
 -- data OthorgonalLine = Ver Int (Int, Int) | Hor (Int, Int) Int
 
 data DiagonalDir = UpDir | DownDir
+  deriving (Eq)
 
 -- data DiagonalLine = DiagonalUp (Int, Int) Int | DiagonalDown (Int, Int) Int
 
@@ -27,6 +28,7 @@ data Line
   | Hor (Int, Int) Int
   | DiagUp (Int, Int) Int
   | DiagDown (Int, Int) Int
+  deriving (Eq, Show)
 
 isVertical :: Pair -> Bool
 isVertical ((x0, _), (x1, _)) = x0 == x1
@@ -42,7 +44,7 @@ isDiagonal ((x0, y0), (x1, y1)) = abs (x0 - x1) == abs (y0 - y1)
 
 getDiagonalDir :: Pair -> DiagonalDir
 getDiagonalDir (p0, p1) =
-  if ((y1 - y0) / (x1 - x0)) >= 0
+  if ((y1 - y0) `div` (x1 - x0)) >= 0
     then UpDir
     else DownDir
   where
@@ -101,7 +103,8 @@ getOrthRange z0 zn = [z0, z1 .. zn]
 expandLinePoints :: Line -> [Point]
 expandLinePoints (Ver x (y0, y1)) = [(x, y) | y <- getOrthRange y0 y1]
 expandLinePoints (Hor (x0, x1) y) = [(x, y) | x <- getOrthRange x0 x1]
-expandLinePoints _ = error "Could not span lines"
+expandLinePoints (DiagUp (x0, y0) n) = [(x0 + i, y0 + i) | i <- [0 .. n]]
+expandLinePoints (DiagDown (x0, y0) n) = [(x0 + i, y0 - i) | i <- [0 .. n]]
 
 -- expandLinePoints l
 --   | isOrthogonal l = expandOrthogonalLinePoints l
@@ -121,18 +124,22 @@ getTotalPointsCount =
     (\hm l -> HM.unionWith (+) hm (getLinePointsCount l))
     HM.empty
 
-countOverlappingPoints :: (Int -> Bool) -> (Line -> Bool) -> [Line] -> Int
-countOverlappingPoints countOnly linesFilter ls =
-  HM.size $ HM.filter countOnly $ getTotalPointsCount filteredLines
-  where
-    filteredLines = L.filter linesFilter ls
+countOverlappingPoints :: (Int -> Bool) -> [Line] -> Int
+countOverlappingPoints countOnly ls =
+  HM.size $ HM.filter countOnly $ getTotalPointsCount ls
 
-countOverlappingPointsUpTo2 :: (Line -> Bool) -> [Line] -> Int
+countOverlappingPointsUpTo2 :: [Line] -> Int
 countOverlappingPointsUpTo2 = countOverlappingPoints (>= 2)
 
-countOrthogonalOverlappingPoints :: [Line] -> Int
-countOrthogonalOverlappingPoints ls =
-  countOverlappingPointsUpTo2 isOrthogonal $ L.filter isOrthogonal ls
+countOrthogonalOverlappingPoints :: [Pair] -> Int
+countOrthogonalOverlappingPoints ps =
+  countOverlappingPointsUpTo2 orthogonalLines
+  where
+    orthogonalLines = pair2Line <$> L.filter isOrthogonal ps
+
+-- isOrthogonalLine (Ver _ _) = True
+-- isOrthogonalLine (Hor _ _) = True
+-- isOrthogonalLine _ = False
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =

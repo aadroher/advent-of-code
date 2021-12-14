@@ -217,25 +217,21 @@ spec = do
       describe "parseLine" $ do
         it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
           D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
-      describe "expandOrthogonalLinePoints" $ do
+      describe "expandLinePoints" $ do
         it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
-          D5.expandOrthogonalLinePoints ((1, 1), (1, 3))
+          let l = (D5.pair2Line . D5.parseLine) "1,1 -> 1,3"
+          D5.expandLinePoints l
             `shouldBe` [ (1, 1),
                          (1, 2),
                          (1, 3)
                        ]
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
-          D5.expandOrthogonalLinePoints ((9, 7), (7, 7))
+          let l = (D5.pair2Line . D5.parseLine) "9,7 -> 7,7"
+          D5.expandLinePoints l
             `shouldBe` [ (9, 7),
                          (8, 7),
                          (7, 7)
                        ]
-      -- it "((7,7), (0,0)) -> [(9,7), (8,7), (7,7)]" $ do
-      --   D5.expandOrthogonalLinePoints ((7, 7), (0, 0))
-      --     `shouldBe` [ (7, 7),
-      --                  (6, 6),
-      --                  (5, 5)
-      --                ]
       describe "isOrthogonal" $ do
         it "((1,1), (1,3)) -> True" $ do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
@@ -243,8 +239,9 @@ spec = do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
       describe "getLinePointsCount$" $ do
         it "counts point instances for one line" $ do
+          let l = (D5.pair2Line . D5.parseLine) "10,7 -> 7,7"
           let expectedExpansion = [(10, 7), (9, 7), (8, 7), (7, 7)]
-          D5.getLinePointsCount ((10, 7), (7, 7))
+          D5.getLinePointsCount l
             `shouldBe` HM.fromList
               [ ((10, 7), 1),
                 ((9, 7), 1),
@@ -253,8 +250,8 @@ spec = do
               ]
       describe "getTotalPointsCont" $ do
         it "counts point instances for 2 lines" $ do
-          let l0 = ((10, 7), (8, 7))
-          let l1 = ((9, 10), (9, 6))
+          let l0 = (D5.pair2Line . D5.parseLine) "10,7 -> 8,7"
+          let l1 = (D5.pair2Line . D5.parseLine) "9,10 -> 9,6"
           D5.getTotalPointsCount [l0, l1]
             `shouldBe` HM.fromList
               [ ((9, 10), 1),
