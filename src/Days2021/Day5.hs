@@ -66,8 +66,8 @@ pair2Line p
      in DiagDown (x0, y0) (abs (y1 - y0))
   | otherwise = error "Cannot parse line"
 
-parseLine :: Text -> Pair
-parseLine s = case T.split (== ' ') s of
+parsePair :: Text -> Pair
+parsePair s = case T.split (== ' ') s of
   [p0, _, p1] -> (parsePoint p0, parsePoint p1)
   _ -> error ("could not parse '" ++ T.unpack s ++ "' as Line")
 
@@ -114,4 +114,4 @@ countAllOverlappingPoints ps =
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
-  calculateResult parseLine countOrthogonalOverlappingPoints
+  calculateResult parsePair countOrthogonalOverlappingPoints
