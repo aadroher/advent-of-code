@@ -140,3 +140,7 @@ countAllOverlappingPoints ps =
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
   calculateResult parsePair countOrthogonalOverlappingPoints
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult =
+  calculateResult parsePair countAllOverlappingPoints
