@@ -12,6 +12,7 @@ import qualified Days2021.Day3 as D3
 import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
 import qualified Days2021.Day5 as D5
+import qualified Days2021.Day6 as D6
 import Import
 import qualified RIO.HashMap as HM
 import qualified RIO.Set as S
@@ -398,3 +399,17 @@ spec = do
                 \1.......1.\n\
                 \222111....\n"
           D5.renderLines parsedLines `shouldBe` expectedRender
+    fdescribe "exercise 6" $ do
+      describe "dayNSchool" $ do
+        it "(3,4,3,1,2),0 -> (3,4,3,1,2)" $ do
+          let initialSchool = D6.intToFish <$> [3, 4, 3, 1, 2]
+          let expectedFinalSchool = D6.intToFish <$> [3, 4, 3, 1, 2]
+          pPrint $ D6.fishToInt <$> expectedFinalSchool
+          pPrint $ D6.fishToInt <$> D6.dayNSchool initialSchool 0
+          D6.dayNSchool initialSchool 10 `shouldBe` expectedFinalSchool
+        it "(3,4,3,1,2),4 -> (0,1,0,5,6,0,1,2,2,3,7,8)" $ do
+          let initialSchool = D6.intToFish <$> [3, 4, 3, 1, 2]
+          let expectedFinalSchool = D6.intToFish <$> [0, 1, 0, 5, 6, 0, 1, 2, 2, 3, 7, 8]
+          pPrint $ D6.fishToInt <$> expectedFinalSchool
+          pPrint $ D6.fishToInt <$> D6.dayNSchool initialSchool 10
+          D6.dayNSchool initialSchool 10 `shouldBe` expectedFinalSchool
