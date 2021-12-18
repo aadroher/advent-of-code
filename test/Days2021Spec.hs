@@ -433,3 +433,6 @@ spec = do
         it "80 -> 5934" $ do
           let initialSchool = [3, 4, 3, 1, 2]
           D6.populationOnDayN initialSchool 80 `shouldBe` 5934
+        it "256 -> 26984457539" $ do
+          let initialSchool = [3, 4, 3, 1, 2]
+          D6.populationOnDayN initialSchool 256 `shouldBe` 26984457539
