@@ -3,6 +3,7 @@
 
 module Days2021.Day6 where
 
+import Data.List (iterate')
 import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
@@ -29,27 +30,26 @@ nextDayFish f =
 
 nextDaySchool :: FishSchool -> FishSchool
 nextDaySchool fs =
-  existingFishes
-    ++ L.foldl'
-      ( \newFishes f ->
-          if shouldSpawn f
-            then newFishes ++ [8]
-            else newFishes
-      )
-      []
-      fs
+  L.foldl'
+    ( \newFishes f ->
+        if shouldSpawn f
+          then 8 : newFishes
+          else newFishes
+    )
+    []
+    fs
+    ++ existingFishes
   where
     existingFishes = nextDayFish <$> fs
 
 firstNDays :: Int -> FishSchool -> [FishSchool]
-firstNDays n fs = L.take (n + 1) $ L.iterate nextDaySchool fs
+firstNDays n fs = L.take (n + 1) $ iterate' nextDaySchool fs
 
 dayNSchool :: FishSchool -> Int -> FishSchool
-dayNSchool fs 0 = fs
-dayNSchool fs n = dayNSchool (nextDaySchool fs) (n - 1)
+dayNSchool fs n = L.foldl' (\fs' _ -> nextDaySchool fs') fs [1 .. n]
 
 populationOnDayN :: FishSchool -> Int -> Int
-populationOnDayN fs n = L.length $ dayNSchool fs n
+populationOnDayN fs n = L.length $ dayNSchool (L.reverse fs) n
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =

@@ -426,7 +426,7 @@ spec = do
           let initialSchool = [3, 4, 3, 1, 2]
           let expectedFinalSchool = [0, 1, 0, 5, 6, 0, 1, 2, 2, 3, 7, 8]
           D6.dayNSchool initialSchool 10 `shouldBe` expectedFinalSchool
-      describe "populationOnDayN" $ do
+      fdescribe "populationOnDayN" $ do
         it "18 -> 26" $ do
           let initialSchool = [3, 4, 3, 1, 2]
           D6.populationOnDayN initialSchool 18 `shouldBe` 26
