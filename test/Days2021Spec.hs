@@ -232,7 +232,7 @@ spec = do
                          (8, 7),
                          (7, 7)
                        ]
-        fit "((0,0), (8,8)) -> [(0,0), ... (8,8)]" $ do
+        it "((0,0), (8,8)) -> [(0,0), ... (8,8)]" $ do
           let l = (D5.pair2Line . D5.parsePair) "0,0 -> 8,8"
           D5.expandLinePoints l
             `shouldBe` [ (0, 0),
@@ -245,7 +245,7 @@ spec = do
                          (7, 7),
                          (8, 8)
                        ]
-        fit "((8,0), (0,8)) -> [(8,0), ... (0,8)]" $ do
+        it "((8,0), (0,8)) -> [(8,0), ... (0,8)]" $ do
           let l = (D5.pair2Line . D5.parsePair) "8,0 -> 0,8"
           D5.expandLinePoints l
             `shouldBe` [ (8, 0),
@@ -258,7 +258,7 @@ spec = do
                          (1, 7),
                          (0, 8)
                        ]
-        fit "((6,4), (2,0)) -> [(6,4), (5, 3) ... (2,0)]" $ do
+        it "((6,4), (2,0)) -> [(6,4), (5, 3) ... (2,0)]" $ do
           let l = (D5.pair2Line . D5.parsePair) "6,4 -> 2,0"
           D5.expandLinePoints l
             `shouldBe` [ (6, 4),
@@ -371,7 +371,7 @@ spec = do
           let l = D5.parsePair "-7,7 -> -5,5"
           D5.isDiagonal l `shouldBe` True
       describe "renderLines" $ do
-        fit "renders the 2nd example" $ do
+        it "renders the 2nd example" $ do
           let parsedLines =
                 (D5.pair2Line . D5.parsePair)
                   <$> [ "0,9 -> 5,9",
@@ -397,6 +397,4 @@ spec = do
                 \.1.....1..\n\
                 \1.......1.\n\
                 \222111....\n"
-          pPrint expectedRender
-          pPrint $ D5.renderLines parsedLines
           D5.renderLines parsedLines `shouldBe` expectedRender

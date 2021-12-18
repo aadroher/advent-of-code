@@ -79,7 +79,6 @@ expandLinePoints :: Line -> [Point]
 expandLinePoints (Ver x (y0, y1)) = [(x, y) | y <- getOrthRange y0 y1]
 expandLinePoints (Hor (x0, x1) y) = [(x, y) | x <- getOrthRange x0 x1]
 expandLinePoints (Dia (x0, y0) (x1, y1)) = L.zip (getOrthRange x0 x1) (getOrthRange y0 y1)
--- expandLinePoints (DiagDown (x0, y0) n) = [(x0 - i, y0 + i) | i <- [0 .. n]]
 
 getLinePointsCount :: Line -> HashMap Point Int
 getLinePointsCount l =
