@@ -29,6 +29,7 @@ getSolver "21-3-2" = D3of2021.calculateSecondResult
 getSolver "21-4-1" = D4of2021.calculateFirstResult
 getSolver "21-4-2" = D4of2021.calculateSecondResult
 getSolver "21-5-1" = D5of2021.calculateFirstResult
+getSolver "21-5-2" = D5of2021.calculateSecondResult
 getSolver _ = undefined
 
 run :: RIO App ()

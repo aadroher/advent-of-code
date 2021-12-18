@@ -213,29 +213,60 @@ spec = do
                   [1, 12, 20, 15, 19]
                 ]
           D4.parseBoard t `shouldBe` expectedBoard
-    fdescribe "exercise 5" $ do
-      describe "parseLine" $ do
+    describe "exercise 5" $ do
+      describe "parsePair" $ do
         it "'1,1 -> 1,3' -> ((1,1), (1,3))" $ do
-          D5.parseLine "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
-      describe "expandOrthogonalLinePoints" $ do
+          D5.parsePair "1,1 -> 1,3" `shouldBe` ((1, 1), (1, 3))
+      describe "expandLinePoints" $ do
         it "((1,1), (1,3)) -> [(1,1), (1,2), (1,3)]" $ do
-          D5.expandOrthogonalLinePoints ((1, 1), (1, 3))
+          let l = (D5.pair2Line . D5.parsePair) "1,1 -> 1,3"
+          D5.expandLinePoints l
             `shouldBe` [ (1, 1),
                          (1, 2),
                          (1, 3)
                        ]
         it "((9,7), (7,7)) -> [(9,7), (8,7), (7,7)]" $ do
-          D5.expandOrthogonalLinePoints ((9, 7), (7, 7))
+          let l = (D5.pair2Line . D5.parsePair) "9,7 -> 7,7"
+          D5.expandLinePoints l
             `shouldBe` [ (9, 7),
                          (8, 7),
                          (7, 7)
                        ]
-      -- it "((7,7), (0,0)) -> [(9,7), (8,7), (7,7)]" $ do
-      --   D5.expandOrthogonalLinePoints ((7, 7), (0, 0))
-      --     `shouldBe` [ (7, 7),
-      --                  (6, 6),
-      --                  (5, 5)
-      --                ]
+        it "((0,0), (8,8)) -> [(0,0), ... (8,8)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "0,0 -> 8,8"
+          D5.expandLinePoints l
+            `shouldBe` [ (0, 0),
+                         (1, 1),
+                         (2, 2),
+                         (3, 3),
+                         (4, 4),
+                         (5, 5),
+                         (6, 6),
+                         (7, 7),
+                         (8, 8)
+                       ]
+        it "((8,0), (0,8)) -> [(8,0), ... (0,8)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "8,0 -> 0,8"
+          D5.expandLinePoints l
+            `shouldBe` [ (8, 0),
+                         (7, 1),
+                         (6, 2),
+                         (5, 3),
+                         (4, 4),
+                         (3, 5),
+                         (2, 6),
+                         (1, 7),
+                         (0, 8)
+                       ]
+        it "((6,4), (2,0)) -> [(6,4), (5, 3) ... (2,0)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "6,4 -> 2,0"
+          D5.expandLinePoints l
+            `shouldBe` [ (6, 4),
+                         (5, 3),
+                         (4, 2),
+                         (3, 1),
+                         (2, 0)
+                       ]
       describe "isOrthogonal" $ do
         it "((1,1), (1,3)) -> True" $ do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
@@ -243,20 +274,19 @@ spec = do
           D5.isOrthogonal ((9, 6), (7, 7)) `shouldBe` False
       describe "getLinePointsCount$" $ do
         it "counts point instances for one line" $ do
-          let expectedExpansion = [(10, 7), (9, 7), (8, 7), (7, 7)]
-          let expand = const expectedExpansion
-          D5.getLinePointsCount expand ((10, 7), (7, 7))
-            `shouldBe` HM.fromList (L.zip expectedExpansion (L.repeat 1))
-      -- [ ((10, 7), 1),
-      --   ((9, 7), 1),
-      --   ((8, 7), 1),
-      --   ((7, 7), 1)
-      -- ]
-      describe "getTotalPointsCont" $ do
+          let l = (D5.pair2Line . D5.parsePair) "10,7 -> 7,7"
+          D5.getLinePointsCount l
+            `shouldBe` HM.fromList
+              [ ((10, 7), 1),
+                ((9, 7), 1),
+                ((8, 7), 1),
+                ((7, 7), 1)
+              ]
+      describe "getTotalPointsCount" $ do
         it "counts point instances for 2 lines" $ do
-          let l0 = ((10, 7), (8, 7))
-          let l1 = ((9, 10), (9, 6))
-          D5.getTotalPointsCount D5.expandOrthogonalLinePoints [l0, l1]
+          let l0 = (D5.pair2Line . D5.parsePair) "10,7 -> 8,7"
+          let l1 = (D5.pair2Line . D5.parsePair) "9,10 -> 9,6"
+          D5.getTotalPointsCount [l0, l1]
             `shouldBe` HM.fromList
               [ ((9, 10), 1),
                 ((9, 9), 1),
@@ -269,14 +299,14 @@ spec = do
       describe "countOrthogonalOverlappingPoints" $ do
         it "should work for 1 overlapping point" $ do
           let parsedlines =
-                D5.parseLine
+                D5.parsePair
                   <$> [ "0,1 -> 2,1",
                         "1,0 -> 1,2"
                       ]
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 1
         it "should be 3 for 3 overlapping points" $ do
           let parsedlines =
-                D5.parseLine
+                D5.parsePair
                   <$> [ "0,1 -> 2,1",
                         "1,0 -> 1,2",
                         "1,0 -> 1,6"
@@ -284,7 +314,7 @@ spec = do
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 3
         it "counts the orthogonal overlapping points correctly for first example" $ do
           let parsedlines =
-                D5.parseLine
+                D5.parsePair
                   <$> [ "0,9 -> 5,9",
                         "8,0 -> 0,8",
                         "9,4 -> 3,4",
@@ -297,6 +327,21 @@ spec = do
                         "5,5 -> 8,2"
                       ]
           D5.countOrthogonalOverlappingPoints parsedlines `shouldBe` 5
+        it "counts the all overlapping points correctly for second example" $ do
+          let parsedlines =
+                D5.parsePair
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          D5.countAllOverlappingPoints parsedlines `shouldBe` 12
         describe "for actual input" $ do
           it "should not be 4531" $ do
             let filePath = getFilePath "21-5-1"
@@ -306,3 +351,50 @@ spec = do
             let filePath = getFilePath "21-5-1"
             firstResult <- D5.calculateFirstResult filePath
             firstResult `shouldBe` "4655"
+      describe "isDiagonal" $ do
+        it "0,0 -> 0,5 => False" $ do
+          let l = D5.parsePair "0,0 -> 0,5"
+          D5.isDiagonal l `shouldBe` False
+        it "7,6 -> 0,6 => False" $ do
+          let l = D5.parsePair "7,6 -> 0,6"
+          D5.isDiagonal l `shouldBe` False
+        it "7,0 -> 0,5 => False" $ do
+          let l = D5.parsePair "7,0 -> 0,5"
+          D5.isDiagonal l `shouldBe` False
+        it "0,0 -> 5,5 => True" $ do
+          let l = D5.parsePair "0,0 -> 5,5"
+          D5.isDiagonal l `shouldBe` True
+        it "7,7 -> 5,5 => True" $ do
+          let l = D5.parsePair "7,7 -> 5,5"
+          D5.isDiagonal l `shouldBe` True
+        it "-7,7 -> -5,5 => True" $ do
+          let l = D5.parsePair "-7,7 -> -5,5"
+          D5.isDiagonal l `shouldBe` True
+      describe "renderLines" $ do
+        it "renders the 2nd example" $ do
+          let parsedLines =
+                (D5.pair2Line . D5.parsePair)
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          let expectedRender =
+                "\n\
+                \1.1....11.\n\
+                \.111...2..\n\
+                \..2.1.111.\n\
+                \...1.2.2..\n\
+                \.112313211\n\
+                \...1.2....\n\
+                \..1...1...\n\
+                \.1.....1..\n\
+                \1.......1.\n\
+                \222111....\n"
+          D5.renderLines parsedLines `shouldBe` expectedRender
