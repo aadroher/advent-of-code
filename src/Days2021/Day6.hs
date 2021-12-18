@@ -11,7 +11,8 @@ type Fish = Int
 type FishSchool = [Fish]
 
 shouldSpawn :: Fish -> Bool
-shouldSpawn f = f == 6
+shouldSpawn 0 = True
+shouldSpawn _ = False
 
 nextDayFish :: Fish -> Fish
 nextDayFish f =
@@ -29,10 +30,16 @@ nextDaySchool fs =
             else newFishes
       )
       []
-      existingFishes
+      fs
   where
     existingFishes = nextDayFish <$> fs
+
+firstNDays :: Int -> FishSchool -> [FishSchool]
+firstNDays n fs = L.take (n + 1) $ L.iterate nextDaySchool fs
 
 dayNSchool :: FishSchool -> Int -> FishSchool
 dayNSchool fs 0 = fs
 dayNSchool fs n = dayNSchool (nextDaySchool fs) (n - 1)
+
+populationOnDayN :: FishSchool -> Int -> Int
+populationOnDayN fs n = L.length $ dayNSchool fs n
