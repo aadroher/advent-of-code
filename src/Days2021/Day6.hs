@@ -6,27 +6,18 @@ module Days2021.Day6 where
 import Import
 import qualified RIO.List as L
 
-newtype Fish = Fish
-  { daysToSpawn :: Int
-  }
-  deriving (Eq, Show)
+type Fish = Int
 
 type FishSchool = [Fish]
 
-intToFish :: Int -> Fish
-intToFish n = Fish {daysToSpawn = n}
-
-fishToInt :: Fish -> Int
-fishToInt Fish {daysToSpawn = n} = n
-
 shouldSpawn :: Fish -> Bool
-shouldSpawn f = daysToSpawn f == 0
+shouldSpawn f = f == 6
 
 nextDayFish :: Fish -> Fish
 nextDayFish f =
-  if daysToSpawn f == 0
-    then Fish {daysToSpawn = 0}
-    else Fish {daysToSpawn = daysToSpawn f - 1}
+  if f == 0
+    then 6
+    else f - 1
 
 nextDaySchool :: FishSchool -> FishSchool
 nextDaySchool fs =
@@ -34,7 +25,7 @@ nextDaySchool fs =
     ++ L.foldl
       ( \newFishes f ->
           if shouldSpawn f
-            then newFishes ++ [Fish {daysToSpawn = 8}]
+            then newFishes ++ [8]
             else newFishes
       )
       []
