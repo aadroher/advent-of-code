@@ -232,6 +232,41 @@ spec = do
                          (8, 7),
                          (7, 7)
                        ]
+        fit "((0,0), (8,8)) -> [(0,0), ... (8,8)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "0,0 -> 8,8"
+          D5.expandLinePoints l
+            `shouldBe` [ (0, 0),
+                         (1, 1),
+                         (2, 2),
+                         (3, 3),
+                         (4, 4),
+                         (5, 5),
+                         (6, 6),
+                         (7, 7),
+                         (8, 8)
+                       ]
+        fit "((8,0), (0,8)) -> [(8,0), ... (0,8)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "8,0 -> 0,8"
+          D5.expandLinePoints l
+            `shouldBe` [ (8, 0),
+                         (7, 1),
+                         (6, 2),
+                         (5, 3),
+                         (4, 4),
+                         (3, 5),
+                         (2, 6),
+                         (1, 7),
+                         (0, 8)
+                       ]
+        fit "((6,4), (2,0)) -> [(6,4), (5, 3) ... (2,0)]" $ do
+          let l = (D5.pair2Line . D5.parsePair) "6,4 -> 2,0"
+          D5.expandLinePoints l
+            `shouldBe` [ (6, 4),
+                         (5, 3),
+                         (4, 2),
+                         (3, 1),
+                         (2, 0)
+                       ]
       describe "isOrthogonal" $ do
         it "((1,1), (1,3)) -> True" $ do
           D5.isOrthogonal ((1, 1), (1, 3)) `shouldBe` True
@@ -247,7 +282,7 @@ spec = do
                 ((8, 7), 1),
                 ((7, 7), 1)
               ]
-      describe "getTotalPointsCont" $ do
+      describe "getTotalPointsCount" $ do
         it "counts point instances for 2 lines" $ do
           let l0 = (D5.pair2Line . D5.parsePair) "10,7 -> 8,7"
           let l1 = (D5.pair2Line . D5.parsePair) "9,10 -> 9,6"
@@ -332,3 +367,36 @@ spec = do
         it "7,7 -> 5,5 => True" $ do
           let l = D5.parsePair "7,7 -> 5,5"
           D5.isDiagonal l `shouldBe` True
+        it "-7,7 -> -5,5 => True" $ do
+          let l = D5.parsePair "-7,7 -> -5,5"
+          D5.isDiagonal l `shouldBe` True
+      describe "renderLines" $ do
+        fit "renders the 2nd example" $ do
+          let parsedLines =
+                (D5.pair2Line . D5.parsePair)
+                  <$> [ "0,9 -> 5,9",
+                        "8,0 -> 0,8",
+                        "9,4 -> 3,4",
+                        "2,2 -> 2,1",
+                        "7,0 -> 7,4",
+                        "6,4 -> 2,0",
+                        "0,9 -> 2,9",
+                        "3,4 -> 1,4",
+                        "0,0 -> 8,8",
+                        "5,5 -> 8,2"
+                      ]
+          let expectedRender =
+                "\n\
+                \1.1....11.\n\
+                \.111...2..\n\
+                \..2.1.111.\n\
+                \...1.2.2..\n\
+                \.112313211\n\
+                \...1.2....\n\
+                \..1...1...\n\
+                \.1.....1..\n\
+                \1.......1.\n\
+                \222111....\n"
+          pPrint expectedRender
+          pPrint $ D5.renderLines parsedLines
+          D5.renderLines parsedLines `shouldBe` expectedRender
