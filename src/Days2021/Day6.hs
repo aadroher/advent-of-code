@@ -5,10 +5,17 @@ module Days2021.Day6 where
 
 import Import
 import qualified RIO.List as L
+import qualified RIO.List.Partial as L'
+import RIO.Partial (read)
+import qualified RIO.Text as T
+import Util (calculateResult)
 
 type Fish = Int
 
 type FishSchool = [Fish]
+
+parseSchool :: Text -> FishSchool
+parseSchool t = read . T.unpack <$> T.split (== ',') t
 
 shouldSpawn :: Fish -> Bool
 shouldSpawn 0 = True
@@ -23,7 +30,7 @@ nextDayFish f =
 nextDaySchool :: FishSchool -> FishSchool
 nextDaySchool fs =
   existingFishes
-    ++ L.foldl
+    ++ L.foldl'
       ( \newFishes f ->
           if shouldSpawn f
             then newFishes ++ [8]
@@ -43,3 +50,7 @@ dayNSchool fs n = dayNSchool (nextDaySchool fs) (n - 1)
 
 populationOnDayN :: FishSchool -> Int -> Int
 populationOnDayN fs n = L.length $ dayNSchool fs n
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult =
+  calculateResult parseSchool (\fss -> populationOnDayN (L'.head fss) 80)
