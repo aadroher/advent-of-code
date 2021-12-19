@@ -22,8 +22,6 @@ data Line
   = Ver Int (Int, Int)
   | Hor (Int, Int) Int
   | Dia (Int, Int) (Int, Int)
-  -- | DiagUp (Int, Int) Int
-  -- | DiagDown (Int, Int) Int
   deriving (Eq, Show)
 
 isVertical :: Pair -> Bool
