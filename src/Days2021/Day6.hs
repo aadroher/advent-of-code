@@ -12,28 +12,11 @@ import RIO.Partial (read)
 import qualified RIO.Text as T
 import Util (calculateResult)
 
-type Fish = Int
-
-type FishSchool = [Fish]
-
 type School = HashMap Int Int
-
-reproductionPeriod :: Int
-reproductionPeriod = 7
 
 emptySchool :: School
 emptySchool =
-  HM.fromList
-    [ (0, 0),
-      (1, 0),
-      (2, 0),
-      (3, 0),
-      (4, 0),
-      (5, 0),
-      (6, 0),
-      (7, 0),
-      (8, 0)
-    ]
+  HM.fromList $ L.zip [0 .. 8] $ L.repeat 0
 
 parseSchool :: Text -> School
 parseSchool t =
@@ -71,3 +54,6 @@ populationOnDayN s n = numFish $ evolve s n
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parseSchool (\s -> populationOnDayN (L'.head s) 80)
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parseSchool (\s -> populationOnDayN (L'.head s) 256)
