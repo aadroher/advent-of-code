@@ -441,4 +441,19 @@ spec = do
                   2,
                   14
                 ]
-          D7.optimalAlignment initialPositions `shouldBe` Just (2, 37)
+          D7.getNaiveOptimalAlignment initialPositions `shouldBe` (2, 37)
+      describe "optimalAlignment" $ do
+        fit "16,1,2,0,4,2,7,1,2,14 -> (5, 168)" $ do
+          let initialPositions =
+                [ 16,
+                  1,
+                  2,
+                  0,
+                  4,
+                  2,
+                  7,
+                  1,
+                  2,
+                  14
+                ]
+          D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)

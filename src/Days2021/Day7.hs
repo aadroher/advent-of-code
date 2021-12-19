@@ -25,15 +25,27 @@ getRange ps = [L'.minimum ps .. L'.maximum ps]
 getTotalCost :: [Position] -> Position -> Cost
 getTotalCost ps target = L.sum $ (\p -> abs (target - p)) <$> ps
 
-optimalAlignment :: [Position] -> Alignment
-optimalAlignment ps =
+triangularNum :: Int -> Int
+triangularNum n = L.sum [0 .. n]
+
+getWeightedTotalCost :: [Position] -> Position -> Cost
+getWeightedTotalCost ps target = L.sum $ (\p -> triangularNum $ abs (target - p)) <$> ps
+
+optimalAlignment :: ([Position] -> Position -> Cost) -> [Position] -> Alignment
+optimalAlignment calculateCost ps =
   case L.find ((== minCost) . snd) costs of
     Just a -> a
     Nothing -> error "Could not find alignment."
   where
     range = getRange ps
-    costs = (\target -> (target, getTotalCost ps target)) <$> range
+    costs = (\target -> (target, calculateCost ps target)) <$> range
     minCost = L'.minimum $ snd <$> costs
 
+getNaiveOptimalAlignment :: [Position] -> Alignment
+getNaiveOptimalAlignment = optimalAlignment getTotalCost
+
+getWeightedOptimalAlignment :: [Position] -> Alignment
+getWeightedOptimalAlignment = optimalAlignment getWeightedTotalCost
+
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult parsePositions (optimalAlignment . L'.head)
+calculateFirstResult = calculateResult parsePositions (getNaiveOptimalAlignment . L'.head)
