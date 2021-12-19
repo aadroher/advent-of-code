@@ -457,3 +457,5 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
+    describe "exercise 8" $ do
+      undefined
