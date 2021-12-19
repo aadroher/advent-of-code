@@ -49,3 +49,6 @@ getWeightedOptimalAlignment = optimalAlignment getWeightedTotalCost
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parsePositions (getNaiveOptimalAlignment . L'.head)
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parsePositions (getWeightedOptimalAlignment . L'.head)
