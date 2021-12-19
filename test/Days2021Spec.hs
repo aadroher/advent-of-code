@@ -400,66 +400,27 @@ spec = do
                 \222111....\n"
           D5.renderLines parsedLines `shouldBe` expectedRender
     fdescribe "exercise 6" $ do
-      describe "firstNDays" $ do
-        it "(3,4,3,1,2),0 -> (3,4,3,1,2)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [[3, 4, 3, 1, 2]]
-          D6.firstNDays 0 initialSchool `shouldBe` expectedFinalSchool
-        it "(3,4,3,1,2),1 -> (2,3,2,0,1)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [[3, 4, 3, 1, 2], [2, 3, 2, 0, 1]]
-          D6.firstNDays 1 initialSchool `shouldBe` expectedFinalSchool
-      describe "dayNSchool" $ do
-        it "(3,4,3,1,2),0 -> (3,4,3,1,2)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [3, 4, 3, 1, 2]
-          D6.dayNSchool initialSchool 0 `shouldBe` expectedFinalSchool
-        it "(3,4,3,1,2),1 -> (2,3,2,0,1)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [2, 3, 2, 0, 1]
-          D6.dayNSchool initialSchool 1 `shouldBe` expectedFinalSchool
-        it "(3,4,3,1,2),2 -> (1,2,1,6,0,8)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [1, 2, 1, 6, 0, 8]
-          D6.dayNSchool initialSchool 2 `shouldBe` expectedFinalSchool
-        it "(3,4,3,1,2),4 -> (0,1,0,5,6,0,1,2,2,3,7,8)" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
-          let expectedFinalSchool = [0, 1, 0, 5, 6, 0, 1, 2, 2, 3, 7, 8]
-          D6.dayNSchool initialSchool 10 `shouldBe` expectedFinalSchool
-      fdescribe "numChildrenAfterNDays" $ do
-        it "(0, 0) -> 0" $ do
-          D6.numChildrenAfterNDays 0 0 `shouldBe` 0
-        it "(1, 0) -> 1" $ do
-          D6.numChildrenAfterNDays 1 0 `shouldBe` 1
-        it "(3, 0) -> 1" $ do
-          D6.numChildrenAfterNDays 3 0 `shouldBe` 1
-        it "(8, 0) -> 2" $ do
-          D6.numChildrenAfterNDays 8 0 `shouldBe` 2
-        it "(0, 3) -> 0" $ do
-          D6.numChildrenAfterNDays 0 3 `shouldBe` 0
-        it "(1, 3) -> 0" $ do
-          D6.numChildrenAfterNDays 1 3 `shouldBe` 0
-        it "(3, 3) -> 0" $ do
-          D6.numChildrenAfterNDays 3 3 `shouldBe` 0
-        it "(4, 4) -> 1" $ do
-          D6.numChildrenAfterNDays 4 3 `shouldBe` 1
-        it "(11, 3) -> 2" $ do
-          D6.numChildrenAfterNDays 11 3 `shouldBe` 2
-        it "(18, 3) -> 3" $ do
-          D6.numChildrenAfterNDays 18 3 `shouldBe` 3
-      -- it "child: (8, 0) -> 0" $ do
-      --   D6.numChildrenAfterNDays 0 8 `shouldBe` 0
-      -- it "child: (8, 9) -> 1" $ do
-      --   D6.numChildrenAfterNDays 9 8 `shouldBe` 1
-      -- it "child: (8, 15) -> 2" $ do
-      --   D6.numChildrenAfterNDays 15 8 `shouldBe` 2
+      fdescribe "parseSchool" $ do
+        it "parses [3,4,3,1,2]" $ do
+          D6.parseSchool "3,4,3,1,2"
+            `shouldBe` HM.fromList
+              [ (0, 0),
+                (1, 1),
+                (2, 1),
+                (3, 2),
+                (4, 1),
+                (5, 0),
+                (6, 0),
+                (7, 0),
+                (8, 0)
+              ]
       fdescribe "populationOnDayN" $ do
         it "18 -> 26" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
+          let initialSchool = D6.parseSchool "3,4,3,1,2"
           D6.populationOnDayN initialSchool 18 `shouldBe` 26
         it "80 -> 5934" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
+          let initialSchool = D6.parseSchool "3,4,3,1,2"
           D6.populationOnDayN initialSchool 80 `shouldBe` 5934
-        xit "256 -> 26984457539" $ do
-          let initialSchool = [3, 4, 3, 1, 2]
+        it "256 -> 26984457539" $ do
+          let initialSchool = D6.parseSchool "3,4,3,1,2"
           D6.populationOnDayN initialSchool 256 `shouldBe` 26984457539

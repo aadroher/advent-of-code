@@ -3,8 +3,9 @@
 
 module Days2021.Day6 where
 
-import Data.List (iterate')
 import Import
+import qualified RIO.HashMap as HM
+import RIO.HashMap.Partial ((!))
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
 import RIO.Partial (read)
@@ -15,48 +16,58 @@ type Fish = Int
 
 type FishSchool = [Fish]
 
+type School = HashMap Int Int
+
 reproductionPeriod :: Int
 reproductionPeriod = 7
 
-parseSchool :: Text -> FishSchool
-parseSchool t = read . T.unpack <$> T.split (== ',') t
+emptySchool :: School
+emptySchool =
+  HM.fromList
+    [ (0, 0),
+      (1, 0),
+      (2, 0),
+      (3, 0),
+      (4, 0),
+      (5, 0),
+      (6, 0),
+      (7, 0),
+      (8, 0)
+    ]
 
-shouldSpawn :: Fish -> Bool
-shouldSpawn 0 = True
-shouldSpawn _ = False
-
-nextDayFish :: Fish -> Fish
-nextDayFish f = bool (f - 1) 6 (f == 0)
-
-nextDaySchool :: FishSchool -> FishSchool
-nextDaySchool fs =
-  L.foldl'
-    (\newFishes f -> bool newFishes (8 : newFishes) $ shouldSpawn f)
-    []
-    fs
-    ++ existingFishes
+parseSchool :: Text -> School
+parseSchool t =
+  HM.unionWith (+) emptySchool $
+    HM.fromListWith
+      (+)
+      [ (p, 1) | p <- initialStates
+      ]
   where
-    existingFishes = nextDayFish <$> fs
+    initialStates = read . T.unpack <$> T.split (== ',') t
 
-firstNDays :: Int -> FishSchool -> [FishSchool]
-firstNDays n fs = L.take (n + 1) $ iterate' nextDaySchool fs
+nextStep :: School -> School
+nextStep s =
+  HM.fromList
+    [ (0, s ! 1),
+      (1, s ! 2),
+      (2, s ! 3),
+      (3, s ! 4),
+      (4, s ! 5),
+      (5, s ! 6),
+      (6, s ! 0 + s ! 7),
+      (7, s ! 8),
+      (8, s ! 0)
+    ]
 
-dayNSchool :: FishSchool -> Int -> FishSchool
-dayNSchool fs n = L.foldl' (\fs' _ -> nextDaySchool fs') fs [1 .. n]
+evolve :: School -> Int -> School
+evolve s 0 = s
+evolve s n = evolve (nextStep s) (n - 1)
 
-numChildrenOnDayN :: Fish -> Int -> Int
--- numChildrenOnDayN s n = (n - s - 1 + reproductionPeriod) `div` reproductionPeriod
-numChildrenOnDayN s n = ((n - s - 1) `div` reproductionPeriod) + 1
+numFish :: School -> Int
+numFish s = L.sum $ snd <$> HM.toList s
 
-numChildrenAfterNDays :: Int -> Fish -> Int
--- numChildrenOnDayN s n = (n - s - 1 + reproductionPeriod) `div` reproductionPeriod
-numChildrenAfterNDays n s = ((n - s - 1) `div` reproductionPeriod) + 1
-
-populationOnDayN :: FishSchool -> Int -> Int
-populationOnDayN fs n = L.sum $ (\f -> numChildrenOnDayN f n) <$> fs
-
--- populationOnDayN fs n = L.length $ dayNSchool (L.reverse fs) n
+populationOnDayN :: School -> Int -> Int
+populationOnDayN s n = numFish $ evolve s n
 
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult =
-  calculateResult parseSchool (\fss -> populationOnDayN (L'.head fss) 80)
+calculateFirstResult = calculateResult parseSchool (\s -> populationOnDayN (L'.head s) 80)
