@@ -8,6 +8,7 @@ import Import
 import qualified RIO.HashSet as HS
 import qualified RIO.List as L
 import qualified RIO.Text as T
+import Util (calculateResult)
 
 data Segment = A | B | C | D | E | F | G
   deriving (Eq, Show)
@@ -59,9 +60,12 @@ isDigit 7 = (== 3) . HS.size
 isDigit 8 = (== 7) . HS.size
 isDigit _ = error "Cannot identify digit"
 
-countTotalDigits :: [Entry] -> [Int] -> Int
-countTotalDigits es digits =
+countTotalDigits :: [Int] -> [Entry] -> Int
+countTotalDigits digits es =
   L.length $ L.filter isIdentifiableDigit digitsSignals
   where
     digitsSignals = L.concatMap snd es
     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult = calculateResult parseEntry $ countTotalDigits [1, 4, 7, 8]
