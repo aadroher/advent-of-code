@@ -499,4 +499,8 @@ spec = do
                         "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
                         "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
                       ]
-          D8.countTotalDigits entries [1, 4, 7, 8] `shouldBe` 26
+          D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
+      describe "calculateOutputValue" $ do
+        it "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe -> 8394" $ do
+          let entry = D8.parseEntry "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe"
+          D8.calculateOutputValue entry `shouldBe` 8394

@@ -29,6 +29,29 @@ type Signal = HashSet Segment
 
 type Entry = ([Signal], [Signal])
 
+data DisplayPosition = Top | Mid | Bot | LTop | RTop | LBot | RBot
+
+type Decoding = (Signal, Maybe Int)
+
+type WireAssignment = (Segment, DisplayPosition)
+
+displayIntMapping :: [([DisplayPosition], Int)]
+displayIntMapping =
+  [ ([Top, Bot, LTop, RTop, LBot, RBot], 0),
+    ([RTop, RBot], 1),
+    ([Top, RTop, Mid, LBot, Bot], 2),
+    ([Top, RTop, Mid, RBot, Bot], 3),
+    ([LTop, RTop, Mid, RBot], 4),
+    ([Top, LTop, Mid, RBot, Bot], 5),
+    ([Top, LTop, Mid, LBot, RBot, Bot], 6),
+    ([Top, RTop, RBot], 7),
+    ([Top, Mid, Bot, LTop, RTop, LBot, RBot], 8),
+    ([Top, LTop, RTop, Mid, RBot, Bot], 9)
+  ]
+
+easyDigits :: [Int]
+easyDigits = [1, 4, 7, 8]
+
 parseSegment :: Text -> Segment
 parseSegment t = case t of
   "a" -> A
@@ -60,6 +83,14 @@ isDigit 7 = (== 3) . HS.size
 isDigit 8 = (== 7) . HS.size
 isDigit _ = error "Cannot identify digit"
 
+attemptEasyDecode :: Signal -> Decoding
+attemptEasyDecode s
+  | isDigit 1 s = (s, Just 1)
+  | isDigit 4 s = (s, Just 4)
+  | isDigit 7 s = (s, Just 7)
+  | isDigit 8 s = (s, Just 8)
+  | otherwise = (s, Nothing)
+
 countTotalDigits :: [Int] -> [Entry] -> Int
 countTotalDigits digits es =
   L.length $ L.filter isIdentifiableDigit digitsSignals
@@ -67,5 +98,11 @@ countTotalDigits digits es =
     digitsSignals = L.concatMap snd es
     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
 
+calculateDecoding :: [Decoding] -> Signal -> Decoding
+calculateDecoding ds = undefined
+
+calculateOutputValue :: Entry -> Int
+calculateOutputValue _ = 0
+
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult parseEntry $ countTotalDigits [1, 4, 7, 8]
+calculateFirstResult = calculateResult parseEntry $ countTotalDigits easyDigit
