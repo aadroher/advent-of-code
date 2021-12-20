@@ -9,7 +9,7 @@ import qualified RIO.HashSet as HS
 import qualified RIO.Text as T
 
 data Segment = A | B | C | D | E | F | G
-  deriving (Eq)
+  deriving (Eq, Show)
 
 instance Hashable Segment where
   hashWithSalt salt s =

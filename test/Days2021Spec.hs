@@ -5,7 +5,7 @@ module Days2021Spec (spec) where
 
 import qualified Data.List as L
 import qualified Days2021.Day1 as D1
-import Days2021.Day2 (Command (..))
+-- import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
@@ -15,8 +15,11 @@ import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
 import Days2021.Day7 (optimalAlignment)
 import qualified Days2021.Day7 as D7
+import Days2021.Day8 (Segment (..))
+import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
+import qualified RIO.HashSet as HS
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -52,13 +55,13 @@ spec = do
         it "(0, 0) -> [] -> (0, 0)" $ do
           D2.stepMove (0, 0) [] `shouldBe` (0, 0)
         it "(0, 0) -> [F5, D5, F8, U3, D8, F2] -> (15, 10)" $ do
-          D2.stepMove (0, 0) [F 5, D 5, F 8, U 3, D 8, F 2] `shouldBe` (15, 10)
+          D2.stepMove (0, 0) [D2.F 5, D2.D 5, D2.F 8, D2.U 3, D2.D 8, D2.F 2] `shouldBe` (15, 10)
     describe "exercise 2.2" $ do
       describe "bearingMove" $ do
         it "(0, (0, 0)) -> [] -> (0, (0, 0))" $ do
           D2.bearingMove (0, (0, 0)) [] `shouldBe` (0, (0, 0))
         it "(0, (0, 0)) -> [F5, D5, F8, U3, D8, F2] -> (10, (15, 60))" $ do
-          D2.bearingMove (0, (0, 0)) [F 5, D 5, F 8, U 3, D 8, F 2] `shouldBe` (10, (15, 60))
+          D2.bearingMove (0, (0, 0)) [D2.F 5, D2.D 5, D2.F 8, D2.U 3, D2.D 8, D2.F 2] `shouldBe` (10, (15, 60))
     describe "exercise 3.1" $ do
       describe "getMostCommon" $ do
         it "[0,0,1] -> 0" $ do
@@ -457,5 +460,27 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
-    describe "exercise 8" $ do
-      undefined
+    fdescribe "exercise 8" $ do
+      describe "parseSignal" $ do
+        it "parses 'abc'" $ do
+          D8.parseSignal "abc" `shouldBe` HS.fromList [D8.A, D8.B, D8.C]
+      describe "parseEntry" $ do
+        it "parses first example" $ do
+          D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+            `shouldBe` ( [ HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.F, D8.G],
+                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
+                           HS.fromList [D8.A, D8.C, D8.D, D8.F, D8.G],
+                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F],
+                           HS.fromList [D8.A, D8.B, D8.D],
+                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.F],
+                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F, D8.G],
+                           HS.fromList [D8.A, D8.B, D8.E, D8.F],
+                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.G],
+                           HS.fromList [D8.A, D8.B]
+                         ],
+                         [ HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
+                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F],
+                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
+                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F]
+                         ]
+                       )
