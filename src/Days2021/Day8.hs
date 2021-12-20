@@ -6,6 +6,7 @@ module Days2021.Day8 where
 import Data.Hashable
 import Import
 import qualified RIO.HashSet as HS
+import qualified RIO.List as L
 import qualified RIO.Text as T
 
 data Segment = A | B | C | D | E | F | G
@@ -50,3 +51,17 @@ parseEntry t =
     [signalsText, digitsText] = T.split (== '|') t
     signalTexts = T.words signalsText
     digitTexts = T.words digitsText
+
+isDigit :: Int -> Signal -> Bool
+isDigit 1 = (== 2) . HS.size
+isDigit 4 = (== 4) . HS.size
+isDigit 7 = (== 3) . HS.size
+isDigit 8 = (== 7) . HS.size
+isDigit _ = error "Cannot identify digit"
+
+countTotalDigits :: [Entry] -> [Int] -> Int
+countTotalDigits es digits =
+  L.length $ L.filter isIdentifiableDigit digitsSignals
+  where
+    digitsSignals = L.concatMap snd es
+    isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
