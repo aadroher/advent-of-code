@@ -19,7 +19,7 @@ import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
 import qualified RIO.HashSet as HS
-import RIO.List ((\\))
+import RIO.Set (Set, (\\))
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -463,25 +463,25 @@ spec = do
     fdescribe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
-          D8.parseSignal "abc" `shouldBe` HS.fromList [SA, SB, SC]
+          D8.parseSignal "abc" `shouldBe` S.fromList [SA, SB, SC]
       describe "parseEntry" $ do
         it "parses first example" $ do
           D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
-            `shouldBe` ( [ HS.fromList [SA, SB, SC, SD, SE, SF, SG],
-                           HS.fromList [SB, SC, SD, SE, SF],
-                           HS.fromList [SA, SC, SD, SF, SG],
-                           HS.fromList [SA, SB, SC, SD, SF],
-                           HS.fromList [SA, SB, SD],
-                           HS.fromList [SA, SB, SC, SD, SE, SF],
-                           HS.fromList [SB, SC, SD, SE, SF, SG],
-                           HS.fromList [SA, SB, SE, SF],
-                           HS.fromList [SA, SB, SC, SD, SE, SG],
-                           HS.fromList [SA, SB]
+            `shouldBe` ( [ S.fromList [SA, SB, SC, SD, SE, SF, SG],
+                           S.fromList [SB, SC, SD, SE, SF],
+                           S.fromList [SA, SC, SD, SF, SG],
+                           S.fromList [SA, SB, SC, SD, SF],
+                           S.fromList [SA, SB, SD],
+                           S.fromList [SA, SB, SC, SD, SE, SF],
+                           S.fromList [SB, SC, SD, SE, SF, SG],
+                           S.fromList [SA, SB, SE, SF],
+                           S.fromList [SA, SB, SC, SD, SE, SG],
+                           S.fromList [SA, SB]
                          ],
-                         [ HS.fromList [SB, SC, SD, SE, SF],
-                           HS.fromList [SA, SB, SC, SD, SF],
-                           HS.fromList [SB, SC, SD, SE, SF],
-                           HS.fromList [SA, SB, SC, SD, SF]
+                         [ S.fromList [SB, SC, SD, SE, SF],
+                           S.fromList [SA, SB, SC, SD, SF],
+                           S.fromList [SB, SC, SD, SE, SF],
+                           S.fromList [SA, SB, SC, SD, SF]
                          ]
                        )
       describe "countTotalDigits" $ do
@@ -503,17 +503,19 @@ spec = do
       describe "reduceConstraints" $ do
         fit "removes impossible mappings for be -> 1" $ do
           let segmentMappings =
-                [ (SB, RTop),
-                  (SE, RBot),
-                  (SB, RBot),
-                  (SE, RTop)
-                ]
+                S.fromList
+                  [ (SB, RTop),
+                    (SE, RBot),
+                    (SB, RBot),
+                    (SE, RTop)
+                  ]
           D8.reduceConstraints D8.universalContraints segmentMappings
             `shouldBe` ( D8.universalContraints
-                           \\ [ (s, p)
-                                | s <- [SA, SC, SD, SF, SG],
-                                  p <- [RTop, RBot]
-                              ]
+                           \\ S.fromList
+                             [ (s, p)
+                               | s <- [SA, SC, SD, SF, SG],
+                                 p <- [RTop, RBot]
+                             ]
                        )
       describe "calculateOutputValue" $ do
         it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
