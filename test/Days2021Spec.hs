@@ -3,7 +3,6 @@
 
 module Days2021Spec (spec) where
 
-import qualified Data.List as L
 import qualified Days2021.Day1 as D1
 -- import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
@@ -15,11 +14,12 @@ import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
 import Days2021.Day7 (optimalAlignment)
 import qualified Days2021.Day7 as D7
-import Days2021.Day8 (Segment (..))
+import Days2021.Day8 (DisplayPosition (..), Segment (..))
 import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
 import qualified RIO.HashSet as HS
+import RIO.List ((\\))
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -501,9 +501,20 @@ spec = do
                       ]
           D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
       describe "reduceConstraints" $ do
-        it "removes impossible mappings for 1" $ do
-          let segmentMappings = []
-          True `shouldBe` True
+        fit "removes impossible mappings for be -> 1" $ do
+          let segmentMappings =
+                [ (SB, RTop),
+                  (SE, RBot),
+                  (SB, RBot),
+                  (SE, RTop)
+                ]
+          D8.reduceConstraints D8.universalContraints segmentMappings
+            `shouldBe` ( D8.universalContraints
+                           \\ [ (s, p)
+                                | s <- [SA, SC, SD, SF, SG],
+                                  p <- [RTop, RBot]
+                              ]
+                       )
       describe "calculateOutputValue" $ do
         it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
           let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"

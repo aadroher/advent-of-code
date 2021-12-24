@@ -6,6 +6,7 @@ module Days2021.Day8 where
 import Data.Hashable
 import Import
 import qualified RIO.HashSet as HS
+import RIO.List ((\\))
 import qualified RIO.List as L
 import qualified RIO.Text as T
 import Util (calculateResult)
@@ -94,7 +95,16 @@ isDigit 8 = (== 7) . HS.size
 isDigit _ = error "Cannot identify digit"
 
 reduceConstraints :: Constraints -> [SegmentMapping] -> Constraints
-reduceConstraints c sms = undefined
+reduceConstraints c sms =
+  c
+    \\ [ (s, p)
+         | s <- fst <$> sms,
+           p <- images
+       ]
+  where
+    newSegmentMappingDisplayPositions = snd <$> sms
+    filterBy = \p -> not (L.elem p newSegmentMappingDisplayPositions)
+    images = L.filter filterBy [Top, Mid, Bot, LTop, RTop, LBot, RBot]
 
 -- attemptEasyDecode :: Signal -> Maybe SegmentMapping
 -- attemptEasyDecode s
