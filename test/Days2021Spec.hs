@@ -463,25 +463,25 @@ spec = do
     fdescribe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
-          D8.parseSignal "abc" `shouldBe` HS.fromList [D8.A, D8.B, D8.C]
+          D8.parseSignal "abc" `shouldBe` HS.fromList [SA, SB, SC]
       describe "parseEntry" $ do
         it "parses first example" $ do
           D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
-            `shouldBe` ( [ HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.F, D8.G],
-                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
-                           HS.fromList [D8.A, D8.C, D8.D, D8.F, D8.G],
-                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F],
-                           HS.fromList [D8.A, D8.B, D8.D],
-                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.F],
-                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F, D8.G],
-                           HS.fromList [D8.A, D8.B, D8.E, D8.F],
-                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.E, D8.G],
-                           HS.fromList [D8.A, D8.B]
+            `shouldBe` ( [ HS.fromList [SA, SB, SC, SD, SE, SF, SG],
+                           HS.fromList [SB, SC, SD, SE, SF],
+                           HS.fromList [SA, SC, SD, SF, SG],
+                           HS.fromList [SA, SB, SC, SD, SF],
+                           HS.fromList [SA, SB, SD],
+                           HS.fromList [SA, SB, SC, SD, SE, SF],
+                           HS.fromList [SB, SC, SD, SE, SF, SG],
+                           HS.fromList [SA, SB, SE, SF],
+                           HS.fromList [SA, SB, SC, SD, SE, SG],
+                           HS.fromList [SA, SB]
                          ],
-                         [ HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
-                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F],
-                           HS.fromList [D8.B, D8.C, D8.D, D8.E, D8.F],
-                           HS.fromList [D8.A, D8.B, D8.C, D8.D, D8.F]
+                         [ HS.fromList [SB, SC, SD, SE, SF],
+                           HS.fromList [SA, SB, SC, SD, SF],
+                           HS.fromList [SB, SC, SD, SE, SF],
+                           HS.fromList [SA, SB, SC, SD, SF]
                          ]
                        )
       describe "countTotalDigits" $ do
@@ -500,7 +500,11 @@ spec = do
                         "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
                       ]
           D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
+      describe "reduceConstraints" $ do
+        it "removes impossible mappings for 1" $ do
+          let segmentMappings = []
+          True `shouldBe` True
       describe "calculateOutputValue" $ do
-        it "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe -> 8394" $ do
-          let entry = D8.parseEntry "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe"
-          D8.calculateOutputValue entry `shouldBe` 8394
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
+          let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.calculateOutputValue entry `shouldBe` 5353

@@ -10,30 +10,33 @@ import qualified RIO.List as L
 import qualified RIO.Text as T
 import Util (calculateResult)
 
-data Segment = A | B | C | D | E | F | G
+data Segment = SA | SB | SC | SD | SE | SF | SG
   deriving (Eq, Show)
 
 instance Hashable Segment where
   hashWithSalt salt s =
     salt
       + case s of
-        A -> 0
-        B -> 1
-        C -> 2
-        D -> 3
-        E -> 4
-        F -> 5
-        G -> 6
+        SA -> 0
+        SB -> 1
+        SC -> 2
+        SD -> 3
+        SE -> 4
+        SF -> 5
+        SG -> 6
 
 type Signal = HashSet Segment
 
 type Entry = ([Signal], [Signal])
 
 data DisplayPosition = Top | Mid | Bot | LTop | RTop | LBot | RBot
+  deriving (Eq, Show)
 
 type Decoding = (Signal, Maybe Int)
 
-type WireAssignment = (Segment, DisplayPosition)
+type SegmentMapping = (Segment, DisplayPosition)
+
+type Constraints = [SegmentMapping]
 
 displayIntMapping :: [([DisplayPosition], Int)]
 displayIntMapping =
@@ -52,15 +55,22 @@ displayIntMapping =
 easyDigits :: [Int]
 easyDigits = [1, 4, 7, 8]
 
+universalContraints :: Constraints
+universalContraints =
+  [ (s, p)
+    | s <- [SA, SB, SC, SD, SE, SF, SG],
+      p <- [Top, Mid, Bot, LTop, RTop, LBot, RBot]
+  ]
+
 parseSegment :: Text -> Segment
 parseSegment t = case t of
-  "a" -> A
-  "b" -> B
-  "c" -> C
-  "d" -> D
-  "e" -> E
-  "f" -> F
-  "g" -> G
+  "a" -> SA
+  "b" -> SB
+  "c" -> SC
+  "d" -> SD
+  "e" -> SE
+  "f" -> SF
+  "g" -> SG
   _ -> error $ "Could not parse segment: " ++ T.unpack t
 
 parseSignal :: Text -> Signal
@@ -83,13 +93,16 @@ isDigit 7 = (== 3) . HS.size
 isDigit 8 = (== 7) . HS.size
 isDigit _ = error "Cannot identify digit"
 
-attemptEasyDecode :: Signal -> Decoding
-attemptEasyDecode s
-  | isDigit 1 s = (s, Just 1)
-  | isDigit 4 s = (s, Just 4)
-  | isDigit 7 s = (s, Just 7)
-  | isDigit 8 s = (s, Just 8)
-  | otherwise = (s, Nothing)
+reduceConstraints :: Constraints -> [SegmentMapping] -> Constraints
+reduceConstraints c sms = undefined
+
+-- attemptEasyDecode :: Signal -> Maybe SegmentMapping
+-- attemptEasyDecode s
+--   | isDigit 1 s = (s, Just 1)
+--   | isDigit 4 s = (s, Just 4)
+--   | isDigit 7 s = (s, Just 7)
+--   | isDigit 8 s = (s, Just 8)
+--   | otherwise = (s, Nothing)
 
 countTotalDigits :: [Int] -> [Entry] -> Int
 countTotalDigits digits es =
@@ -105,4 +118,6 @@ calculateOutputValue :: Entry -> Int
 calculateOutputValue _ = 0
 
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult parseEntry $ countTotalDigits easyDigit
+calculateFirstResult = undefined
+
+-- calculateFirstResult = calculateResult parseEntry $ countTotalDigits easyDigit
