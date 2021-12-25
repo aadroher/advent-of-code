@@ -460,7 +460,7 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
-    fdescribe "exercise 8" $ do
+    describe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
           D8.parseSignal "abc" `shouldBe` S.fromList [SA, SB, SC]
@@ -595,6 +595,24 @@ spec = do
                                  p <- [RTop, RBot]
                              ]
                        )
+      describe "getPairsFor and reduceConstraints" $ do
+        fit "works with all easy values" $ do
+          let fourPairs = D8.getPairsFor (D8.parseSignal "efab") D8.universalContraints
+          pPrint $ S.size D8.universalContraints
+          let afterFourRemoval = D8.reduceConstraints fourPairs D8.universalContraints
+          pPrint $ S.size afterFourRemoval
+          let onePairs = D8.getPairsFor (D8.parseSignal "ab") afterFourRemoval
+          let afterOneRemoval = D8.reduceConstraints onePairs afterFourRemoval
+          pPrint $ S.size afterOneRemoval
+          let sevenPairs = D8.getPairsFor (D8.parseSignal "dab") afterOneRemoval
+          let afterSevenRemoval = D8.reduceConstraints sevenPairs afterOneRemoval
+          pPrint $ S.size afterSevenRemoval
+          let eightPairs = D8.getPairsFor (D8.parseSignal "acedgfb") afterSevenRemoval
+          let afterEightRemoval = D8.reduceConstraints eightPairs afterSevenRemoval
+          pPrint $ S.size afterEightRemoval
+          pPrint $ D8.getDigitToPrint (D8.parseSignal "acedgfb") afterEightRemoval
+          pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "acedgfb")
+          True `shouldBe` True
       describe "countTotalDigits" $ do
         it "solves example" $ do
           let entries =
