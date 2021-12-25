@@ -12,24 +12,20 @@ import qualified RIO.Set as S
 import qualified RIO.Text as T
 import Util (calculateResult)
 
-data Segment = SA | SB | SC | SD | SE | SF | SG
+data Wire = WA | WB | WC | WD | WE | WF | WG
   deriving (Eq, Ord, Show)
 
-type Signal = Set Segment
+type Signal = Set Wire
 
 type Entry = (Set Signal, [Signal])
 
-data DisplayPosition = Top | Mid | Bot | LTop | RTop | LBot | RBot
+data Segment = Top | Mid | Bot | LTop | RTop | LBot | RBot
   deriving (Eq, Ord, Show)
 
-type Decoding = (Signal, Maybe Int)
+type Connection = (Wire, Segment)
 
-type SegmentMapping = (Segment, DisplayPosition)
-
-type Constraints = Set SegmentMapping
-
-displayIntMapping :: Map (Set DisplayPosition) Int
-displayIntMapping =
+segmentsToInt :: Map (Set Segment) Int
+segmentsToInt =
   M.fromList $
     first S.fromList
       <$> [ ([Top, Bot, LTop, RTop, LBot, RBot], 0),
@@ -47,27 +43,27 @@ displayIntMapping =
 easyDigits :: [Int]
 easyDigits = [1, 4, 7, 8]
 
-universalContraints :: Set SegmentMapping
-universalContraints =
+allConnections :: Set Connection
+allConnections =
   S.fromList
     [ (s, p)
-      | s <- [SA, SB, SC, SD, SE, SF, SG],
+      | s <- [WA, WB, WC, WD, WE, WF, WG],
         p <- [Top, Mid, Bot, LTop, RTop, LBot, RBot]
     ]
 
-parseSegment :: Text -> Segment
-parseSegment t = case t of
-  "a" -> SA
-  "b" -> SB
-  "c" -> SC
-  "d" -> SD
-  "e" -> SE
-  "f" -> SF
-  "g" -> SG
+parseWire :: Text -> Wire
+parseWire t = case t of
+  "a" -> WA
+  "b" -> WB
+  "c" -> WC
+  "d" -> WD
+  "e" -> WE
+  "f" -> WF
+  "g" -> WG
   _ -> error $ "Could not parse segment: " ++ T.unpack t
 
 parseSignal :: Text -> Signal
-parseSignal t = S.fromList $ parseSegment . (`T.cons` "") <$> T.unpack t
+parseSignal t = S.fromList $ parseWire . (`T.cons` "") <$> T.unpack t
 
 parseEntry :: Text -> Entry
 parseEntry t =
@@ -79,60 +75,50 @@ parseEntry t =
     signalTexts = T.words signalsText
     digitTexts = T.words digitsText
 
-isDigit :: Int -> Signal -> Bool
-isDigit 1 = (== 2) . S.size
-isDigit 4 = (== 4) . S.size
-isDigit 7 = (== 3) . S.size
-isDigit 8 = (== 7) . S.size
-isDigit _ = error "Cannot identify digit"
-
-getCandidatePositions :: Signal -> Set (Set DisplayPosition)
-getCandidatePositions s =
+candidateSegmentSets :: Signal -> Set (Set Segment)
+candidateSegmentSets wires =
   S.filter
-    (\dps -> S.size dps == S.size s)
-    displayPositionSets
+    (\dps -> S.size dps == S.size wires)
+    segmentSets
   where
-    displayPositionSets = S.fromList $ M.keys displayIntMapping
+    segmentSets = S.fromList $ M.keys segmentsToInt
 
-getPairsFor :: Signal -> Set SegmentMapping -> Set SegmentMapping
-getPairsFor segments = S.filter $ \(s, _) -> S.member s segments
+connectionsFor :: Signal -> Set Connection -> Set Connection
+connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
 
-isValidMappingFor :: Signal -> Set SegmentMapping -> Bool
-isValidMappingFor s sms = S.size (getPairsFor s sms) == S.size s
+isValidMappingFor :: Signal -> Set Connection -> Bool
+isValidMappingFor wires connections = S.size (connectionsFor wires connections) == S.size wires
 
-getDigitToPrint :: Signal -> Set SegmentMapping -> Maybe Int
-getDigitToPrint signal sms =
-  M.lookup (S.map snd $ getPairsFor signal sms) displayIntMapping
+getDigitToPrint :: Signal -> Set Connection -> Maybe Int
+getDigitToPrint wires connections =
+  M.lookup (S.map snd $ connectionsFor wires connections) segmentsToInt
 
-isResolvingConstraintSet :: Set SegmentMapping -> Signal -> Bool
+isResolvingConstraintSet :: Set Connection -> Signal -> Bool
 isResolvingConstraintSet c = L.all hasUniqueImage
   where
     withDomain segment = S.filter $ \(s, _) -> s == segment
     hasUniqueImage segment =
       L.length (withDomain segment c) == 1
 
-reduceConstraints :: Set SegmentMapping -> Set SegmentMapping -> Set SegmentMapping
-reduceConstraints c sms =
-  c
+reduceConnections :: Set Connection -> Set Connection -> Set Connection
+reduceConnections connections validConnections =
+  connections
     \\ S.fromList
       [ (s, p)
         | s <- S.toList segmentsToRemove,
           p <- S.toList receivedImages
       ]
   where
-    receivedRange = S.map fst sms
-    segmentsToRemove = S.fromList [SA, SB, SC, SD, SE, SF, SG] \\ receivedRange
-    receivedImages = S.map snd sms
+    receivedRange = S.map fst validConnections
+    segmentsToRemove = S.fromList [WA, WB, WC, WD, WE, WF, WG] \\ receivedRange
+    receivedImages = S.map snd validConnections
 
-countTotalDigits :: [Int] -> [Entry] -> Int
-countTotalDigits digits es =
-  L.length $ L.filter isIdentifiableDigit digitsSignals
-  where
-    digitsSignals = L.concatMap snd es
-    isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
-
-calculateDecoding :: [Decoding] -> Signal -> Decoding
-calculateDecoding ds = undefined
+-- countTotalDigits :: [Int] -> [Entry] -> Int
+-- countTotalDigits digits es =
+--   L.length $ L.filter isIdentifiableDigit digitsSignals
+--   where
+--     digitsSignals = L.concatMap snd es
+--     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
 
 calculateOutputValue :: Entry -> Int
 calculateOutputValue _ = 0

@@ -14,7 +14,7 @@ import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
 import Days2021.Day7 (optimalAlignment)
 import qualified Days2021.Day7 as D7
-import Days2021.Day8 (DisplayPosition (..), Segment (..))
+import Days2021.Day8 (Segment (..), Wire (..))
 import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
@@ -463,56 +463,56 @@ spec = do
     describe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
-          D8.parseSignal "abc" `shouldBe` S.fromList [SA, SB, SC]
+          D8.parseSignal "abc" `shouldBe` S.fromList [WA, WB, WC]
       describe "parseEntry" $ do
         it "parses first example" $ do
           D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
             `shouldBe` ( S.fromList
-                           [ S.fromList [SA, SB, SC, SD, SE, SF, SG],
-                             S.fromList [SB, SC, SD, SE, SF],
-                             S.fromList [SA, SC, SD, SF, SG],
-                             S.fromList [SA, SB, SC, SD, SF],
-                             S.fromList [SA, SB, SD],
-                             S.fromList [SA, SB, SC, SD, SE, SF],
-                             S.fromList [SB, SC, SD, SE, SF, SG],
-                             S.fromList [SA, SB, SE, SF],
-                             S.fromList [SA, SB, SC, SD, SE, SG],
-                             S.fromList [SA, SB]
+                           [ S.fromList [WA, WB, WC, WD, WE, WF, WG],
+                             S.fromList [WB, WC, WD, WE, WF],
+                             S.fromList [WA, WC, WD, WF, WG],
+                             S.fromList [WA, WB, WC, WD, WF],
+                             S.fromList [WA, WB, WD],
+                             S.fromList [WA, WB, WC, WD, WE, WF],
+                             S.fromList [WB, WC, WD, WE, WF, WG],
+                             S.fromList [WA, WB, WE, WF],
+                             S.fromList [WA, WB, WC, WD, WE, WG],
+                             S.fromList [WA, WB]
                            ],
-                         [ S.fromList [SB, SC, SD, SE, SF],
-                           S.fromList [SA, SB, SC, SD, SF],
-                           S.fromList [SB, SC, SD, SE, SF],
-                           S.fromList [SA, SB, SC, SD, SF]
+                         [ S.fromList [WB, WC, WD, WE, WF],
+                           S.fromList [WA, WB, WC, WD, WF],
+                           S.fromList [WB, WC, WD, WE, WF],
+                           S.fromList [WA, WB, WC, WD, WF]
                          ]
                        )
-      describe "getPairsFor" $ do
+      describe "connectionsFor" $ do
         it "gets pairs for 'bca'" $ do
           let signal = D8.parseSignal "bca"
           let constraints =
                 S.fromList
-                  [ (SB, Top),
-                    (SA, RTop),
-                    (SC, RBot),
-                    (SC, RBot),
-                    (SD, RBot)
+                  [ (WB, Top),
+                    (WA, RTop),
+                    (WC, RBot),
+                    (WC, RBot),
+                    (WD, RBot)
                   ]
-          D8.getPairsFor signal constraints
+          D8.connectionsFor signal constraints
             `shouldBe` S.fromList
-              [ (SB, Top),
-                (SA, RTop),
-                (SC, RBot),
-                (SC, RBot)
+              [ (WB, Top),
+                (WA, RTop),
+                (WC, RBot),
+                (WC, RBot)
               ]
-      describe "getCandidatePositions" $ do
+      describe "candidateSegmentSets" $ do
         it "returns a single value for 'ce'" $ do
           let signal = D8.parseSignal "ce"
-          D8.getCandidatePositions signal
+          D8.candidateSegmentSets signal
             `shouldBe` S.fromList
               [ S.fromList [RTop, RBot]
               ]
         it "returns 3 values for 'ceadb'" $ do
           let signal = D8.parseSignal "ceadb"
-          D8.getCandidatePositions signal
+          D8.candidateSegmentSets signal
             `shouldBe` S.fromList
               [ S.fromList [Top, Mid, Bot, LTop, RBot],
                 S.fromList [Top, Mid, Bot, RTop, LBot],
@@ -523,28 +523,28 @@ spec = do
           let signal = D8.parseSignal "bca"
           let constraints =
                 S.fromList
-                  [ (SB, Top),
-                    (SA, RTop),
-                    (SC, RBot),
-                    (SD, RBot)
+                  [ (WB, Top),
+                    (WA, RTop),
+                    (WC, RBot),
+                    (WD, RBot)
                   ]
           D8.isValidMappingFor signal constraints `shouldBe` True
         it "is False for a non-valid set of pairs for 'bca'" $ do
           let signal = D8.parseSignal "bca"
           let constraints =
                 S.fromList
-                  [ (SB, Top),
-                    (SA, RTop),
-                    (SC, RBot),
-                    (SC, LBot)
+                  [ (WB, Top),
+                    (WA, RTop),
+                    (WC, RBot),
+                    (WC, LBot)
                   ]
           D8.isValidMappingFor signal constraints `shouldBe` False
       describe "getDigitToPrint" $ do
         let constraints =
               S.fromList
-                [ (SB, Top),
-                  (SA, RTop),
-                  (SC, RBot)
+                [ (WB, Top),
+                  (WA, RTop),
+                  (WC, RBot)
                 ]
         it "'abc' -> 7" $ do
           let signal = D8.parseSignal "abc"
@@ -563,72 +563,72 @@ spec = do
           let segment = D8.parseSignal "bca"
           let constraints =
                 S.fromList
-                  [ (SB, Top),
-                    (SA, RTop),
-                    (SC, RBot)
+                  [ (WB, Top),
+                    (WA, RTop),
+                    (WC, RBot)
                   ]
           D8.isResolvingConstraintSet constraints segment `shouldBe` True
         it "is False for a non-definite simple one" $ do
           let segment = D8.parseSignal "bca"
           let constraints =
                 S.fromList
-                  [ (SB, Top),
-                    (SA, RTop),
-                    (SC, RBot),
-                    (SC, RBot)
+                  [ (WB, Top),
+                    (WA, RTop),
+                    (WC, RBot),
+                    (WC, RBot)
                   ]
           D8.isResolvingConstraintSet constraints segment `shouldBe` False
-      describe "reduceConstraints" $ do
+      describe "reduceConnections" $ do
         it "removes impossible mappings for be -> 1" $ do
           let segmentMappings =
                 S.fromList
-                  [ (SB, RTop),
-                    (SE, RBot),
-                    (SB, RBot),
-                    (SE, RTop)
+                  [ (WB, RTop),
+                    (WE, RBot),
+                    (WB, RBot),
+                    (WE, RTop)
                   ]
-          D8.reduceConstraints D8.universalContraints segmentMappings
-            `shouldBe` ( D8.universalContraints
+          D8.reduceConnections D8.allConnections segmentMappings
+            `shouldBe` ( D8.allConnections
                            \\ S.fromList
                              [ (s, p)
-                               | s <- [SA, SC, SD, SF, SG],
+                               | s <- [WA, WC, WD, WF, WG],
                                  p <- [RTop, RBot]
                              ]
                        )
-      describe "getPairsFor and reduceConstraints" $ do
+      describe "connectionsFor and reduceConnections" $ do
         fit "works with all easy values" $ do
-          let fourPairs = D8.getPairsFor (D8.parseSignal "efab") D8.universalContraints
-          pPrint $ S.size D8.universalContraints
-          let afterFourRemoval = D8.reduceConstraints fourPairs D8.universalContraints
+          let fourPairs = D8.connectionsFor (D8.parseSignal "efab") D8.allConnections
+          pPrint $ S.size D8.allConnections
+          let afterFourRemoval = D8.reduceConnections fourPairs D8.allConnections
           pPrint $ S.size afterFourRemoval
-          let onePairs = D8.getPairsFor (D8.parseSignal "ab") afterFourRemoval
-          let afterOneRemoval = D8.reduceConstraints onePairs afterFourRemoval
+          let onePairs = D8.connectionsFor (D8.parseSignal "ab") afterFourRemoval
+          let afterOneRemoval = D8.reduceConnections onePairs afterFourRemoval
           pPrint $ S.size afterOneRemoval
-          let sevenPairs = D8.getPairsFor (D8.parseSignal "dab") afterOneRemoval
-          let afterSevenRemoval = D8.reduceConstraints sevenPairs afterOneRemoval
+          let sevenPairs = D8.connectionsFor (D8.parseSignal "dab") afterOneRemoval
+          let afterSevenRemoval = D8.reduceConnections sevenPairs afterOneRemoval
           pPrint $ S.size afterSevenRemoval
-          let eightPairs = D8.getPairsFor (D8.parseSignal "acedgfb") afterSevenRemoval
-          let afterEightRemoval = D8.reduceConstraints eightPairs afterSevenRemoval
+          let eightPairs = D8.connectionsFor (D8.parseSignal "acedgfb") afterSevenRemoval
+          let afterEightRemoval = D8.reduceConnections eightPairs afterSevenRemoval
           pPrint $ S.size afterEightRemoval
           pPrint $ D8.getDigitToPrint (D8.parseSignal "acedgfb") afterEightRemoval
           pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "acedgfb")
           True `shouldBe` True
-      describe "countTotalDigits" $ do
-        it "solves example" $ do
-          let entries =
-                D8.parseEntry
-                  <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
-                        "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
-                        "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
-                        "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
-                        "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
-                        "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
-                        "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
-                        "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
-                        "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
-                        "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
-                      ]
-          D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
+      -- describe "countTotalDigits" $ do
+      --   it "solves example" $ do
+      --     let entries =
+      --           D8.parseEntry
+      --             <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+      --                   "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+      --                   "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+      --                   "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+      --                   "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+      --                   "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+      --                   "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+      --                   "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+      --                   "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+      --                   "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+      --                 ]
+      --     D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
       describe "calculateOutputValue" $ do
         it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
           let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
