@@ -86,19 +86,6 @@ isDigit 7 = (== 3) . S.size
 isDigit 8 = (== 7) . S.size
 isDigit _ = error "Cannot identify digit"
 
-reduceConstraints :: Set SegmentMapping -> Set SegmentMapping -> Set SegmentMapping
-reduceConstraints c sms =
-  c
-    \\ S.fromList
-      [ (s, p)
-        | s <- S.toList segmentsToRemove,
-          p <- S.toList receivedImages
-      ]
-  where
-    receivedRange = S.map fst sms
-    segmentsToRemove = S.fromList [SA, SB, SC, SD, SE, SF, SG] \\ receivedRange
-    receivedImages = S.map snd sms
-
 getCandidatePositions :: Signal -> Set (Set DisplayPosition)
 getCandidatePositions s =
   S.filter
@@ -117,24 +104,25 @@ getDigitToPrint :: Signal -> Set SegmentMapping -> Maybe Int
 getDigitToPrint signal sms =
   M.lookup (S.map snd $ getPairsFor signal sms) displayIntMapping
 
--- where
---   signalDisplayPositions signal = S.toList $ S.map snd $ getPairsFor signal sms
---   pairs =
---     S.fromList $
---       L.concatMap
---         signalDisplayPositions
---         (S.toList signals)
-
--- case isValidMappingFor s sms of
--- False -> Nothing
--- True -> M.lookup (L.headMaybe getPairsFor ) displayIntMapping
-
 isResolvingConstraintSet :: Set SegmentMapping -> Signal -> Bool
 isResolvingConstraintSet c = L.all hasUniqueImage
   where
     withDomain segment = S.filter $ \(s, _) -> s == segment
     hasUniqueImage segment =
       L.length (withDomain segment c) == 1
+
+reduceConstraints :: Set SegmentMapping -> Set SegmentMapping -> Set SegmentMapping
+reduceConstraints c sms =
+  c
+    \\ S.fromList
+      [ (s, p)
+        | s <- S.toList segmentsToRemove,
+          p <- S.toList receivedImages
+      ]
+  where
+    receivedRange = S.map fst sms
+    segmentsToRemove = S.fromList [SA, SB, SC, SD, SE, SF, SG] \\ receivedRange
+    receivedImages = S.map snd sms
 
 countTotalDigits :: [Int] -> [Entry] -> Int
 countTotalDigits digits es =
