@@ -3,65 +3,57 @@
 
 module Days2021.Day8 where
 
-import Data.Hashable
 import Import
-import qualified RIO.HashSet as HS
-import RIO.List ((\\))
 import qualified RIO.List as L
+import RIO.Map (Map)
+import qualified RIO.Map as M
+import RIO.Set (Set, (\\))
+import qualified RIO.Set as S
 import qualified RIO.Text as T
 import Util (calculateResult)
 
 data Segment = SA | SB | SC | SD | SE | SF | SG
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
-instance Hashable Segment where
-  hashWithSalt salt s =
-    salt
-      + case s of
-        SA -> 0
-        SB -> 1
-        SC -> 2
-        SD -> 3
-        SE -> 4
-        SF -> 5
-        SG -> 6
+type Signal = Set Segment
 
-type Signal = HashSet Segment
-
-type Entry = ([Signal], [Signal])
+type Entry = (Set Signal, [Signal])
 
 data DisplayPosition = Top | Mid | Bot | LTop | RTop | LBot | RBot
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 type Decoding = (Signal, Maybe Int)
 
 type SegmentMapping = (Segment, DisplayPosition)
 
-type Constraints = [SegmentMapping]
+type Constraints = Set SegmentMapping
 
-displayIntMapping :: [([DisplayPosition], Int)]
+displayIntMapping :: Map (Set DisplayPosition) Int
 displayIntMapping =
-  [ ([Top, Bot, LTop, RTop, LBot, RBot], 0),
-    ([RTop, RBot], 1),
-    ([Top, RTop, Mid, LBot, Bot], 2),
-    ([Top, RTop, Mid, RBot, Bot], 3),
-    ([LTop, RTop, Mid, RBot], 4),
-    ([Top, LTop, Mid, RBot, Bot], 5),
-    ([Top, LTop, Mid, LBot, RBot, Bot], 6),
-    ([Top, RTop, RBot], 7),
-    ([Top, Mid, Bot, LTop, RTop, LBot, RBot], 8),
-    ([Top, LTop, RTop, Mid, RBot, Bot], 9)
-  ]
+  M.fromList $
+    first S.fromList
+      <$> [ ([Top, Bot, LTop, RTop, LBot, RBot], 0),
+            ([RTop, RBot], 1),
+            ([Top, RTop, Mid, LBot, Bot], 2),
+            ([Top, RTop, Mid, RBot, Bot], 3),
+            ([LTop, RTop, Mid, RBot], 4),
+            ([Top, LTop, Mid, RBot, Bot], 5),
+            ([Top, LTop, Mid, LBot, RBot, Bot], 6),
+            ([Top, RTop, RBot], 7),
+            ([Top, Mid, Bot, LTop, RTop, LBot, RBot], 8),
+            ([Top, LTop, RTop, Mid, RBot, Bot], 9)
+          ]
 
 easyDigits :: [Int]
 easyDigits = [1, 4, 7, 8]
 
-universalContraints :: Constraints
+universalContraints :: Set SegmentMapping
 universalContraints =
-  [ (s, p)
-    | s <- [SA, SB, SC, SD, SE, SF, SG],
-      p <- [Top, Mid, Bot, LTop, RTop, LBot, RBot]
-  ]
+  S.fromList
+    [ (s, p)
+      | s <- [SA, SB, SC, SD, SE, SF, SG],
+        p <- [Top, Mid, Bot, LTop, RTop, LBot, RBot]
+    ]
 
 parseSegment :: Text -> Segment
 parseSegment t = case t of
@@ -75,11 +67,11 @@ parseSegment t = case t of
   _ -> error $ "Could not parse segment: " ++ T.unpack t
 
 parseSignal :: Text -> Signal
-parseSignal t = HS.fromList $ parseSegment . (`T.cons` "") <$> T.unpack t
+parseSignal t = S.fromList $ parseSegment . (`T.cons` "") <$> T.unpack t
 
 parseEntry :: Text -> Entry
 parseEntry t =
-  ( parseSignal <$> signalTexts,
+  ( S.fromList $ parseSignal <$> signalTexts,
     parseSignal <$> digitTexts
   )
   where
@@ -88,31 +80,61 @@ parseEntry t =
     digitTexts = T.words digitsText
 
 isDigit :: Int -> Signal -> Bool
-isDigit 1 = (== 2) . HS.size
-isDigit 4 = (== 4) . HS.size
-isDigit 7 = (== 3) . HS.size
-isDigit 8 = (== 7) . HS.size
+isDigit 1 = (== 2) . S.size
+isDigit 4 = (== 4) . S.size
+isDigit 7 = (== 3) . S.size
+isDigit 8 = (== 7) . S.size
 isDigit _ = error "Cannot identify digit"
 
-reduceConstraints :: Constraints -> [SegmentMapping] -> Constraints
+reduceConstraints :: Set SegmentMapping -> Set SegmentMapping -> Set SegmentMapping
 reduceConstraints c sms =
   c
-    \\ [ (s, p)
-         | s <- fst <$> sms,
-           p <- images
-       ]
+    \\ S.fromList
+      [ (s, p)
+        | s <- S.toList segmentsToRemove,
+          p <- S.toList receivedImages
+      ]
   where
-    newSegmentMappingDisplayPositions = snd <$> sms
-    filterBy = \p -> not (L.elem p newSegmentMappingDisplayPositions)
-    images = L.filter filterBy [Top, Mid, Bot, LTop, RTop, LBot, RBot]
+    receivedRange = S.map fst sms
+    segmentsToRemove = S.fromList [SA, SB, SC, SD, SE, SF, SG] \\ receivedRange
+    receivedImages = S.map snd sms
 
--- attemptEasyDecode :: Signal -> Maybe SegmentMapping
--- attemptEasyDecode s
---   | isDigit 1 s = (s, Just 1)
---   | isDigit 4 s = (s, Just 4)
---   | isDigit 7 s = (s, Just 7)
---   | isDigit 8 s = (s, Just 8)
---   | otherwise = (s, Nothing)
+getCandidatePositions :: Signal -> Set (Set DisplayPosition)
+getCandidatePositions s =
+  S.filter
+    (\dps -> S.size dps == S.size s)
+    displayPositionSets
+  where
+    displayPositionSets = S.fromList $ M.keys displayIntMapping
+
+getPairsFor :: Signal -> Set SegmentMapping -> Set SegmentMapping
+getPairsFor segments = S.filter $ \(s, _) -> S.member s segments
+
+isValidMappingFor :: Signal -> Set SegmentMapping -> Bool
+isValidMappingFor s sms = S.size (getPairsFor s sms) == S.size s
+
+getDigitToPrint :: Signal -> Set SegmentMapping -> Maybe Int
+getDigitToPrint signal sms =
+  M.lookup (S.map snd $ getPairsFor signal sms) displayIntMapping
+
+-- where
+--   signalDisplayPositions signal = S.toList $ S.map snd $ getPairsFor signal sms
+--   pairs =
+--     S.fromList $
+--       L.concatMap
+--         signalDisplayPositions
+--         (S.toList signals)
+
+-- case isValidMappingFor s sms of
+-- False -> Nothing
+-- True -> M.lookup (L.headMaybe getPairsFor ) displayIntMapping
+
+isResolvingConstraintSet :: Set SegmentMapping -> Signal -> Bool
+isResolvingConstraintSet c = L.all hasUniqueImage
+  where
+    withDomain segment = S.filter $ \(s, _) -> s == segment
+    hasUniqueImage segment =
+      L.length (withDomain segment c) == 1
 
 countTotalDigits :: [Int] -> [Entry] -> Int
 countTotalDigits digits es =
