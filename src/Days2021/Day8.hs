@@ -17,7 +17,7 @@ data Segment = SA | SB | SC | SD | SE | SF | SG
 
 type Signal = Set Segment
 
-type Entry = ([Signal], [Signal])
+type Entry = (Set Signal, [Signal])
 
 data DisplayPosition = Top | Mid | Bot | LTop | RTop | LBot | RBot
   deriving (Eq, Ord, Show)
@@ -71,7 +71,7 @@ parseSignal t = S.fromList $ parseSegment . (`T.cons` "") <$> T.unpack t
 
 parseEntry :: Text -> Entry
 parseEntry t =
-  ( parseSignal <$> signalTexts,
+  ( S.fromList $ parseSignal <$> signalTexts,
     parseSignal <$> digitTexts
   )
   where
@@ -98,6 +98,43 @@ reduceConstraints c sms =
     receivedRange = S.map fst sms
     segmentsToRemove = S.fromList [SA, SB, SC, SD, SE, SF, SG] \\ receivedRange
     receivedImages = S.map snd sms
+
+getCandidatePositions :: Signal -> Set (Set DisplayPosition)
+getCandidatePositions s =
+  S.filter
+    (\dps -> S.size dps == S.size s)
+    displayPositionSets
+  where
+    displayPositionSets = S.fromList $ M.keys displayIntMapping
+
+getPairsFor :: Signal -> Set SegmentMapping -> Set SegmentMapping
+getPairsFor segments = S.filter $ \(s, _) -> S.member s segments
+
+isValidMappingFor :: Signal -> Set SegmentMapping -> Bool
+isValidMappingFor s sms = S.size (getPairsFor s sms) == S.size s
+
+getDigitToPrint :: Signal -> Set SegmentMapping -> Maybe Int
+getDigitToPrint signal sms =
+  M.lookup (S.map snd $ getPairsFor signal sms) displayIntMapping
+
+-- where
+--   signalDisplayPositions signal = S.toList $ S.map snd $ getPairsFor signal sms
+--   pairs =
+--     S.fromList $
+--       L.concatMap
+--         signalDisplayPositions
+--         (S.toList signals)
+
+-- case isValidMappingFor s sms of
+-- False -> Nothing
+-- True -> M.lookup (L.headMaybe getPairsFor ) displayIntMapping
+
+isResolvingConstraintSet :: Set SegmentMapping -> Signal -> Bool
+isResolvingConstraintSet c = L.all hasUniqueImage
+  where
+    withDomain segment = S.filter $ \(s, _) -> s == segment
+    hasUniqueImage segment =
+      L.length (withDomain segment c) == 1
 
 countTotalDigits :: [Int] -> [Entry] -> Int
 countTotalDigits digits es =
