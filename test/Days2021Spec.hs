@@ -611,7 +611,7 @@ spec = do
           let afterEightRemoval = D8.reduceConnections eightPairs afterSevenRemoval
           pPrint $ S.size afterEightRemoval
           pPrint $ D8.getDigitToPrint (D8.parseSignal "acedgfb") afterEightRemoval
-          pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "acedgfb")
+          pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "cdfeb")
           True `shouldBe` True
       -- describe "countTotalDigits" $ do
       --   it "solves example" $ do

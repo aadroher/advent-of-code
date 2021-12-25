@@ -24,6 +24,17 @@ data Segment = Top | Mid | Bot | LTop | RTop | LBot | RBot
 
 type Connection = (Wire, Segment)
 
+choose :: [b] -> Int -> [[b]]
+_ `choose` 0 = [[]]
+[] `choose` _ = []
+(x : xs) `choose` k = (x :) <$> (xs `choose` (k -1)) ++ xs `choose` k
+
+subsetsOfSize :: Ord a => Int -> Set a -> Set (Set a)
+subsetsOfSize k s =
+  S.fromList (S.fromList <$> members `choose` k)
+  where
+    members = S.toList s
+
 segmentsToInt :: Map (Set Segment) Int
 segmentsToInt =
   M.fromList $
@@ -121,7 +132,11 @@ reduceConnections connections validConnections =
 --     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
 
 calculateOutputValue :: Entry -> Int
-calculateOutputValue _ = 0
+calculateOutputValue (signals, outputs) =
+  undefined
+  where
+    reducedConnections = S.foldl reduceConnections S.empty allConnections
+    candidateConnectionSets = subsetsOfSize 7 reduceConnections
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = undefined
