@@ -101,12 +101,15 @@ numSegments n =
   where
     singleton = M.filter (== n) segmentsToInt
 
+signalsForIntWithSameNumSegments :: Int -> Set Signal -> Set Signal
+signalsForIntWithSameNumSegments n = S.filter ((== numSegments n) . S.size)
+
 getTopWire :: Set Signal -> Wire
 getTopWire ss =
   L'.head $ S.toList $ sevenSignal \\ oneSignal
   where
-    oneSignal = L'.head $ S.toList $ S.filter ((== numSegments 1) . S.size) ss
-    sevenSignal = L'.head $ S.toList $ S.filter ((== numSegments 7) . S.size) ss
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    sevenSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 7 ss
 
 getMidWire :: Set Signal -> Wire
 getMidWire ss =
@@ -118,10 +121,25 @@ getMidWire ss =
         )
         ltopAndMidWires
   where
-    oneSignal = L'.head $ S.toList $ S.filter ((== numSegments 1) . S.size) ss
-    fourSignal = L'.head $ S.toList $ S.filter ((== numSegments 4) . S.size) ss
-    sixSegmentSignals = S.filter ((== numSegments 6) . S.size) ss
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
+    sixSegmentSignals = signalsForIntWithSameNumSegments 0 ss
     ltopAndMidWires = fourSignal \\ oneSignal
+
+getBotWire :: Set Signal -> Wire
+getBotWire ss =
+  L'.head $
+    S.toList $
+      threeSignal \\ (S.union oneSignal $ S.fromList [getTopWire ss, getMidWire ss])
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fiveSegmentSignals = signalsForIntWithSameNumSegments 2 ss
+    threeSignal =
+      L'.head $
+        S.toList $
+          S.filter
+            (S.isSubsetOf oneSignal)
+            fiveSegmentSignals
 
 connectionsFor :: Signal -> Set Connection -> Set Connection
 connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
