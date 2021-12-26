@@ -3,20 +3,21 @@
 
 module Days2021Spec (spec) where
 
-import qualified Data.List as L
 import qualified Days2021.Day1 as D1
-import Days2021.Day2 (Command (..))
+-- import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
-import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
 import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
-import Days2021.Day7 (optimalAlignment)
 import qualified Days2021.Day7 as D7
+import Days2021.Day8 (Segment (..), Wire (..))
+import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
+import qualified RIO.List.Partial as L'
+import RIO.Set ((\\))
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -52,13 +53,13 @@ spec = do
         it "(0, 0) -> [] -> (0, 0)" $ do
           D2.stepMove (0, 0) [] `shouldBe` (0, 0)
         it "(0, 0) -> [F5, D5, F8, U3, D8, F2] -> (15, 10)" $ do
-          D2.stepMove (0, 0) [F 5, D 5, F 8, U 3, D 8, F 2] `shouldBe` (15, 10)
+          D2.stepMove (0, 0) [D2.F 5, D2.D 5, D2.F 8, D2.U 3, D2.D 8, D2.F 2] `shouldBe` (15, 10)
     describe "exercise 2.2" $ do
       describe "bearingMove" $ do
         it "(0, (0, 0)) -> [] -> (0, (0, 0))" $ do
           D2.bearingMove (0, (0, 0)) [] `shouldBe` (0, (0, 0))
         it "(0, (0, 0)) -> [F5, D5, F8, U3, D8, F2] -> (10, (15, 60))" $ do
-          D2.bearingMove (0, (0, 0)) [F 5, D 5, F 8, U 3, D 8, F 2] `shouldBe` (10, (15, 60))
+          D2.bearingMove (0, (0, 0)) [D2.F 5, D2.D 5, D2.F 8, D2.U 3, D2.D 8, D2.F 2] `shouldBe` (10, (15, 60))
     describe "exercise 3.1" $ do
       describe "getMostCommon" $ do
         it "[0,0,1] -> 0" $ do
@@ -428,7 +429,7 @@ spec = do
           D6.populationOnDayN initialSchool 256 `shouldBe` 26984457539
     describe "exercise 7" $ do
       describe "optimalAlignment" $ do
-        fit "16,1,2,0,4,2,7,1,2,14 -> (2, 37)" $ do
+        it "16,1,2,0,4,2,7,1,2,14 -> (2, 37)" $ do
           let initialPositions =
                 [ 16,
                   1,
@@ -443,7 +444,7 @@ spec = do
                 ]
           D7.getNaiveOptimalAlignment initialPositions `shouldBe` (2, 37)
       describe "optimalAlignment" $ do
-        fit "16,1,2,0,4,2,7,1,2,14 -> (5, 168)" $ do
+        it "16,1,2,0,4,2,7,1,2,14 -> (5, 168)" $ do
           let initialPositions =
                 [ 16,
                   1,
@@ -457,3 +458,96 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
+    fdescribe "exercise 8" $ do
+      describe "parseSignal" $ do
+        it "parses 'abc'" $ do
+          D8.parseSignal "abc" `shouldBe` S.fromList [WA, WB, WC]
+      describe "parseEntry" $ do
+        it "parses first example" $ do
+          D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+            `shouldBe` ( S.fromList
+                           [ S.fromList [WA, WB, WC, WD, WE, WF, WG],
+                             S.fromList [WB, WC, WD, WE, WF],
+                             S.fromList [WA, WC, WD, WF, WG],
+                             S.fromList [WA, WB, WC, WD, WF],
+                             S.fromList [WA, WB, WD],
+                             S.fromList [WA, WB, WC, WD, WE, WF],
+                             S.fromList [WB, WC, WD, WE, WF, WG],
+                             S.fromList [WA, WB, WE, WF],
+                             S.fromList [WA, WB, WC, WD, WE, WG],
+                             S.fromList [WA, WB]
+                           ],
+                         [ S.fromList [WB, WC, WD, WE, WF],
+                           S.fromList [WA, WB, WC, WD, WF],
+                           S.fromList [WB, WC, WD, WE, WF],
+                           S.fromList [WA, WB, WC, WD, WF]
+                         ]
+                       )
+      describe "getTopWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> d" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getTopWire signals `shouldBe` WD
+      describe "getMidWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> f" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getMidWire signals `shouldBe` WF
+      describe "getBotWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> c" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getBotWire signals `shouldBe` WC
+      describe "getLTopWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> e" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getLTopWire signals `shouldBe` WE
+      describe "getLBotWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> g" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getLBotWire signals `shouldBe` WG
+      describe "getRTopWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> a" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getRTopWire signals `shouldBe` WA
+      describe "getRBotWire" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> b" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getRBotWire signals `shouldBe` WB
+      describe "countTotalDigits" $ do
+        it "solves example" $ do
+          let entries =
+                D8.parseEntry
+                  <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+                        "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+                        "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+                        "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+                        "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+                        "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+                        "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+                        "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+                        "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+                        "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+                      ]
+          D8.countTotalDigits entries `shouldBe` 26
+      describe "getIntValue" $ do
+        it "cdfeb -> 5" $ do
+          let (signals, outputs) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getIntValue signals (L'.head outputs) `shouldBe` 5
+      describe "calculateOutputValue" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
+          let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.calculateOutputValue entry `shouldBe` 5353
+      describe "addOutputValues" $ do
+        it "solves example" $ do
+          let entries =
+                D8.parseEntry
+                  <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+                        "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+                        "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+                        "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+                        "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+                        "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+                        "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+                        "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+                        "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+                        "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+                      ]
+          D8.addOutputValues entries `shouldBe` 61229
