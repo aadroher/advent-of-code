@@ -8,18 +8,15 @@ import qualified Days2021.Day1 as D1
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
-import Days2021.Day4 (Game (..))
 import qualified Days2021.Day4 as D4
 import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
-import Days2021.Day7 (optimalAlignment)
 import qualified Days2021.Day7 as D7
 import Days2021.Day8 (Segment (..), Wire (..))
 import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
-import qualified RIO.HashSet as HS
-import RIO.Set (Set, (\\))
+import RIO.Set ((\\))
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
@@ -431,7 +428,7 @@ spec = do
           D6.populationOnDayN initialSchool 256 `shouldBe` 26984457539
     describe "exercise 7" $ do
       describe "optimalAlignment" $ do
-        fit "16,1,2,0,4,2,7,1,2,14 -> (2, 37)" $ do
+        it "16,1,2,0,4,2,7,1,2,14 -> (2, 37)" $ do
           let initialPositions =
                 [ 16,
                   1,
@@ -446,7 +443,7 @@ spec = do
                 ]
           D7.getNaiveOptimalAlignment initialPositions `shouldBe` (2, 37)
       describe "optimalAlignment" $ do
-        fit "16,1,2,0,4,2,7,1,2,14 -> (5, 168)" $ do
+        it "16,1,2,0,4,2,7,1,2,14 -> (5, 168)" $ do
           let initialPositions =
                 [ 16,
                   1,
@@ -539,6 +536,13 @@ spec = do
                     (WC, LBot)
                   ]
           D8.isValidMappingFor signal constraints `shouldBe` False
+      describe "getTopWire" $ do
+        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> d" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getTopWire signals `shouldBe` WD
+        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> f" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getMidWire signals `shouldBe` WF
       describe "getDigitToPrint" $ do
         let constraints =
               S.fromList
@@ -596,7 +600,7 @@ spec = do
                              ]
                        )
       describe "connectionsFor and reduceConnections" $ do
-        fit "works with all easy values" $ do
+        it "works with all easy values" $ do
           let fourPairs = D8.connectionsFor (D8.parseSignal "efab") D8.allConnections
           pPrint $ S.size D8.allConnections
           let afterFourRemoval = D8.reduceConnections fourPairs D8.allConnections
@@ -613,23 +617,24 @@ spec = do
           pPrint $ D8.getDigitToPrint (D8.parseSignal "acedgfb") afterEightRemoval
           pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "cdfeb")
           True `shouldBe` True
-      -- describe "countTotalDigits" $ do
-      --   it "solves example" $ do
-      --     let entries =
-      --           D8.parseEntry
-      --             <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
-      --                   "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
-      --                   "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
-      --                   "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
-      --                   "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
-      --                   "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
-      --                   "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
-      --                   "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
-      --                   "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
-      --                   "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
-      --                 ]
-      --     D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
-      describe "calculateOutputValue" $ do
-        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
-          let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
-          D8.calculateOutputValue entry `shouldBe` 5353
+
+-- describe "countTotalDigits" $ do
+--   it "solves example" $ do
+--     let entries =
+--           D8.parseEntry
+--             <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+--                   "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+--                   "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+--                   "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+--                   "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+--                   "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+--                   "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+--                   "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+--                   "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+--                   "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+--                 ]
+--     D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
+-- describe "calculateOutputValue" $ do
+--   it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
+--     let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+--     D8.calculateOutputValue entry `shouldBe` 5353

@@ -5,6 +5,7 @@ module Days2021.Day8 where
 
 import Import
 import qualified RIO.List as L
+import qualified RIO.List.Partial as L'
 import RIO.Map (Map)
 import qualified RIO.Map as M
 import RIO.Set (Set, (\\))
@@ -94,6 +95,34 @@ candidateSegmentSets wires =
   where
     segmentSets = S.fromList $ M.keys segmentsToInt
 
+numSegments :: Int -> Int
+numSegments n =
+  S.size $ L'.head $ M.keys singleton
+  where
+    singleton = M.filter (== n) segmentsToInt
+
+getTopWire :: Set Signal -> Wire
+getTopWire ss =
+  L'.head $ S.toList $ sevenSignal \\ oneSignal
+  where
+    oneSignal = L'.head $ S.toList $ S.filter ((== numSegments 1) . S.size) ss
+    sevenSignal = L'.head $ S.toList $ S.filter ((== numSegments 7) . S.size) ss
+
+getMidWire :: Set Signal -> Wire
+getMidWire ss =
+  L'.head $
+    S.toList $
+      S.filter
+        ( \w ->
+            S.size (S.filter (S.member w) sixSegmentSignals) /= S.size sixSegmentSignals
+        )
+        ltopAndMidWires
+  where
+    oneSignal = L'.head $ S.toList $ S.filter ((== numSegments 1) . S.size) ss
+    fourSignal = L'.head $ S.toList $ S.filter ((== numSegments 4) . S.size) ss
+    sixSegmentSignals = S.filter ((== numSegments 6) . S.size) ss
+    ltopAndMidWires = fourSignal \\ oneSignal
+
 connectionsFor :: Signal -> Set Connection -> Set Connection
 connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
 
@@ -131,12 +160,12 @@ reduceConnections connections validConnections =
 --     digitsSignals = L.concatMap snd es
 --     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
 
-calculateOutputValue :: Entry -> Int
-calculateOutputValue (signals, outputs) =
-  undefined
-  where
-    reducedConnections = S.foldl reduceConnections S.empty allConnections
-    candidateConnectionSets = subsetsOfSize 7 reduceConnections
+-- calculateOutputValue :: Entry -> Int
+-- calculateOutputValue (signals, outputs) =
+--   undefined
+--   where
+--     reducedConnections = S.foldl reduceConnections S.empty allConnections
+--     candidateConnectionSets = subsetsOfSize 7 reduceConnections
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = undefined
