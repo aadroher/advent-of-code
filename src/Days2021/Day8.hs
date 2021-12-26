@@ -130,7 +130,7 @@ getBotWire :: Set Signal -> Wire
 getBotWire ss =
   L'.head $
     S.toList $
-      threeSignal \\ (S.union oneSignal $ S.fromList [getTopWire ss, getMidWire ss])
+      threeSignal \\ S.union oneSignal (S.fromList [getTopWire ss, getMidWire ss])
   where
     oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
     fiveSegmentSignals = signalsForIntWithSameNumSegments 2 ss
@@ -140,6 +140,15 @@ getBotWire ss =
           S.filter
             (S.isSubsetOf oneSignal)
             fiveSegmentSignals
+
+getLTopWire :: Set Signal -> Wire
+getLTopWire ss =
+  L'.head $
+    S.toList $
+      fourSignal \\ S.union oneSignal (S.singleton $ getMidWire ss)
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
 
 connectionsFor :: Signal -> Set Connection -> Set Connection
 connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
