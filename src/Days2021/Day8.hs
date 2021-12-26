@@ -5,6 +5,7 @@ module Days2021.Day8 where
 
 import Import
 import qualified RIO.List as L
+import qualified RIO.List.Partial as L'
 import RIO.Map (Map)
 import qualified RIO.Map as M
 import RIO.Set (Set, (\\))
@@ -94,6 +95,89 @@ candidateSegmentSets wires =
   where
     segmentSets = S.fromList $ M.keys segmentsToInt
 
+numSegments :: Int -> Int
+numSegments n =
+  S.size $ L'.head $ M.keys singleton
+  where
+    singleton = M.filter (== n) segmentsToInt
+
+signalsForIntWithSameNumSegments :: Int -> Set Signal -> Set Signal
+signalsForIntWithSameNumSegments n = S.filter ((== numSegments n) . S.size)
+
+getTopWire :: Set Signal -> Wire
+getTopWire ss =
+  L'.head $ S.toList $ sevenSignal \\ oneSignal
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    sevenSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 7 ss
+
+getMidWire :: Set Signal -> Wire
+getMidWire ss =
+  L'.head $
+    S.toList $
+      S.filter
+        ( \w ->
+            S.size (S.filter (S.member w) sixSegmentSignals) /= S.size sixSegmentSignals
+        )
+        ltopAndMidWires
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
+    sixSegmentSignals = signalsForIntWithSameNumSegments 0 ss
+    ltopAndMidWires = fourSignal \\ oneSignal
+
+getBotWire :: Set Signal -> Wire
+getBotWire ss =
+  L'.head $
+    S.toList $
+      threeSignal \\ S.union oneSignal (S.fromList [getTopWire ss, getMidWire ss])
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fiveSegmentSignals = signalsForIntWithSameNumSegments 2 ss
+    threeSignal =
+      L'.head $
+        S.toList $
+          S.filter
+            (S.isSubsetOf oneSignal)
+            fiveSegmentSignals
+
+getLTopWire :: Set Signal -> Wire
+getLTopWire ss =
+  L'.head $
+    S.toList $
+      fourSignal \\ S.union oneSignal (S.singleton $ getMidWire ss)
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
+
+getLBotWire :: Set Signal -> Wire
+getLBotWire ss =
+  L'.head $
+    S.toList $
+      eightSignal \\ S.union fourSignal (S.fromList [getTopWire ss, getBotWire ss])
+  where
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
+    eightSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 8 ss
+
+getRTopWire :: Set Signal -> Wire
+getRTopWire ss =
+  L'.head $ S.toList $ oneSignal \\ sixSignal
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    sixSegmentSignals = signalsForIntWithSameNumSegments 0 ss
+    sixSignal =
+      L'.head $
+        S.toList $
+          S.filter
+            (not . S.isSubsetOf oneSignal)
+            sixSegmentSignals
+
+getRBotWire :: Set Signal -> Wire
+getRBotWire ss =
+  L'.head $ S.toList $ oneSignal \\ S.singleton (getRTopWire ss)
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+
 connectionsFor :: Signal -> Set Connection -> Set Connection
 connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
 
@@ -131,12 +215,12 @@ reduceConnections connections validConnections =
 --     digitsSignals = L.concatMap snd es
 --     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
 
-calculateOutputValue :: Entry -> Int
-calculateOutputValue (signals, outputs) =
-  undefined
-  where
-    reducedConnections = S.foldl reduceConnections S.empty allConnections
-    candidateConnectionSets = subsetsOfSize 7 reduceConnections
+-- calculateOutputValue :: Entry -> Int
+-- calculateOutputValue (signals, outputs) =
+--   undefined
+--   where
+--     reducedConnections = S.foldl reduceConnections S.empty allConnections
+--     candidateConnectionSets = subsetsOfSize 7 reduceConnections
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = undefined
