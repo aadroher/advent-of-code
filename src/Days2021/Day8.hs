@@ -150,6 +150,34 @@ getLTopWire ss =
     oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
     fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
 
+getLBotWire :: Set Signal -> Wire
+getLBotWire ss =
+  L'.head $
+    S.toList $
+      eightSignal \\ S.union fourSignal (S.fromList [getTopWire ss, getBotWire ss])
+  where
+    fourSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 4 ss
+    eightSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 8 ss
+
+getRTopWire :: Set Signal -> Wire
+getRTopWire ss =
+  L'.head $ S.toList $ oneSignal \\ sixSignal
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+    sixSegmentSignals = signalsForIntWithSameNumSegments 0 ss
+    sixSignal =
+      L'.head $
+        S.toList $
+          S.filter
+            (not . S.isSubsetOf oneSignal)
+            sixSegmentSignals
+
+getRBotWire :: Set Signal -> Wire
+getRBotWire ss =
+  L'.head $ S.toList $ oneSignal \\ S.singleton (getRTopWire ss)
+  where
+    oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
+
 connectionsFor :: Signal -> Set Connection -> Set Connection
 connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
 

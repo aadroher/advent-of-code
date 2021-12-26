@@ -552,6 +552,18 @@ spec = do
         fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> e" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getLTopWire signals `shouldBe` WE
+      describe "getLBotWire" $ do
+        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> g" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getLBotWire signals `shouldBe` WG
+      describe "getRTopWire" $ do
+        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> a" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getRTopWire signals `shouldBe` WA
+      describe "getRBotWire" $ do
+        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> b" $ do
+          let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getRBotWire signals `shouldBe` WB
       describe "getDigitToPrint" $ do
         let constraints =
               S.fromList
