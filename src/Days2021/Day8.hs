@@ -6,9 +6,9 @@ module Days2021.Day8 where
 import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
-import RIO.Map (Map)
 import qualified RIO.Map as M
-import RIO.Set (Set, (\\))
+import RIO.Map.Partial ((!))
+import RIO.Set ((\\))
 import qualified RIO.Set as S
 import qualified RIO.Text as T
 import Util (calculateResult)
@@ -25,17 +25,6 @@ data Segment = Top | Mid | Bot | LTop | RTop | LBot | RBot
 
 type Connection = (Wire, Segment)
 
-choose :: [b] -> Int -> [[b]]
-_ `choose` 0 = [[]]
-[] `choose` _ = []
-(x : xs) `choose` k = (x :) <$> (xs `choose` (k -1)) ++ xs `choose` k
-
-subsetsOfSize :: Ord a => Int -> Set a -> Set (Set a)
-subsetsOfSize k s =
-  S.fromList (S.fromList <$> members `choose` k)
-  where
-    members = S.toList s
-
 segmentsToInt :: Map (Set Segment) Int
 segmentsToInt =
   M.fromList $
@@ -51,9 +40,6 @@ segmentsToInt =
             ([Top, Mid, Bot, LTop, RTop, LBot, RBot], 8),
             ([Top, LTop, RTop, Mid, RBot, Bot], 9)
           ]
-
-easyDigits :: [Int]
-easyDigits = [1, 4, 7, 8]
 
 allConnections :: Set Connection
 allConnections =
@@ -86,14 +72,6 @@ parseEntry t =
     [signalsText, digitsText] = T.split (== '|') t
     signalTexts = T.words signalsText
     digitTexts = T.words digitsText
-
-candidateSegmentSets :: Signal -> Set (Set Segment)
-candidateSegmentSets wires =
-  S.filter
-    (\dps -> S.size dps == S.size wires)
-    segmentSets
-  where
-    segmentSets = S.fromList $ M.keys segmentsToInt
 
 numSegments :: Int -> Int
 numSegments n =
@@ -178,51 +156,43 @@ getRBotWire ss =
   where
     oneSignal = L'.head $ S.toList $ signalsForIntWithSameNumSegments 1 ss
 
-connectionsFor :: Signal -> Set Connection -> Set Connection
-connectionsFor wires = S.filter $ \(s, _) -> S.member s wires
+getConnections :: Set Signal -> Map Wire Segment
+getConnections ss =
+  M.fromList
+    [ (getTopWire ss, Top),
+      (getMidWire ss, Mid),
+      (getBotWire ss, Bot),
+      (getLTopWire ss, LTop),
+      (getLBotWire ss, LBot),
+      (getRTopWire ss, RTop),
+      (getRBotWire ss, RBot)
+    ]
 
-isValidMappingFor :: Signal -> Set Connection -> Bool
-isValidMappingFor wires connections = S.size (connectionsFor wires connections) == S.size wires
-
-getDigitToPrint :: Signal -> Set Connection -> Maybe Int
-getDigitToPrint wires connections =
-  M.lookup (S.map snd $ connectionsFor wires connections) segmentsToInt
-
-isResolvingConstraintSet :: Set Connection -> Signal -> Bool
-isResolvingConstraintSet c = L.all hasUniqueImage
+getIntValue :: Set Signal -> Signal -> Int
+getIntValue signals output =
+  segmentsToInt ! segments
   where
-    withDomain segment = S.filter $ \(s, _) -> s == segment
-    hasUniqueImage segment =
-      L.length (withDomain segment c) == 1
+    connections = getConnections signals
+    segments = S.map (connections !) output
 
-reduceConnections :: Set Connection -> Set Connection -> Set Connection
-reduceConnections connections validConnections =
-  connections
-    \\ S.fromList
-      [ (s, p)
-        | s <- S.toList segmentsToRemove,
-          p <- S.toList receivedImages
-      ]
+countTotalDigits :: [Entry] -> Int
+countTotalDigits entries =
+  L.length $ L.filter isEasyDigit digitsSignals
   where
-    receivedRange = S.map fst validConnections
-    segmentsToRemove = S.fromList [WA, WB, WC, WD, WE, WF, WG] \\ receivedRange
-    receivedImages = S.map snd validConnections
+    digitsSignals = L.concatMap snd entries
+    isEasyDigit = \ds -> S.member (S.size ds) $ S.fromList [2, 4, 3, 7]
 
--- countTotalDigits :: [Int] -> [Entry] -> Int
--- countTotalDigits digits es =
---   L.length $ L.filter isIdentifiableDigit digitsSignals
---   where
---     digitsSignals = L.concatMap snd es
---     isIdentifiableDigit = \s -> L.or $ (`isDigit` s) <$> digits
+calculateOutputValue :: Entry -> Int
+calculateOutputValue (signals, outputs) =
+  L.sum $ (\(d, i) -> d * 10 ^ i) <$> L.zip (L.reverse digits) ([0 ..] :: [Int])
+  where
+    digits = getIntValue signals <$> outputs
 
--- calculateOutputValue :: Entry -> Int
--- calculateOutputValue (signals, outputs) =
---   undefined
---   where
---     reducedConnections = S.foldl reduceConnections S.empty allConnections
---     candidateConnectionSets = subsetsOfSize 7 reduceConnections
+addOutputValues :: [Entry] -> Int
+addOutputValues entries = L.sum $ calculateOutputValue <$> entries
 
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = undefined
+calculateFirstResult = calculateResult parseEntry countTotalDigits
 
--- calculateFirstResult = calculateResult parseEntry $ countTotalDigits easyDigit
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parseEntry addOutputValues

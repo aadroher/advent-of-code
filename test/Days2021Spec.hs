@@ -16,6 +16,7 @@ import Days2021.Day8 (Segment (..), Wire (..))
 import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
+import qualified RIO.List.Partial as L'
 import RIO.Set ((\\))
 import qualified RIO.Set as S
 import Test.Hspec
@@ -457,7 +458,7 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
-    describe "exercise 8" $ do
+    fdescribe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
           D8.parseSignal "abc" `shouldBe` S.fromList [WA, WB, WC]
@@ -482,180 +483,71 @@ spec = do
                            S.fromList [WA, WB, WC, WD, WF]
                          ]
                        )
-      describe "connectionsFor" $ do
-        it "gets pairs for 'bca'" $ do
-          let signal = D8.parseSignal "bca"
-          let constraints =
-                S.fromList
-                  [ (WB, Top),
-                    (WA, RTop),
-                    (WC, RBot),
-                    (WC, RBot),
-                    (WD, RBot)
-                  ]
-          D8.connectionsFor signal constraints
-            `shouldBe` S.fromList
-              [ (WB, Top),
-                (WA, RTop),
-                (WC, RBot),
-                (WC, RBot)
-              ]
-      describe "candidateSegmentSets" $ do
-        it "returns a single value for 'ce'" $ do
-          let signal = D8.parseSignal "ce"
-          D8.candidateSegmentSets signal
-            `shouldBe` S.fromList
-              [ S.fromList [RTop, RBot]
-              ]
-        it "returns 3 values for 'ceadb'" $ do
-          let signal = D8.parseSignal "ceadb"
-          D8.candidateSegmentSets signal
-            `shouldBe` S.fromList
-              [ S.fromList [Top, Mid, Bot, LTop, RBot],
-                S.fromList [Top, Mid, Bot, RTop, LBot],
-                S.fromList [Top, Mid, Bot, RTop, RBot]
-              ]
-      describe "isValidMappingFor" $ do
-        it "is True for a valid set of pairs for 'bca'" $ do
-          let signal = D8.parseSignal "bca"
-          let constraints =
-                S.fromList
-                  [ (WB, Top),
-                    (WA, RTop),
-                    (WC, RBot),
-                    (WD, RBot)
-                  ]
-          D8.isValidMappingFor signal constraints `shouldBe` True
-        it "is False for a non-valid set of pairs for 'bca'" $ do
-          let signal = D8.parseSignal "bca"
-          let constraints =
-                S.fromList
-                  [ (WB, Top),
-                    (WA, RTop),
-                    (WC, RBot),
-                    (WC, LBot)
-                  ]
-          D8.isValidMappingFor signal constraints `shouldBe` False
       describe "getTopWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> d" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> d" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getTopWire signals `shouldBe` WD
       describe "getMidWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> f" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> f" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getMidWire signals `shouldBe` WF
       describe "getBotWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> c" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> c" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getBotWire signals `shouldBe` WC
       describe "getLTopWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> e" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> e" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getLTopWire signals `shouldBe` WE
       describe "getLBotWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> g" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> g" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getLBotWire signals `shouldBe` WG
       describe "getRTopWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> a" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> a" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getRTopWire signals `shouldBe` WA
       describe "getRBotWire" $ do
-        fit "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> b" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab -> b" $ do
           let (signals, _) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
           D8.getRBotWire signals `shouldBe` WB
-      describe "getDigitToPrint" $ do
-        let constraints =
-              S.fromList
-                [ (WB, Top),
-                  (WA, RTop),
-                  (WC, RBot)
-                ]
-        it "'abc' -> 7" $ do
-          let signal = D8.parseSignal "abc"
-          D8.getDigitToPrint signal constraints `shouldBe` Just 7
-        it "'bca' -> 7" $ do
-          let signal = D8.parseSignal "bca"
-          D8.getDigitToPrint signal constraints `shouldBe` Just 7
-        it "'abc' -> 7" $ do
-          let signal = D8.parseSignal "abc"
-          D8.getDigitToPrint signal constraints `shouldBe` Just 7
-        it "'bca' -> 7" $ do
-          let signal = D8.parseSignal "bca"
-          D8.getDigitToPrint signal constraints `shouldBe` Just 7
-      describe "isResolvingConstraintSet" $ do
-        it "is True for a definite simple one" $ do
-          let segment = D8.parseSignal "bca"
-          let constraints =
-                S.fromList
-                  [ (WB, Top),
-                    (WA, RTop),
-                    (WC, RBot)
-                  ]
-          D8.isResolvingConstraintSet constraints segment `shouldBe` True
-        it "is False for a non-definite simple one" $ do
-          let segment = D8.parseSignal "bca"
-          let constraints =
-                S.fromList
-                  [ (WB, Top),
-                    (WA, RTop),
-                    (WC, RBot),
-                    (WC, RBot)
-                  ]
-          D8.isResolvingConstraintSet constraints segment `shouldBe` False
-      describe "reduceConnections" $ do
-        it "removes impossible mappings for be -> 1" $ do
-          let segmentMappings =
-                S.fromList
-                  [ (WB, RTop),
-                    (WE, RBot),
-                    (WB, RBot),
-                    (WE, RTop)
-                  ]
-          D8.reduceConnections D8.allConnections segmentMappings
-            `shouldBe` ( D8.allConnections
-                           \\ S.fromList
-                             [ (s, p)
-                               | s <- [WA, WC, WD, WF, WG],
-                                 p <- [RTop, RBot]
-                             ]
-                       )
-      describe "connectionsFor and reduceConnections" $ do
-        it "works with all easy values" $ do
-          let fourPairs = D8.connectionsFor (D8.parseSignal "efab") D8.allConnections
-          pPrint $ S.size D8.allConnections
-          let afterFourRemoval = D8.reduceConnections fourPairs D8.allConnections
-          pPrint $ S.size afterFourRemoval
-          let onePairs = D8.connectionsFor (D8.parseSignal "ab") afterFourRemoval
-          let afterOneRemoval = D8.reduceConnections onePairs afterFourRemoval
-          pPrint $ S.size afterOneRemoval
-          let sevenPairs = D8.connectionsFor (D8.parseSignal "dab") afterOneRemoval
-          let afterSevenRemoval = D8.reduceConnections sevenPairs afterOneRemoval
-          pPrint $ S.size afterSevenRemoval
-          let eightPairs = D8.connectionsFor (D8.parseSignal "acedgfb") afterSevenRemoval
-          let afterEightRemoval = D8.reduceConnections eightPairs afterSevenRemoval
-          pPrint $ S.size afterEightRemoval
-          pPrint $ D8.getDigitToPrint (D8.parseSignal "acedgfb") afterEightRemoval
-          pPrint $ D8.isResolvingConstraintSet afterEightRemoval (D8.parseSignal "cdfeb")
-          True `shouldBe` True
-
--- describe "countTotalDigits" $ do
---   it "solves example" $ do
---     let entries =
---           D8.parseEntry
---             <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
---                   "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
---                   "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
---                   "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
---                   "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
---                   "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
---                   "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
---                   "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
---                   "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
---                   "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
---                 ]
---     D8.countTotalDigits [1, 4, 7, 8] entries `shouldBe` 26
--- describe "calculateOutputValue" $ do
---   it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
---     let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
---     D8.calculateOutputValue entry `shouldBe` 5353
+      describe "countTotalDigits" $ do
+        it "solves example" $ do
+          let entries =
+                D8.parseEntry
+                  <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+                        "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+                        "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+                        "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+                        "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+                        "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+                        "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+                        "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+                        "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+                        "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+                      ]
+          D8.countTotalDigits entries `shouldBe` 26
+      describe "getIntValue" $ do
+        it "cdfeb -> 5" $ do
+          let (signals, outputs) = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.getIntValue signals (L'.head outputs) `shouldBe` 5
+      describe "calculateOutputValue" $ do
+        it "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" $ do
+          let entry = D8.parseEntry "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"
+          D8.calculateOutputValue entry `shouldBe` 5353
+      describe "addOutputValues" $ do
+        it "solves example" $ do
+          let entries =
+                D8.parseEntry
+                  <$> [ "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+                        "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+                        "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+                        "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+                        "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+                        "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+                        "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+                        "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+                        "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+                        "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce"
+                      ]
+          D8.addOutputValues entries `shouldBe` 61229
