@@ -4,10 +4,7 @@ module Days2021.Day3 where
 
 import qualified Data.List as L
 import qualified Data.List as L'
-import Data.Tuple.Select as S
 import Import
-import qualified RIO.List as L
-import qualified RIO.List.Partial ((!!))
 import qualified RIO.Text as T
 import Util (calculateResult)
 
@@ -36,7 +33,7 @@ binNumToInt :: BinNum -> Int
 binNumToInt bn =
   sum $
     (\(i, b) -> bitToIntegral b * 2 ^ i)
-      <$> zip [0 ..] (L.reverse bn)
+      <$> zip ([0 ..] :: [Int]) (L.reverse bn)
 
 countOccurrences :: [Bit] -> (Int, Int)
 countOccurrences bs = (numZeroes, numOnes)

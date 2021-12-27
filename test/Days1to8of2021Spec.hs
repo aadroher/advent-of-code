@@ -1,10 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Days2021Spec (spec) where
+module Days1to8of2021Spec (spec) where
 
 import qualified Days2021.Day1 as D1
--- import Days2021.Day2 (Command (..))
 import qualified Days2021.Day2 as D2
 import Days2021.Day3 (Bit (..))
 import qualified Days2021.Day3 as D3
@@ -12,15 +11,14 @@ import qualified Days2021.Day4 as D4
 import qualified Days2021.Day5 as D5
 import qualified Days2021.Day6 as D6
 import qualified Days2021.Day7 as D7
-import Days2021.Day8 (Segment (..), Wire (..))
+import Days2021.Day8 (Wire (..))
 import qualified Days2021.Day8 as D8
 import Import
 import qualified RIO.HashMap as HM
 import qualified RIO.List.Partial as L'
-import RIO.Set ((\\))
 import qualified RIO.Set as S
 import Test.Hspec
-import Text.Pretty.Simple (pPrint)
+-- import Text.Pretty.Simple (pPrint)
 import Util (getFilePath)
 
 spec :: Spec
@@ -458,7 +456,7 @@ spec = do
                   14
                 ]
           D7.getWeightedOptimalAlignment initialPositions `shouldBe` (5, 168)
-    fdescribe "exercise 8" $ do
+    describe "exercise 8" $ do
       describe "parseSignal" $ do
         it "parses 'abc'" $ do
           D8.parseSignal "abc" `shouldBe` S.fromList [WA, WB, WC]
