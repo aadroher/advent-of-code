@@ -1,15 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module Day9of2021Spec where
 
 import qualified Days2021.Day9 as D9
+import Import
 import qualified RIO.Set as S
 import Test.Hspec
 
 spec :: Spec
 spec = do
   describe "AoC 2021" $ do
-    describe "exercise 9.1" $ do
+    describe "exercise_9.1" $ do
       describe "isValid" $ do
         it "returns True for a valid map" $ do
           let floorMap =
@@ -144,3 +146,32 @@ spec = do
       describe "parseRow" $ do
         it "parses row" $ do
           D9.parseRow "2199943210" `shouldBe` [2, 1, 9, 9, 9, 4, 3, 2, 1, 0]
+    describe "exercise_9.2" $ do
+      describe "radiusOfAt" $ do
+        let floorMap =
+              [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
+                [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
+                [9, 8, 5, 6, 7, 8, 9, 8, 9, 2],
+                [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
+                [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
+              ]
+        it "1 (4,2) -> {(3, 2), (4, 1), (5, 2), (4, 3)}" $ do
+          D9.radiusOfAt 1 (4, 2) floorMap `shouldBe` S.fromList [(3, 2), (4, 1), (5, 2), (4, 3)]
+        it "2 (4,2) -> {(3, 2), (4, 1), (5, 2), (4, 3)}" $ do
+          D9.radiusOfAt 2 (4, 2) floorMap
+            `shouldBe` S.fromList
+              [ (2, 2),
+                (4, 1),
+                (6, 2),
+                (4, 4)
+              ]
+      describe "basinAt" $ do
+        let floorMap =
+              [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
+                [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
+                [9, 8, 5, 6, 7, 8, 9, 8, 9, 2],
+                [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
+                [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
+              ]
+        it "returns basin at (2,2)" $ do
+          D9.basinAt (2, 2) floorMap `shouldBe` S.fromList []
