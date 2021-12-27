@@ -6,11 +6,17 @@ module Days2021.Day9 where
 import Import
 import qualified RIO.List as L
 import RIO.List.Partial ((!!))
+import qualified RIO.Partial as P
 import qualified RIO.Set as S
+import qualified RIO.Text as T
+import Util (calculateResult)
 
 type FloorMap = [[Int]]
 
 type Point = (Int, Int)
+
+parseRow :: Text -> [Int]
+parseRow t = P.read . (: "") <$> T.unpack t
 
 isValid :: FloorMap -> Bool
 isValid [] = True
@@ -104,3 +110,6 @@ sumRiskLevels fm =
     risks
   where
     risks = (`risk` fm) <$> S.toList (lowPoints fm)
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult = calculateResult parseRow sumRiskLevels

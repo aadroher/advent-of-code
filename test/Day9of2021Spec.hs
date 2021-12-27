@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Day9of2021Spec where
 
 import qualified Days2021.Day9 as D9
@@ -139,3 +141,6 @@ spec = do
                   [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
                 ]
           D9.sumRiskLevels floorMap `shouldBe` 15
+      describe "parseRow" $ do
+        it "parses row" $ do
+          D9.parseRow "2199943210" `shouldBe` [2, 1, 9, 9, 9, 4, 3, 2, 1, 0]
