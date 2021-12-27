@@ -1,18 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module Days2019.Day3 where
 
 import Control.Monad as M
-import Data.List.Split (splitOn)
-import qualified GHC.OldList as L
-import RIO
+import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
-import RIO.Set (Set (..))
 import qualified RIO.Set as S
 import qualified RIO.Text as T
 import qualified RIO.Text.Partial as T'
-import Text.Pretty.Simple (pPrint)
 
 data Direction = L | R | U | D
   deriving (Show, Eq)
@@ -39,8 +36,8 @@ getInstructionSteps (D, d) (x, y) = [(x, y - s) | s <- [1 .. d]]
 
 getRoute :: [Position] -> [Instruction] -> [Position]
 getRoute =
-  foldl'
-    (\steps instruction -> steps ++ getInstructionSteps instruction (last steps))
+  L.foldl'
+    (\steps instruction -> steps ++ getInstructionSteps instruction (L'.last steps))
 
 getRouteFromCenter :: [Instruction] -> [Position]
 getRouteFromCenter = getRoute [centre]
@@ -73,7 +70,7 @@ getPerimeter c r =
    in S.fromList $
         L.filter
           (\(a, b) -> (abs a + abs b) == r)
-          [ last (getRoute [c] [(dir, 1) | dir <- stepsDir]) | stepsDir <- permsWithRep
+          [ L'.last (getRoute [c] [(dir, 1) | dir <- stepsDir]) | stepsDir <- permsWithRep
           ]
 
 getRouteIntersections :: [Position] -> [Position] -> Set Position
@@ -82,7 +79,7 @@ getRouteIntersections v w = S.fromList $ L.intersect v w
 getDistToClosestIntersection :: [Instruction] -> [Instruction] -> Int
 getDistToClosestIntersection is0 is1 =
   fst $
-    head $
+    L'.head $
       L.filter
         (\(_, ps) -> S.size (S.intersection ps route0) > 0 || S.size (S.intersection ps route1) > 0)
         [(r, getPerimeter centre r) | r <- [1 ..]]
@@ -93,10 +90,7 @@ getDistToClosestIntersection is0 is1 =
 loadData :: FilePath -> IO ([Instruction], [Instruction])
 loadData f = do
   fileContents <- readFileUtf8 f
-  -- pPrint fileContents
   let (isStr0, isStr1) = T'.breakOn "\n" fileContents
-  pPrint isStr0
-  pPrint (T'.tail isStr1)
   pure (parseInstructions isStr0, parseInstructions (T'.tail isStr1))
 
 calculateFirstResult :: FilePath -> IO Text

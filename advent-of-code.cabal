@@ -36,6 +36,7 @@ library
       Days2021.Day6
       Days2021.Day7
       Days2021.Day8
+      Days2021.Day9
       Import
       Run
       Types
@@ -78,6 +79,7 @@ test-suite advent-of-code-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Day9of2021Spec
       Days1to8of2021Spec
       Days2019Spec
       Paths_advent_of_code
