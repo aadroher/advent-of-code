@@ -75,7 +75,21 @@ spec = do
                 ]
           D9.valueAt (2, 1) floorMap `shouldBe` Nothing
       describe "neighbours" $ do
-        it "valueAt Just value for a valid position" $ do
+        it "returns neighbour set for a valid position on a side" $ do
+          let floorMap =
+                [ [0, 0],
+                  [0, 0],
+                  [0, 0]
+                ]
+          D9.neighbours (1, 1) floorMap
+            `shouldBe` S.fromList
+              [ (0, 0),
+                (1, 0),
+                (0, 1),
+                (0, 2),
+                (1, 2)
+              ]
+        it "returns neighbour set for a valid position on a corner" $ do
           let floorMap =
                 [ [0, 0],
                   [0, 0],
@@ -87,13 +101,18 @@ spec = do
                 (0, 1),
                 (1, 1)
               ]
-        it "returns Nothing for an invalid position" $ do
+        it "returns neighbour set for an adjacent invalid position" $ do
           let floorMap =
                 [ [0, 0],
                   [0, 0],
                   [0, 0]
                 ]
-          D9.neighbours (2, 1) floorMap `shouldBe` S.empty
+          D9.neighbours (2, 1) floorMap
+            `shouldBe` S.fromList
+              [ (1, 0),
+                (1, 1),
+                (1, 2)
+              ]
       describe "lowPoints" $ do
         it "solves the example" $ do
           let floorMap =
@@ -108,5 +127,5 @@ spec = do
               [ (1, 0),
                 (9, 0),
                 (2, 2),
-                (4, 6)
+                (6, 4)
               ]
