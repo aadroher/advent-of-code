@@ -64,9 +64,9 @@ spec = do
           let floorMap =
                 [ [0, 0],
                   [0, 0],
-                  [0, 0]
+                  [0, 5]
                 ]
-          D9.valueAt (1, 2) floorMap `shouldBe` Just 0
+          D9.valueAt (1, 2) floorMap `shouldBe` Just 5
         it "returns Nothing for an invalid position" $ do
           let floorMap =
                 [ [0, 0],
@@ -129,3 +129,13 @@ spec = do
                 (2, 2),
                 (6, 4)
               ]
+      describe "sumRiskLevels" $ do
+        it "solves the example" $ do
+          let floorMap =
+                [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
+                  [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
+                  [9, 8, 5, 6, 7, 8, 9, 8, 9, 2],
+                  [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
+                  [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
+                ]
+          D9.sumRiskLevels floorMap `shouldBe` 15

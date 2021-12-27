@@ -89,3 +89,18 @@ lowPoints fm =
             | i <- [0 .. (n - 1)],
               j <- [0 .. (m - 1)]
           ]
+
+risk :: Point -> FloorMap -> Maybe Int
+risk p fm = (+ 1) <$> valueAt p fm
+
+sumRiskLevels :: FloorMap -> Int
+sumRiskLevels fm =
+  L.foldl
+    ( \s r -> case r of
+        Just x -> s + x
+        Nothing -> s
+    )
+    0
+    risks
+  where
+    risks = (`risk` fm) <$> S.toList (lowPoints fm)
