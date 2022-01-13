@@ -143,27 +143,31 @@ pathsOf n p fm =
 
 radiusOfAt :: Int -> Point -> FloorMap -> Set Point
 radiusOfAt 0 _ _ = S.empty
-radiusOfAt n (x, y) fm = S.unions [diagA, diagB, diagC, diagD]
+radiusOfAt n (x, y) fm = S.unions $ S.filter (`inBounds` fm) <$> [diagA, diagB, diagC, diagD]
   where
     diagA =
       S.fromList
         [ (x + i, y - j)
-          | (i, j) <- L.zip [0 .. (n - 1)] [n, (n - 1) .. 1]
+          | (i, j) <- L.zip [0 .. (n - 1)] [n, (n - 1) .. 1],
+            inBounds (i, j) fm
         ]
     diagB =
       S.fromList
         [ (x + i, y + j)
-          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)],
+            inBounds (i, j) fm
         ]
     diagC =
       S.fromList
         [ (x - i, y + j)
-          | (i, j) <- L.zip [0 .. n] [n, (n - 1) .. 1]
+          | (i, j) <- L.zip [0 .. n] [n, (n - 1) .. 1],
+            inBounds (i, j) fm
         ]
     diagD =
       S.fromList
         [ (x - i, y - j)
-          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)],
+            inBounds (i, j) fm
         ]
 
 basinAt :: Point -> FloorMap -> Set Point

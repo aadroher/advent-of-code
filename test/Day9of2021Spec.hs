@@ -171,6 +171,12 @@ spec = do
                 (2, 2),
                 (3, 1)
               ]
+        it "2 (0,5) -> {(4, 0), ..., (3, 1)}" $ do
+          D9.radiusOfAt 2 (0, 5) floorMap
+            `shouldBe` S.fromList
+              [ (0, 3),
+                (1, 4)
+              ]
       describe "basinAt" $ do
         let floorMap =
               [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
