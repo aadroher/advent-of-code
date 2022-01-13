@@ -148,26 +148,22 @@ radiusOfAt n (x, y) fm = S.unions $ S.filter (`inBounds` fm) <$> [diagA, diagB, 
     diagA =
       S.fromList
         [ (x + i, y - j)
-          | (i, j) <- L.zip [0 .. (n - 1)] [n, (n - 1) .. 1],
-            inBounds (i, j) fm
+          | (i, j) <- L.zip [0 .. (n - 1)] [n, (n - 1) .. 1]
         ]
     diagB =
       S.fromList
         [ (x + i, y + j)
-          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)],
-            inBounds (i, j) fm
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
         ]
     diagC =
       S.fromList
         [ (x - i, y + j)
-          | (i, j) <- L.zip [0 .. n] [n, (n - 1) .. 1],
-            inBounds (i, j) fm
+          | (i, j) <- L.zip [0 .. n] [n, (n - 1) .. 1]
         ]
     diagD =
       S.fromList
         [ (x - i, y - j)
-          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)],
-            inBounds (i, j) fm
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
         ]
 
 basinAt :: Point -> FloorMap -> Set Point
