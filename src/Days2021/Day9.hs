@@ -142,7 +142,29 @@ pathsOf n p fm =
     (pathsOf (n -1) p fm)
 
 radiusOfAt :: Int -> Point -> FloorMap -> Set Point
-radiusOfAt n p fm = S.map (L'.maximum . S.toList) $ pathsOf n p fm
+radiusOfAt 0 _ _ = S.empty
+radiusOfAt n (x, y) fm = S.unions [diagA, diagB, diagC, diagD]
+  where
+    diagA =
+      S.fromList
+        [ (x + i, y - j)
+          | (i, j) <- L.zip [0 .. (n - 1)] [n, (n - 1) .. 1]
+        ]
+    diagB =
+      S.fromList
+        [ (x + i, y + j)
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
+        ]
+    diagC =
+      S.fromList
+        [ (x - i, y + j)
+          | (i, j) <- L.zip [0 .. n] [n, (n - 1) .. 1]
+        ]
+    diagD =
+      S.fromList
+        [ (x - i, y - j)
+          | (i, j) <- L.zip [n, (n - 1) .. 1] [0 .. (n - 1)]
+        ]
 
 basinAt :: Point -> FloorMap -> Set Point
 basinAt p fm = undefined

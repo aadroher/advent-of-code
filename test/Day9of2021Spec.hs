@@ -147,7 +147,7 @@ spec = do
         it "parses row" $ do
           D9.parseRow "2199943210" `shouldBe` [2, 1, 9, 9, 9, 4, 3, 2, 1, 0]
     describe "exercise_9.2" $ do
-      describe "radiusOfAt" $ do
+      fdescribe "radiusOfAt" $ do
         let floorMap =
               [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
                 [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
@@ -155,15 +155,21 @@ spec = do
                 [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
                 [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
               ]
+        it "0 (4,2) -> {}" $ do
+          D9.radiusOfAt 0 (4, 2) floorMap `shouldBe` S.fromList []
         it "1 (4,2) -> {(3, 2), (4, 1), (5, 2), (4, 3)}" $ do
           D9.radiusOfAt 1 (4, 2) floorMap `shouldBe` S.fromList [(3, 2), (4, 1), (5, 2), (4, 3)]
-        it "2 (4,2) -> {(3, 2), (4, 1), (5, 2), (4, 3)}" $ do
+        it "2 (4,2) -> {(4, 0), ..., (3, 1)}" $ do
           D9.radiusOfAt 2 (4, 2) floorMap
             `shouldBe` S.fromList
-              [ (2, 2),
-                (4, 1),
+              [ (4, 0),
+                (5, 1),
                 (6, 2),
-                (4, 4)
+                (5, 3),
+                (4, 4),
+                (3, 3),
+                (2, 2),
+                (3, 1)
               ]
       describe "basinAt" $ do
         let floorMap =
