@@ -147,7 +147,7 @@ spec = do
         it "parses row" $ do
           D9.parseRow "2199943210" `shouldBe` [2, 1, 9, 9, 9, 4, 3, 2, 1, 0]
     describe "exercise_9.2" $ do
-      fdescribe "radiusOfAt" $ do
+      describe "radiusOfAt" $ do
         let floorMap =
               [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
                 [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
@@ -177,6 +177,20 @@ spec = do
               [ (0, 3),
                 (1, 4)
               ]
+      describe "extendPathToLowPoint" $ do
+        let floorMap =
+              [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
+                [3, 9, 8, 7, 8, 9, 4, 9, 2, 1],
+                [9, 8, 5, 6, 7, 8, 9, 8, 9, 2],
+                [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
+                [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
+              ]
+        it "[(0,0)] -> [(0,1), (0,0)]" $ do
+          D9.extendPathToLowPoint floorMap [(0, 0)]
+            `shouldBe` [(0, 0), (0, 1)]
+        it "[(0,1)] -> [(1,0), (0,0), (0,1)]" $ do
+          D9.extendPathToLowPoint floorMap [(0, 1)]
+            `shouldBe` [(1, 0), (0, 0), (0, 1)]
       describe "basinAt" $ do
         let floorMap =
               [ [2, 1, 9, 9, 9, 4, 3, 2, 1, 0],
@@ -185,5 +199,7 @@ spec = do
                 [8, 7, 6, 7, 8, 9, 6, 7, 8, 9],
                 [9, 8, 9, 9, 9, 6, 5, 6, 7, 8]
               ]
-        it "returns basin at (2,2)" $ do
-          D9.basinAt (2, 2) floorMap `shouldBe` S.fromList []
+        it "returns basin at (1,0)" $ do
+          D9.basinAt (1, 0) floorMap
+            `shouldBe` S.fromList
+              [(0, 0), (0, 1), (1, 0)]

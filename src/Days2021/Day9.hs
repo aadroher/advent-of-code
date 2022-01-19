@@ -68,21 +68,22 @@ neighbours (i, j) fm =
         (i - 1, j - 1)
       ]
 
+neighbourValues :: Point -> FloorMap -> [Int]
+neighbourValues p fm =
+  L.foldl
+    ( \nvs n ->
+        case valueAt n fm of
+          Just nv -> nv : nvs
+          Nothing -> nvs
+    )
+    []
+    (neighbours p fm)
+
 isLowPoint :: Point -> FloorMap -> Bool
 isLowPoint p fm =
   case valueAt p fm of
-    Just pv -> L.all (> pv) neighbourValues
+    Just pv -> L.all (>= pv) $ neighbourValues p fm
     Nothing -> False
-  where
-    neighbourValues =
-      L.foldl
-        ( \nvs n ->
-            case valueAt n fm of
-              Just nv -> nv : nvs
-              Nothing -> nvs
-        )
-        []
-        (neighbours p fm)
 
 lowPoints :: FloorMap -> Set Point
 lowPoints fm =
@@ -111,6 +112,28 @@ sumRiskLevels fm =
     risks
   where
     risks = (`risk` fm) <$> S.toList (lowPoints fm)
+
+nextStep :: FloorMap -> Point -> Point
+nextStep fm p =
+  S.foldl
+    ( \lowest n ->
+        if valueAt n fm < valueAt lowest fm
+          then n
+          else lowest
+    )
+    initial
+    (S.fromList ns)
+  where
+    (initial : ns) = S.toList $ neighbours p fm
+
+extendPathToLowPoint :: FloorMap -> [Point] -> [Point]
+extendPathToLowPoint _ [] = []
+extendPathToLowPoint fm ps@(p : _) =
+  if isLowPoint p fm
+    then ps
+    else extendPathToLowPoint fm (minP : ps)
+  where
+    minP = nextStep fm p
 
 shifts :: [(Int, Int)]
 shifts =
@@ -167,7 +190,7 @@ radiusOfAt n (x, y) fm = S.unions $ S.filter (`inBounds` fm) <$> [diagA, diagB, 
         ]
 
 basinAt :: Point -> FloorMap -> Set Point
-basinAt p fm = undefined
+basinAt p fm = S.empty
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parseRow sumRiskLevels
