@@ -82,6 +82,8 @@ test-suite advent-of-code-test
       Day9of2021Spec
       Days1to8of2021Spec
       Days2019Spec
+      Days2021.Day1Spec
+      Days2021.Day2Spec
       Paths_advent_of_code
   hs-source-dirs:
       test
