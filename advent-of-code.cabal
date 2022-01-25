@@ -80,10 +80,15 @@ test-suite advent-of-code-test
   main-is: Spec.hs
   other-modules:
       Day9of2021Spec
-      Days1to8of2021Spec
       Days2019Spec
       Days2021.Day1Spec
       Days2021.Day2Spec
+      Days2021.Day3Spec
+      Days2021.Day4Spec
+      Days2021.Day5Spec
+      Days2021.Day6Spec
+      Days2021.Day7Spec
+      Days2021.Day8Spec
       Paths_advent_of_code
   hs-source-dirs:
       test

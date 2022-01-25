@@ -3,7 +3,7 @@
 
 module Days2021.Day2Spec (spec) where
 
-import Days2021.Day2
+import Days2021.Day2 (Command (D, F, U), bearingMove, stepMove)
 import Import
 import Test.Hspec
 

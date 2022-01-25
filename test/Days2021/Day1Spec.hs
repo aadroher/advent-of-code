@@ -17,7 +17,18 @@ spec = do
     describe "exercise 1" $ do
       describe "countIncreases" $ do
         it "[199, 200, 208, 210, 200, 207, 240, 269, 260, 263] -> 7" $
-          countIncreases [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+          countIncreases
+            [ 199,
+              200,
+              208,
+              210,
+              200,
+              207,
+              240,
+              269,
+              260,
+              263
+            ]
             `shouldBe` 7
     describe "exercise 2" $ do
       describe "generateWindows" $ do
@@ -34,5 +45,16 @@ spec = do
                        ]
       describe "countWindowIncreases" $ do
         it "[199, 200, 208, 210, 200, 207, 240, 269, 260, 263] -> 5" $ do
-          countWindowIncreases [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+          countWindowIncreases
+            [ 199,
+              200,
+              208,
+              210,
+              200,
+              207,
+              240,
+              269,
+              260,
+              263
+            ]
             `shouldBe` 5
