@@ -79,7 +79,6 @@ test-suite advent-of-code-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Day9of2021Spec
       Days2019Spec
       Days2021.Day1Spec
       Days2021.Day2Spec
@@ -89,6 +88,7 @@ test-suite advent-of-code-test
       Days2021.Day6Spec
       Days2021.Day7Spec
       Days2021.Day8Spec
+      Days2021.Day9Spec
       Paths_advent_of_code
   hs-source-dirs:
       test

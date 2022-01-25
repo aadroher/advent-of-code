@@ -14,6 +14,7 @@ import qualified Days2021.Day5 as D5of2021
 import qualified Days2021.Day6 as D6of2021
 import qualified Days2021.Day7 as D7of2021
 import qualified Days2021.Day8 as D8of2021
+import qualified Days2021.Day9 as D9of2021
 import Import
 import Util (getResult)
 
@@ -39,6 +40,7 @@ getSolver "21-7-1" = D7of2021.calculateFirstResult
 getSolver "21-7-2" = D7of2021.calculateSecondResult
 getSolver "21-8-1" = D8of2021.calculateFirstResult
 getSolver "21-8-2" = D8of2021.calculateSecondResult
+getSolver "21-9-1" = D9of2021.calculateFirstResult
 getSolver _ = undefined
 
 run :: RIO App ()
