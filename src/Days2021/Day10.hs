@@ -29,11 +29,18 @@ lexChunk c = case c of
 lexLine :: String -> [Chunk]
 lexLine = fmap lexChunk
 
-parseLine :: [Chunk] -> [Chunk] -> Either (Chunk, Chunk) ()
-parseLine (Chunk Opening bt : cs) stack = parseLine cs (Chunk Opening bt : stack)
-parseLine (Chunk Closing bt : cs) (s : stack) =
-  if s == Chunk Opening bt
-    then parseLine cs stack
-    else Left (Chunk Opening bt, s)
+bracketType :: Chunk -> BrackeType
+bracketType (Chunk _ bt) = bt
+
+parseLine :: [Chunk] -> [Chunk] -> Either (Chunk, Maybe Chunk) ()
+parseLine (c : cs) [] = case c of
+  Chunk Opening bt -> parseLine cs [Chunk Opening bt]
+  _ -> Left (c, Nothing)
+parseLine (c : cs) (sc : scs) = case c of
+  Chunk Opening bt -> parseLine cs (Chunk Opening bt : sc : scs)
+  Chunk Closing bt ->
+    if sc == Chunk Opening bt
+      then parseLine cs scs
+      else Left (c, Just $ Chunk Closing $ bracketType sc)
 parseLine [] [] = Right ()
 parseLine _ _ = error "Could not parse!"

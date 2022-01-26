@@ -23,6 +23,18 @@ spec = do
       it "} -> Closing Curly" $ do
         lexChunk '}' `shouldBe` Chunk Closing Curly
     describe "parseLine" $ do
+      it "[] -> Right ()" $ do
+        (parseLine . lexLine) "[]" []
+          `shouldBe` Right ()
+      it "{(([<>]))} -> Right ()" $ do
+        (parseLine . lexLine) "{(([<>]))}" []
+          `shouldBe` Right ()
+      it "{(([<>]))>([]) -> Left ('>', '}')" $ do
+        (parseLine . lexLine) "{(([<>]))>([])" []
+          `shouldBe` Left (lexChunk '>', Just $ lexChunk '}')
       it "{([(<{}[<>[]}>{[]{[(<()> -> Left (']', '}')" $ do
         (parseLine . lexLine) "{([(<{}[<>[]}>{[]{[(<()>" []
-          `shouldBe` (Left (Chunk Closing Square, Chunk Closing Curly))
+          `shouldBe` Left (Chunk Closing Curly, Just (Chunk Closing Square))
+      it "<{([([[(<>()){}]>(<<{{ -> Left (']', '>')" $ do
+        (parseLine . lexLine) "<{([([[(<>()){}]>(<<{{" []
+          `shouldBe` Left (lexChunk '>', Just (lexChunk ']'))
