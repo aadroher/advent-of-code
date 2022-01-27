@@ -29,6 +29,7 @@ library
       Days2019.Day2
       Days2019.Day3
       Days2021.Day1
+      Days2021.Day10
       Days2021.Day2
       Days2021.Day3
       Days2021.Day4
@@ -80,6 +81,7 @@ test-suite advent-of-code-test
   main-is: Spec.hs
   other-modules:
       Days2019Spec
+      Days2021.Day10Spec
       Days2021.Day1Spec
       Days2021.Day2Spec
       Days2021.Day3Spec
