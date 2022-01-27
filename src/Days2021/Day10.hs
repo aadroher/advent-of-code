@@ -4,6 +4,8 @@
 module Days2021.Day10 where
 
 import Import
+import qualified RIO.Text as T
+import Util (calculateResult)
 
 data BrackeType = Round | Square | Curly | Angle
   deriving (Eq, Show)
@@ -26,8 +28,8 @@ lexChunk c = case c of
   '>' -> Chunk Closing Angle
   _ -> error $ "Could not parse char: " ++ [c]
 
-lexLine :: String -> [Chunk]
-lexLine = fmap lexChunk
+lexLine :: Text -> [Chunk]
+lexLine t = lexChunk <$> T.unpack t
 
 bracketType :: Chunk -> BrackeType
 bracketType (Chunk _ bt) = bt
@@ -43,4 +45,22 @@ parseLine (c : cs) (sc : scs) = case c of
       then parseLine cs scs
       else Left (c, Just $ Chunk Closing $ bracketType sc)
 parseLine [] [] = Right ()
-parseLine _ _ = error "Could not parse!"
+parseLine _ _ = Right ()
+
+mismatchScore :: Either (Chunk, Maybe Chunk) () -> Int
+mismatchScore (Right _) = 0
+mismatchScore (Left (Chunk Closing bt, _)) = case bt of
+  Round -> 3
+  Square -> 57
+  Curly -> 1197
+  Angle -> 25137
+mismatchScore _ = undefined
+
+sumMismatchScores :: [Either (Chunk, Maybe Chunk) ()] -> Int
+sumMismatchScores mms = sum $ mismatchScore <$> mms
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult =
+  calculateResult
+    lexLine
+    (\css -> sumMismatchScores $ (`parseLine` []) <$> css)

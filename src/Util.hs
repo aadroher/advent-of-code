@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- | Silly utility module, used to demonstrate how to write a test
@@ -7,6 +8,7 @@ module Util where
 import RIO
 import qualified RIO.List as L
 import qualified RIO.Text as T
+import qualified RIO.Text.Partial as T'
 
 calculateResult :: Show b => (Text -> a) -> ([a] -> b) -> FilePath -> IO Text
 calculateResult parse process filePath = do
@@ -17,8 +19,7 @@ calculateResult parse process filePath = do
 getFilePath :: String -> FilePath
 getFilePath exName = "./data/" ++ year ++ "/day" ++ num ++ ".txt"
   where
-    year = L.take 2 exName
-    num = (L.drop 3 . L.take 4) exName
+    [year, num, _] = T.unpack <$> (T'.splitOn "-" $ T.pack exName)
 
 getResult :: (FilePath -> IO Text) -> String -> IO Text
 getResult solve exName = do
