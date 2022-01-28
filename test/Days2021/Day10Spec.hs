@@ -6,7 +6,10 @@ module Days2021.Day10Spec (spec) where
 import Days2021.Day10
   ( BrackeType (..),
     Chunk (..),
+    ParseResult (..),
     Position (..),
+    completeSequence,
+    invert,
     lexChunk,
     lexLine,
     parseLine,
@@ -25,16 +28,23 @@ spec = do
     describe "parseLine" $ do
       it "[] -> Right ()" $ do
         (parseLine . lexLine) "[]" []
-          `shouldBe` Right ()
+          `shouldBe` Ok
       it "{(([<>]))} -> Right ()" $ do
         (parseLine . lexLine) "{(([<>]))}" []
-          `shouldBe` Right ()
+          `shouldBe` Ok
       it "{(([<>]))>([]) -> Left ('>', '}')" $ do
         (parseLine . lexLine) "{(([<>]))>([])" []
-          `shouldBe` Left (lexChunk '>', Just $ lexChunk '}')
+          `shouldBe` Corrupt (lexChunk '>', Just $ lexChunk '}')
       it "{([(<{}[<>[]}>{[]{[(<()> -> Left (']', '}')" $ do
         (parseLine . lexLine) "{([(<{}[<>[]}>{[]{[(<()>" []
-          `shouldBe` Left (Chunk Closing Curly, Just (Chunk Closing Square))
+          `shouldBe` Corrupt (Chunk Closing Curly, Just (Chunk Closing Square))
       it "<{([([[(<>()){}]>(<<{{ -> Left (']', '>')" $ do
         (parseLine . lexLine) "<{([([[(<>()){}]>(<<{{" []
-          `shouldBe` Left (lexChunk '>', Just (lexChunk ']'))
+          `shouldBe` Corrupt (lexChunk '>', Just (lexChunk ']'))
+      it "[({(<(())[]>[[{[]{<()<>> -> Incomplete }}]])})]" $ do
+        (parseLine . lexLine) "[({(<(())[]>[[{[]{<()<>>" []
+          `shouldBe` Incomplete (invert . lexChunk <$> "}}]])})]")
+    describe "completeSequence" $ do
+      it "'[({(<(())[]>[[{[]{<()<>>' -> '}}]])})]'" $ do
+        (completeSequence . lexLine) "[({(<(())[]>[[{[]{<()<>>"
+          `shouldBe` lexLine "}}]])})]"
