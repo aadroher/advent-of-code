@@ -9,6 +9,8 @@ import Days2021.Day10
     ParseResult (..),
     Position (..),
     completeSequence,
+    completionScore,
+    completionWinningScore,
     invert,
     lexChunk,
     lexLine,
@@ -48,3 +50,18 @@ spec = do
       it "'[({(<(())[]>[[{[]{<()<>>' -> '}}]])})]'" $ do
         (completeSequence . lexLine) "[({(<(())[]>[[{[]{<()<>>"
           `shouldBe` lexLine "}}]])})]"
+    describe "completionScore" $ do
+      it "[({(<(())[]>[[{[]{<()<>> -> 288957" $ do
+        completionScore ((parseLine . lexLine) "[({(<(())[]>[[{[]{<()<>>" [])
+          `shouldBe` 288957
+    describe "completionWinningScore" $ do
+      it "returns 288957 for example" $ do
+        let incompleteSequences =
+              [ "[({(<(())[]>[[{[]{<()<>>",
+                "[(()[<>])]({[<{<<[]>>(",
+                "(((({<>}<{<{<>}{[]{[]{}",
+                "{<[[]]>}<{[{[{[]{()[[[]",
+                "<{([{{}}[<[[[<>{}]]]>[]]"
+              ]
+        let parseResults = (`parseLine` []) . lexLine <$> incompleteSequences
+        completionWinningScore parseResults `shouldBe` 288957

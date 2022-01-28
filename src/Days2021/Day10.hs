@@ -4,6 +4,8 @@
 module Days2021.Day10 where
 
 import Import
+import qualified RIO.List as L
+import RIO.List.Partial ((!!))
 import qualified RIO.Text as T
 import Util (calculateResult)
 
@@ -55,13 +57,12 @@ parseLine [] (sc : scs) = Incomplete (sc : scs)
 parseLine [] [] = Ok
 
 mismatchScore :: ParseResult -> Int
-mismatchScore Ok = 0
 mismatchScore (Corrupt (Chunk Closing bt, _)) = case bt of
   Round -> 3
   Square -> 57
   Curly -> 1197
   Angle -> 25137
-mismatchScore _ = undefined
+mismatchScore _ = 0
 
 sumMismatchScores :: [ParseResult] -> Int
 sumMismatchScores mms = sum $ mismatchScore <$> mms
@@ -70,6 +71,27 @@ completeSequence :: [Chunk] -> [Chunk]
 completeSequence cs = case parseLine cs [] of
   Incomplete scs -> invert <$> scs
   _ -> []
+
+completionScore :: ParseResult -> Int
+completionScore (Incomplete scs) =
+  L.foldl (\n c -> 5 * n + chunkScore c) 0 scs
+  where
+    chunkScore c = case bracketType c of
+      Round -> 1
+      Square -> 2
+      Curly -> 3
+      Angle -> 4
+completionScore _ = 0
+
+completionWinningScore :: [ParseResult] -> Int
+completionWinningScore prs =
+  L.sort scores !! (L.length scores `div` 2)
+  where
+    scores =
+      [ completionScore pr
+        | pr <- prs,
+          completionScore pr > 0
+      ]
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
