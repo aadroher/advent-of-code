@@ -4,6 +4,8 @@
 module Days2021.Day10 where
 
 import Import
+import qualified RIO.List as L
+import RIO.List.Partial ((!!))
 import qualified RIO.Text as T
 import Util (calculateResult)
 
@@ -15,6 +17,13 @@ data Position = Opening | Closing
 
 data Chunk = Chunk Position BrackeType
   deriving (Eq, Show)
+
+data ParseResult = Corrupt (Chunk, Maybe Chunk) | Incomplete [Chunk] | Ok
+  deriving (Eq, Show)
+
+invert :: Chunk -> Chunk
+invert (Chunk Opening bt) = Chunk Closing bt
+invert (Chunk Closing bt) = Chunk Opening bt
 
 lexChunk :: Char -> Chunk
 lexChunk c = case c of
@@ -34,33 +43,64 @@ lexLine t = lexChunk <$> T.unpack t
 bracketType :: Chunk -> BrackeType
 bracketType (Chunk _ bt) = bt
 
-parseLine :: [Chunk] -> [Chunk] -> Either (Chunk, Maybe Chunk) ()
+parseLine :: [Chunk] -> [Chunk] -> ParseResult
 parseLine (c : cs) [] = case c of
   Chunk Opening bt -> parseLine cs [Chunk Opening bt]
-  _ -> Left (c, Nothing)
+  _ -> Corrupt (c, Nothing)
 parseLine (c : cs) (sc : scs) = case c of
   Chunk Opening bt -> parseLine cs (Chunk Opening bt : sc : scs)
   Chunk Closing bt ->
     if sc == Chunk Opening bt
       then parseLine cs scs
-      else Left (c, Just $ Chunk Closing $ bracketType sc)
-parseLine [] [] = Right ()
-parseLine _ _ = Right ()
+      else Corrupt (c, Just $ Chunk Closing $ bracketType sc)
+parseLine [] (sc : scs) = Incomplete (sc : scs)
+parseLine [] [] = Ok
 
-mismatchScore :: Either (Chunk, Maybe Chunk) () -> Int
-mismatchScore (Right _) = 0
-mismatchScore (Left (Chunk Closing bt, _)) = case bt of
+mismatchScore :: ParseResult -> Int
+mismatchScore (Corrupt (Chunk Closing bt, _)) = case bt of
   Round -> 3
   Square -> 57
   Curly -> 1197
   Angle -> 25137
-mismatchScore _ = undefined
+mismatchScore _ = 0
 
-sumMismatchScores :: [Either (Chunk, Maybe Chunk) ()] -> Int
+sumMismatchScores :: [ParseResult] -> Int
 sumMismatchScores mms = sum $ mismatchScore <$> mms
+
+completeSequence :: [Chunk] -> [Chunk]
+completeSequence cs = case parseLine cs [] of
+  Incomplete scs -> invert <$> scs
+  _ -> []
+
+completionScore :: ParseResult -> Int
+completionScore (Incomplete scs) =
+  L.foldl (\n c -> 5 * n + chunkScore c) 0 scs
+  where
+    chunkScore c = case bracketType c of
+      Round -> 1
+      Square -> 2
+      Curly -> 3
+      Angle -> 4
+completionScore _ = 0
+
+completionWinningScore :: [ParseResult] -> Int
+completionWinningScore prs =
+  L.sort scores !! (L.length scores `div` 2)
+  where
+    scores =
+      [ completionScore pr
+        | pr <- prs,
+          completionScore pr > 0
+      ]
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
   calculateResult
     lexLine
     (\css -> sumMismatchScores $ (`parseLine` []) <$> css)
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult =
+  calculateResult
+    lexLine
+    (\css -> completionWinningScore $ (`parseLine` []) <$> css)
