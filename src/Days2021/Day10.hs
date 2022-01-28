@@ -98,3 +98,9 @@ calculateFirstResult =
   calculateResult
     lexLine
     (\css -> sumMismatchScores $ (`parseLine` []) <$> css)
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult =
+  calculateResult
+    lexLine
+    (\css -> completionWinningScore $ (`parseLine` []) <$> css)
