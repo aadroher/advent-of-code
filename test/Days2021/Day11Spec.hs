@@ -5,16 +5,36 @@ module Days2021.Day11Spec (spec) where
 
 import Days2021.Day11
   ( Octopus (..),
+    addFlashEffects,
     evolve,
+    flashPoints,
     gridToString,
     parseRow,
   )
 import RIO
 import Test.Hspec
+import Text.Pretty.Simple (pPrint)
 
 spec :: Spec
 spec = do
   describe "exercise 1" $ do
+    describe "flashPoints" $ do
+      it "works" $ do
+        let initialGrid =
+              parseRow
+                <$> [ "5483143223",
+                      "2745854711",
+                      "5264556173",
+                      "6141336146",
+                      "6357385479",
+                      "4167524645",
+                      "2176841721",
+                      "6882881134",
+                      "4846848554",
+                      "5283751526"
+                    ]
+        pPrint $ flashPoints $ addFlashEffects initialGrid
+        True `shouldBe` True
     describe "evolve" $ do
       let initialGrid =
             parseRow
@@ -43,4 +63,5 @@ spec = do
                       "0421125000",
                       "0021119000"
                     ]
-        (gridToString $ evolve initialGrid 3) `shouldBe` (gridToString expectedGrid)
+        pPrint $ gridToString $ evolve initialGrid 2
+        (gridToString $ evolve initialGrid 0) `shouldBe` (gridToString expectedGrid)
