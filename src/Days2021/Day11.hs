@@ -38,6 +38,15 @@ parseGrid t =
     numRowsIsCorrect = L.length parsedRows == gridSize
     numColsIsCorrect = L.all ((== gridSize) . L.length) parsedRows
 
+gridToString :: Grid -> String
+gridToString g = L.unlines $ rowToString <$> g
+  where
+    octopusToString o = case o of
+      Level n -> show n
+      Flash -> "F"
+    rowToString =
+      L.foldl (\rs o -> rs ++ octopusToString o) ""
+
 inBounds :: Point -> Bool
 inBounds (i, j) = 0 <= i && i < gridSize && 0 <= j && j < gridSize
 

@@ -6,6 +6,7 @@ module Days2021.Day11Spec (spec) where
 import Days2021.Day11
   ( Octopus (..),
     evolve,
+    gridToString,
     parseRow,
   )
 import RIO
@@ -42,4 +43,4 @@ spec = do
                       "0421125000",
                       "0021119000"
                     ]
-        evolve initialGrid 3 `shouldBe` expectedGrid
+        (gridToString $ evolve initialGrid 3) `shouldBe` (gridToString expectedGrid)
