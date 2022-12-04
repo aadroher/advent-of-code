@@ -9,6 +9,7 @@ import Days2022.Day2
     MyHand (..),
     OponentHand (..),
     getMatchResult,
+    getMatchesScore,
     parseMatch,
   )
 import Import
@@ -29,3 +30,12 @@ spec = do
         parseMatch "A X" `shouldBe` (OponentHand Rock, MyHand Rock)
       it "B Z -> (Paper, Scissors)" $ do
         parseMatch "B Z" `shouldBe` (OponentHand Paper, MyHand Scissors)
+    describe "getMatchesScore" $ do
+      it "solves the example" $ do
+        let textMatches =
+              [ "A Y",
+                "B X",
+                "C Z"
+              ]
+        let matches = parseMatch <$> textMatches
+        getMatchesScore matches `shouldBe` 15

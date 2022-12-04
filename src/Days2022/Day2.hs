@@ -4,7 +4,9 @@ module Days2022.Day2 where
 
 import Data.Text.Conversions (FromText (fromText))
 import Import
+import qualified RIO.List as L
 import qualified RIO.Text as T
+import Util (calculateResult)
 
 data Hand = Rock | Paper | Scissors
   deriving (Eq, Enum, Bounded, Show)
@@ -43,6 +45,18 @@ instance CyclicEnum Hand
 data MatchResult = First | Second | Draw
   deriving (Show, Eq)
 
+type Match = (OponentHand, MyHand)
+
+handToScore :: Hand -> Int
+handToScore Rock = 1
+handToScore Paper = 2
+handToScore Scissors = 3
+
+matchResultToScore :: MatchResult -> Int
+matchResultToScore First = 0
+matchResultToScore Draw = 3
+matchResultToScore Second = 6
+
 getMatchResult :: Hand -> Hand -> MatchResult
 getMatchResult firstHand secondHand
   | firstHand == secondHand = Draw
@@ -50,8 +64,18 @@ getMatchResult firstHand secondHand
   | firstHand == csucc secondHand = First
   | otherwise = undefined
 
-parseMatch :: Text -> (OponentHand, MyHand)
+getMatchScore :: Match -> Int
+getMatchScore (OponentHand opponentHand, MyHand myHand) =
+  handToScore myHand + matchResultToScore (getMatchResult opponentHand myHand)
+
+getMatchesScore :: [Match] -> Int
+getMatchesScore ms = L.sum $ getMatchScore <$> ms
+
+parseMatch :: Text -> Match
 parseMatch t =
   ( fromText $ T.take 1 t,
     fromText $ T.drop 2 t
   )
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult = calculateResult parseMatch getMatchesScore
