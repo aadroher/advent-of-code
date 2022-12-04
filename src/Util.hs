@@ -6,7 +6,6 @@
 module Util where
 
 import RIO
-import qualified RIO.List as L
 import qualified RIO.Text as T
 import qualified RIO.Text.Partial as T'
 
