@@ -6,7 +6,10 @@ module Days2022.Day2Spec (spec) where
 import Days2022.Day2
   ( Hand (..),
     MatchResult (..),
+    MyHand (..),
+    OponentHand (..),
     getMatchResult,
+    parseMatch,
   )
 import Import
 import Test.Hspec
@@ -21,3 +24,8 @@ spec = do
         getMatchResult Rock Rock `shouldBe` Draw
       it "Rock, Paper -> Second" $ do
         getMatchResult Rock Paper `shouldBe` Second
+    describe "parseMatch" $ do
+      it "A X -> (Rock, Rock)" $ do
+        parseMatch "A X" `shouldBe` (OponentHand Rock, MyHand Rock)
+      it "B Z -> (Paper, Scissors)" $ do
+        parseMatch "B Z" `shouldBe` (OponentHand Paper, MyHand Scissors)

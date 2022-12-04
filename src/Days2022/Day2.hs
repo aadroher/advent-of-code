@@ -4,12 +4,13 @@ module Days2022.Day2 where
 
 import Data.Text.Conversions (FromText (fromText))
 import Import
+import qualified RIO.Text as T
 
 data Hand = Rock | Paper | Scissors
   deriving (Eq, Enum, Bounded, Show)
 
 newtype OponentHand = OponentHand Hand
-  deriving (Show)
+  deriving (Show, Eq)
 
 instance FromText OponentHand where
   fromText "A" = OponentHand Rock
@@ -18,7 +19,7 @@ instance FromText OponentHand where
   fromText _ = undefined
 
 newtype MyHand = MyHand Hand
-  deriving (Show)
+  deriving (Show, Eq)
 
 instance FromText MyHand where
   fromText "X" = MyHand Rock
@@ -48,3 +49,9 @@ getMatchResult firstHand secondHand
   | firstHand == cpred secondHand = Second
   | firstHand == csucc secondHand = First
   | otherwise = undefined
+
+parseMatch :: Text -> (OponentHand, MyHand)
+parseMatch t =
+  ( fromText $ T.take 1 t,
+    fromText $ T.drop 2 t
+  )
