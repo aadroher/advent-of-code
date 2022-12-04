@@ -90,7 +90,7 @@ getPrescribedMatch :: MatchPrescription -> Match
 getPrescribedMatch mp@(oh, _) = (oh, getMyHandPrescription mp)
 
 getPrescriptionsScore :: [MatchPrescription] -> Int
-getPrescriptionsScore mps = L.sum $ (getMatchScore . getPrescribedMatch) <$> mps
+getPrescriptionsScore mps = L.sum $ getMatchScore . getPrescribedMatch <$> mps
 
 parseMatch :: Text -> Match
 parseMatch t =
@@ -106,3 +106,6 @@ parseMatchPrescription t =
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parseMatch getMatchesScore
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parseMatchPrescription getPrescriptionsScore
