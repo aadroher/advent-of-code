@@ -10,13 +10,20 @@ import Days2022.Day2
     OponentHand (..),
     getMatchResult,
     getMatchesScore,
+    getPrescriptionsScore,
     parseMatch,
+    parseMatchPrescription,
   )
 import Import
 import Test.Hspec
 
 spec :: Spec
 spec = do
+  let textEntries =
+        [ "A Y",
+          "B X",
+          "C Z"
+        ]
   describe "exercise 1" $ do
     describe "getMatchResult" $ do
       it "Rock, Scissors -> First" $ do
@@ -32,10 +39,10 @@ spec = do
         parseMatch "B Z" `shouldBe` (OponentHand Paper, MyHand Scissors)
     describe "getMatchesScore" $ do
       it "solves the example" $ do
-        let textMatches =
-              [ "A Y",
-                "B X",
-                "C Z"
-              ]
-        let matches = parseMatch <$> textMatches
+        let matches = parseMatch <$> textEntries
         getMatchesScore matches `shouldBe` 15
+  describe "exercise 2" $ do
+    describe "getPrescriptionsScore" $ do
+      it "solves the example" $ do
+        let matchPrescriptions = parseMatchPrescription <$> textEntries
+        getPrescriptionsScore matchPrescriptions `shouldBe` 12

@@ -45,7 +45,15 @@ instance CyclicEnum Hand
 data MatchResult = First | Second | Draw
   deriving (Show, Eq)
 
+instance FromText MatchResult where
+  fromText "X" = First
+  fromText "Y" = Draw
+  fromText "Z" = Second
+  fromText _ = undefined
+
 type Match = (OponentHand, MyHand)
+
+type MatchPrescription = (OponentHand, MatchResult)
 
 handToScore :: Hand -> Int
 handToScore Rock = 1
@@ -71,8 +79,27 @@ getMatchScore (OponentHand opponentHand, MyHand myHand) =
 getMatchesScore :: [Match] -> Int
 getMatchesScore ms = L.sum $ getMatchScore <$> ms
 
+getMyHandPrescription :: MatchPrescription -> MyHand
+getMyHandPrescription (OponentHand oponentHand, mr) =
+  case mr of
+    First -> MyHand $ cpred oponentHand
+    Draw -> MyHand oponentHand
+    Second -> MyHand $ csucc oponentHand
+
+getPrescribedMatch :: MatchPrescription -> Match
+getPrescribedMatch mp@(oh, _) = (oh, getMyHandPrescription mp)
+
+getPrescriptionsScore :: [MatchPrescription] -> Int
+getPrescriptionsScore mps = L.sum $ (getMatchScore . getPrescribedMatch) <$> mps
+
 parseMatch :: Text -> Match
 parseMatch t =
+  ( fromText $ T.take 1 t,
+    fromText $ T.drop 2 t
+  )
+
+parseMatchPrescription :: Text -> MatchPrescription
+parseMatchPrescription t =
   ( fromText $ T.take 1 t,
     fromText $ T.drop 2 t
   )
