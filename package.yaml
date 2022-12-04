@@ -27,6 +27,7 @@ dependencies:
   - split
   - tuple
   - hashable
+  - text-conversions
 
 ghc-options:
   - -Wall
