@@ -11,11 +11,6 @@ import Util (calculateResult)
 getMaxCalorieCount :: [[Int]] -> Int
 getMaxCalorieCount batches = L'.maximum $ L.sum <$> batches
 
--- parseLine :: String -> Maybe Int
--- parseLine s =
---   case readMaybe s of
---     Nothing ->
-
 parseInput :: [String] -> [[Int]]
 parseInput = L.foldl f []
   where
@@ -25,4 +20,4 @@ parseInput = L.foldl f []
     f (batch : batches) s = (read s : batch) : batches
 
 calculateFirstResult :: FilePath -> IO Text
-calculateFirstResult = calculateResult (T.unpack) (getMaxCalorieCount . parseInput)
+calculateFirstResult = calculateResult T.unpack (getMaxCalorieCount . parseInput)
