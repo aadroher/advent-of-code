@@ -9,10 +9,11 @@ import Days2021.Day11
     evolve,
     flashPoints,
     gridToString,
+    nextStep,
     parseRow,
   )
 import RIO
-import Test.Hspec
+import Test.Hspec ( describe, it, shouldBe, Spec )
 import Text.Pretty.Simple (pPrint)
 
 spec :: Spec
@@ -34,6 +35,13 @@ spec = do
                       "5283751526"
                     ]
         pPrint $ flashPoints $ addFlashEffects initialGrid
+        True `shouldBe` True
+    describe "nextStep" $ do
+      it "works for a single cell" $ do
+        let grid =
+              parseRow
+                <$> ["987"]
+        nextStep grid `shouldBe` parseRow <$> ["9"]
         True `shouldBe` True
     describe "evolve" $ do
       let initialGrid =

@@ -5,7 +5,7 @@ module Days2021.Day11 where
 
 import Import
 import qualified RIO.List as L
-import RIO.List.Partial ((!!))
+-- import RIO.List.Partial ((!!))
 import qualified RIO.Partial as P
 import qualified RIO.Set as S
 import qualified RIO.Text as T
@@ -41,20 +41,18 @@ parseGrid t =
 gridToString :: Grid -> String
 gridToString g = L.unlines $ rowToString <$> g
   where
-    octopusToString o = case o of
-      Level n -> show n
-      Flash -> "F"
+    octopusToString (Level n) = show n
+    octopusToString Flash = "F"
     rowToString =
       L.foldl (\rs o -> rs ++ octopusToString o) ""
 
-inBounds :: Point -> Bool
-inBounds (i, j) = 0 <= i && i < gridSize && 0 <= j && j < gridSize
-
 valueAt :: Point -> Grid -> Maybe Octopus
-valueAt (i, j) g =
-  if inBounds (i, j)
-    then Just $ (g !! j) !! i
-    else Nothing
+valueAt (i, j) g = do
+  (_, row) <- L.find (finder j) $ L.zip [0 ..] g
+  (_, octopus) <- L.find (finder i) $ L.zip [0 ..] row
+  pure octopus
+  where
+    finder index = (== index) . fst
 
 neighbours :: Point -> Grid -> Set Point
 neighbours (i, j) fm =
@@ -85,7 +83,7 @@ increaseLevel Flash = Flash
 
 increaseLevelAt :: Point -> Grid -> Grid
 increaseLevelAt (x, y) g =
-  [ [ if x == i && y == j
+  [ [ if (x, y) == (i, j)
         then increaseLevel o
         else o
       | (i, o) <- L.zip [0 ..] r
