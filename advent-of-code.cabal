@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -39,6 +39,7 @@ library
       Days2021.Day7
       Days2021.Day8
       Days2021.Day9
+      Days2022.Day1
       Import
       Run
       Types
@@ -93,6 +94,7 @@ test-suite advent-of-code-test
       Days2021.Day7Spec
       Days2021.Day8Spec
       Days2021.Day9Spec
+      Days2022.Day1Spec
       Paths_advent_of_code
   hs-source-dirs:
       test

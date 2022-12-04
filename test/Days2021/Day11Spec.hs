@@ -13,14 +13,14 @@ import Days2021.Day11
     parseRow,
   )
 import RIO
-import Test.Hspec ( describe, it, shouldBe, Spec )
+import Test.Hspec (Spec, describe, it, shouldBe, xit)
 import Text.Pretty.Simple (pPrint)
 
 spec :: Spec
 spec = do
   describe "exercise 1" $ do
     describe "flashPoints" $ do
-      it "works" $ do
+      xit "works" $ do
         let initialGrid =
               parseRow
                 <$> [ "5483143223",
@@ -37,7 +37,7 @@ spec = do
         pPrint $ flashPoints $ addFlashEffects initialGrid
         True `shouldBe` True
     describe "nextStep" $ do
-      it "works for a single cell" $ do
+      xit "works for a single cell" $ do
         let grid =
               parseRow
                 <$> ["987"]
@@ -57,7 +57,7 @@ spec = do
                     "4846848554",
                     "5283751526"
                   ]
-      it "returns the right grid for 3 steps" $ do
+      xit "returns the right grid for 3 steps" $ do
         let expectedGrid =
               parseRow
                 <$> [ "0050900866",
