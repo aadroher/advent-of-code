@@ -4,7 +4,6 @@ module Days2022.Day3 where
 
 import Import
 import qualified RIO.List as L
-import RIO.List.Partial ((!!))
 import qualified RIO.List.Partial as L'
 import qualified RIO.Text as T
 import Util (calculateResult)
@@ -54,6 +53,10 @@ getBadge :: RucksackGroup -> Item
 getBadge (g0, g1, g2) =
   let intersection = g0 `L.intersect` g1 `L.intersect` g2
    in L'.head intersection
+
+getBadgesPrioritySum :: [[Item]] -> Int
+getBadgesPrioritySum iss =
+  L.sum $ getItemPriority . getBadge <$> getRuckSackGroups iss
 
 parseContentList :: Text -> [Item]
 parseContentList t = Item <$> T.unpack t

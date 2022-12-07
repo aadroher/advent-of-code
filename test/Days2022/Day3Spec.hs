@@ -6,6 +6,7 @@ module Days2022.Day3Spec (spec) where
 import Days2022.Day3
   ( Item (..),
     getBadge,
+    getBadgesPrioritySum,
     getDuplicatedItem,
     getItemPriority,
     getRepeatedItemsPrioritySum,
@@ -38,6 +39,7 @@ spec = do
     describe "getItemPriority" $ do
       it "Item 'C' -> 29" $ do
         getItemPriority (Item 'C') `shouldBe` 29
+  describe "exercise 2" $ do
     describe "getRuckSackGroups" $ do
       it "works with the example" $ do
         let parsedLists = parseContentList <$> itemLists
@@ -67,7 +69,10 @@ spec = do
                 Item <$> "CrZsJsPPZsGzwwsLwLmpwMDw"
               )
         getBadge rucksackGroup `shouldBe` Item 'Z'
-
+    describe "getBadgesPrioritySum" $ do
+      it "solves the example" $ do
+        let parsedLists = parseContentList <$> itemLists
+        getBadgesPrioritySum parsedLists `shouldBe` 70
     it "calculates the result for the example" $ do
       let parsedLists = parseContentList <$> itemLists
       getRepeatedItemsPrioritySum parsedLists `shouldBe` 157
