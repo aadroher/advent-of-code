@@ -52,6 +52,7 @@ getSolver "22-1-2" = D1of2022.calculateSecondResult
 getSolver "22-2-1" = D2of2022.calculateFirstResult
 getSolver "22-2-2" = D2of2022.calculateSecondResult
 getSolver "22-3-1" = D3of2022.calculateFirstResult
+getSolver "22-3-2" = D3of2022.calculateSecondResult
 getSolver _ = undefined
 
 run :: RIO App ()

@@ -63,3 +63,6 @@ parseContentList t = Item <$> T.unpack t
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult = calculateResult parseContentList getRepeatedItemsPrioritySum
+
+calculateSecondResult :: FilePath -> IO Text
+calculateSecondResult = calculateResult parseContentList getBadgesPrioritySum

@@ -29,6 +29,9 @@ itemLists =
 spec :: Spec
 spec = do
   describe "exercise 1" $ do
+    it "calculates the result for the first example" $ do
+      let parsedLists = parseContentList <$> itemLists
+      getRepeatedItemsPrioritySum parsedLists `shouldBe` 157
     describe "parseContentList" $ do
       it "'ab' -> [Item 'a', Item 'b']" $ do
         parseContentList "ab" `shouldBe` [Item 'a', Item 'b']
@@ -73,6 +76,3 @@ spec = do
       it "solves the example" $ do
         let parsedLists = parseContentList <$> itemLists
         getBadgesPrioritySum parsedLists `shouldBe` 70
-    it "calculates the result for the example" $ do
-      let parsedLists = parseContentList <$> itemLists
-      getRepeatedItemsPrioritySum parsedLists `shouldBe` 157
