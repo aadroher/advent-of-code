@@ -8,6 +8,7 @@ import Days2022.Day3
     getDuplicatedItem,
     getItemPriority,
     getRepeatedItemsPrioritySum,
+    getRuckSackGroups,
     parseContentList,
   )
 import Import
@@ -36,6 +37,21 @@ spec = do
     describe "getItemPriority" $ do
       it "Item 'C' -> 29" $ do
         getItemPriority (Item 'C') `shouldBe` 29
+    describe "getRuckSackGroups" $ do
+      it "works with the example" $ do
+        let parsedLists = parseContentList <$> itemLists
+        let expectedGroups =
+              [ ( Item <$> "vJrwpWtwJgWrhcsFMMfFFhFp",
+                  Item <$> "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+                  Item <$> "PmmdzqPrVvPwwTWBwg"
+                ),
+                ( Item <$> "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+                  Item <$> "ttgJtRGJQctTZtZT",
+                  Item <$> "CrZsJsPPZsGzwwsLwLmpwMDw"
+                )
+              ]
+        getRuckSackGroups parsedLists `shouldBe` expectedGroups
+
     it "calculates the result for the example" $ do
       let parsedLists = parseContentList <$> itemLists
       getRepeatedItemsPrioritySum parsedLists `shouldBe` 157

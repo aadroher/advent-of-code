@@ -4,12 +4,15 @@ module Days2022.Day3 where
 
 import Import
 import qualified RIO.List as L
+import RIO.List.Partial ((!!))
 import qualified RIO.List.Partial as L'
 import qualified RIO.Text as T
 import Util (calculateResult)
 
 newtype Item = Item Char
   deriving (Eq, Show)
+
+type RucksackGroup = ([Item], [Item], [Item])
 
 getDuplicatedItem :: [Item] -> Item
 getDuplicatedItem items =
@@ -23,6 +26,25 @@ getItemPriority (Item c) =
   let charsWithPrio = L.zip (['a' .. 'z'] ++ ['A' .. 'Z']) [1 ..]
       [(_, priority)] = L.filter ((c ==) . fst) charsWithPrio
    in priority
+
+numRucksacksPerGroup :: Int
+numRucksacksPerGroup = 3
+
+belongToSameGroup :: (Int, [Item]) -> (Int, [Item]) -> Bool
+belongToSameGroup (i, _) (j, _) =
+  let trucateByGroupSize = (* numRucksacksPerGroup) . (`div` numRucksacksPerGroup)
+   in trucateByGroupSize i == trucateByGroupSize j
+
+toRucksackGroup :: [[Item]] -> RucksackGroup
+toRucksackGroup [a, b, c] = (a, b, c)
+toRucksackGroup _ = undefined
+
+getRuckSackGroups :: [[Item]] -> [RucksackGroup]
+getRuckSackGroups itemLists =
+  let withIndex = L.zip [0 ..] itemLists
+      groupedIndexedItemLists = L.groupBy belongToSameGroup withIndex
+      groupedItemLists = (snd <$>) <$> groupedIndexedItemLists
+   in toRucksackGroup <$> groupedItemLists
 
 getRepeatedItemsPrioritySum :: [[Item]] -> Int
 getRepeatedItemsPrioritySum iss =
