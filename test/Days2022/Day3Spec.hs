@@ -5,6 +5,7 @@ module Days2022.Day3Spec (spec) where
 
 import Days2022.Day3
   ( Item (..),
+    getBadge,
     getDuplicatedItem,
     getItemPriority,
     getRepeatedItemsPrioritySum,
@@ -51,6 +52,21 @@ spec = do
                 )
               ]
         getRuckSackGroups parsedLists `shouldBe` expectedGroups
+    describe "getBadge" $ do
+      it "calculates the badge for the first group" $ do
+        let rucksackGroup =
+              ( Item <$> "vJrwpWtwJgWrhcsFMMfFFhFp",
+                Item <$> "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
+                Item <$> "PmmdzqPrVvPwwTWBwg"
+              )
+        getBadge rucksackGroup `shouldBe` Item 'r'
+      it "calculates the badge for the second group" $ do
+        let rucksackGroup =
+              ( Item <$> "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn",
+                Item <$> "ttgJtRGJQctTZtZT",
+                Item <$> "CrZsJsPPZsGzwwsLwLmpwMDw"
+              )
+        getBadge rucksackGroup `shouldBe` Item 'Z'
 
     it "calculates the result for the example" $ do
       let parsedLists = parseContentList <$> itemLists

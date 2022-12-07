@@ -27,6 +27,10 @@ getItemPriority (Item c) =
       [(_, priority)] = L.filter ((c ==) . fst) charsWithPrio
    in priority
 
+getRepeatedItemsPrioritySum :: [[Item]] -> Int
+getRepeatedItemsPrioritySum iss =
+  L.sum $ getItemPriority . getDuplicatedItem <$> iss
+
 numRucksacksPerGroup :: Int
 numRucksacksPerGroup = 3
 
@@ -46,9 +50,10 @@ getRuckSackGroups itemLists =
       groupedItemLists = (snd <$>) <$> groupedIndexedItemLists
    in toRucksackGroup <$> groupedItemLists
 
-getRepeatedItemsPrioritySum :: [[Item]] -> Int
-getRepeatedItemsPrioritySum iss =
-  L.sum $ getItemPriority . getDuplicatedItem <$> iss
+getBadge :: RucksackGroup -> Item
+getBadge (g0, g1, g2) =
+  let intersection = g0 `L.intersect` g1 `L.intersect` g2
+   in L'.head intersection
 
 parseContentList :: Text -> [Item]
 parseContentList t = Item <$> T.unpack t
