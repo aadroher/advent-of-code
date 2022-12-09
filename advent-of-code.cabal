@@ -57,6 +57,7 @@ library
     , hashable
     , path
     , pretty-simple
+    , regex-tdfa
     , rio >=0.1.12.0
     , split
     , text-conversions
@@ -77,6 +78,7 @@ executable advent-of-code-exe
     , optparse-simple
     , path
     , pretty-simple
+    , regex-tdfa
     , rio >=0.1.12.0
     , split
     , text-conversions
@@ -114,6 +116,7 @@ test-suite advent-of-code-test
     , hspec
     , path
     , pretty-simple
+    , regex-tdfa
     , rio >=0.1.12.0
     , split
     , text-conversions

@@ -28,6 +28,7 @@ dependencies:
   - tuple
   - hashable
   - text-conversions
+  - regex-tdfa
 
 ghc-options:
   - -Wall
