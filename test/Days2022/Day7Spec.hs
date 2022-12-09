@@ -18,3 +18,7 @@ spec = do
     describe "parseLine" $ do
       it "$ cd / -> Cd Root" $ do
         parseLine "$ cd /" `shouldBe` ParsedCommand (Cd Root)
+      it "$ cd .. -> Cd Parent" $ do
+        parseLine "$ cd .." `shouldBe` ParsedCommand (Cd Parent)
+      it "$ cd somedir -> Cd (Child 'somedir')" $ do
+        parseLine "$ cd somedir" `shouldBe` ParsedCommand (Cd (Child "somedir"))

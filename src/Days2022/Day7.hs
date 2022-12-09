@@ -25,7 +25,7 @@ parseDirReference :: Text -> DirReference
 parseDirReference l = case l of
   "$ cd /" -> Root
   "$ cd .." -> Parent
-  _ -> Child $ T.pack (((T.unpack l =~ ("^\\$ cd .*$" :: String))) :: String)
+  _ -> Child $ T.drop 5 l
 
 parseCommand :: Text -> Command
 parseCommand l
