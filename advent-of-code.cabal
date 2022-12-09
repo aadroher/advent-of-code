@@ -42,6 +42,7 @@ library
       Days2022.Day1
       Days2022.Day2
       Days2022.Day3
+      Days2022.Day7
       Import
       Run
       Types
@@ -101,6 +102,7 @@ test-suite advent-of-code-test
       Days2022.Day1Spec
       Days2022.Day2Spec
       Days2022.Day3Spec
+      Days2022.Day7Spec
       Paths_advent_of_code
   hs-source-dirs:
       test
