@@ -30,9 +30,21 @@ parseDirReference l = case l of
 parseCommand :: Text -> Command
 parseCommand l
   | (T.unpack l =~ ("^\\$ cd .*$" :: String)) :: Bool = Cd (parseDirReference l)
+  | l == "$ ls" = Ls
+  | otherwise = undefined
+
+parseFile :: Text -> (Int, Text)
+parseFile t =
+  let [t0, t1] = T.split (== ' ') t
+   in (read $ T.unpack t0, t1)
+
+parseNode :: Text -> Node
+parseNode l
+  | (T.unpack l =~ ("^dir .*$" :: String)) :: Bool = Dir $ T.drop 4 l
+  | (T.unpack l =~ ("^[0-9]+ .*$" :: String)) :: Bool = File (fst $ parseFile l) (snd $ parseFile l)
   | otherwise = undefined
 
 parseLine :: Text -> ParsedLine
 parseLine l = case T.unpack l of
-  ('$' : _) -> ParsedCommand (parseCommand l)
-  _ -> undefined
+  ('$' : _) -> ParsedCommand $ parseCommand l
+  _ -> ParsedNode $ parseNode l
