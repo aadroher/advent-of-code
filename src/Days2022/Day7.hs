@@ -63,5 +63,22 @@ addFileTree (Dir targetDirName) newFt ft =
         then Node (Dir dirName) (children ++ [newFt])
         else Node (Dir dirName) $ addFileTree (Dir targetDirName) newFt <$> children
 
-parseFileTree :: [Text] -> FileTree
-parseFileTree = undefined
+parentDir :: Dir -> FileTree -> Dir
+parentDir (Dir targetDirName) (Node dir children) =
+  case L.find isChild children of
+    Just _ -> dir
+    Nothing -> undefined
+  where
+    isChild (Node (Dir dirname) []) = dirname == targetDirName
+    isChild _ = False
+parentDir _ _ = undefined
+
+parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
+parseFileTree [] _ currentFt = currentFt
+parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
+  ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
+  ParsedCommand (Cd Parent) -> parseFileTree pls (parentDir wd currentFt) currentFt
+  ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
+  ParsedCommand Ls -> parseFileTree pls wd currentFt
+  ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir []) currentFt
+  ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt

@@ -75,7 +75,8 @@ spec = do
               "$ ls",
               "15000 e.txt"
             ]
-      xit "parses minimal example" $ do
+      let parsedLines = parseLine <$> terminalLines
+      it "parses minimal example" $ do
         let expectedFileTree =
               Node
                 (Dir "/")
@@ -89,4 +90,5 @@ spec = do
                     ],
                   Leaf (File 10000 "c.txt")
                 ]
-        parseFileTree terminalLines `shouldBe` expectedFileTree
+        let rootFt = Node (Dir "/") []
+        parseFileTree parsedLines (Dir "/") rootFt `shouldBe` expectedFileTree
