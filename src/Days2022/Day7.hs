@@ -15,10 +15,19 @@ data DirReference = Root | Parent | Child !Text
 data Command = Cd !DirReference | Ls
   deriving (Eq, Show)
 
-data Node = Dir !Text | File !Int !Text
+-- data Node = Dir !Text | File !Int !Text
+--   deriving (Eq, Show)
+
+data File = File !Int !Text
   deriving (Eq, Show)
 
-data ParsedLine = ParsedCommand !Command | ParsedNode !Node
+newtype Dir = Dir Text
+  deriving (Eq, Show)
+
+data FileTree = Leaf File | Node Dir [FileTree]
+  deriving (Eq, Show)
+
+data ParsedLine = ParsedCommand !Command | ParsedDir !Dir | ParsedFile !File
   deriving (Eq, Show)
 
 parseDirReference :: Text -> DirReference
@@ -38,13 +47,21 @@ parseFile t =
   let [t0, t1] = T.split (== ' ') t
    in (read $ T.unpack t0, t1)
 
-parseNode :: Text -> Node
-parseNode l
-  | (T.unpack l =~ ("^dir .*$" :: String)) :: Bool = Dir $ T.drop 4 l
-  | (T.unpack l =~ ("^[0-9]+ .*$" :: String)) :: Bool = File (fst $ parseFile l) (snd $ parseFile l)
+parseLine :: Text -> ParsedLine
+parseLine l
+  | (T.unpack l =~ ("^\\$ .*$" :: String)) :: Bool = ParsedCommand $ parseCommand l
+  | (T.unpack l =~ ("^dir .*$" :: String)) :: Bool = ParsedDir $ Dir $ T.drop 4 l
+  | (T.unpack l =~ ("^[0-9]+ .*$" :: String)) :: Bool = ParsedFile $ uncurry File (parseFile l)
   | otherwise = undefined
 
-parseLine :: Text -> ParsedLine
-parseLine l = case T.unpack l of
-  ('$' : _) -> ParsedCommand $ parseCommand l
-  _ -> ParsedNode $ parseNode l
+addFileTree :: Dir -> FileTree -> FileTree -> FileTree
+addFileTree (Dir targetDirName) newFt ft =
+  case ft of
+    Leaf _ -> ft
+    Node (Dir dirName) children ->
+      if dirName == targetDirName
+        then Node (Dir dirName) (children ++ [newFt])
+        else Node (Dir dirName) $ addFileTree (Dir targetDirName) newFt <$> children
+
+parseFileTree :: [Text] -> FileTree
+parseFileTree = undefined
