@@ -11,7 +11,9 @@ import Days2022.Day7
     FileTree (..),
     ParsedLine (..),
     addFileTree,
+    getFileSizeSum,
     getParentDir,
+    getSubtree,
     parseFileTree,
     parseLine,
   )
@@ -74,6 +76,51 @@ spec = do
                   [ Node (Dir "a") S.empty
                   ]
         getParentDir (Dir "a") ft `shouldBe` Just (Dir "/")
+
+    describe "getFileSizeSum" $ do
+      it "works on example" $ do
+        let fileTree =
+              Node
+                (Dir "/")
+                $ S.fromList
+                  [ Node
+                      (Dir "a")
+                      $ S.fromList
+                        [ Leaf (File 12000 "d.txt")
+                        ],
+                    Node
+                      (Dir "b")
+                      $ S.fromList
+                        [ Leaf (File 15000 "e.txt")
+                        ],
+                    Leaf (File 10000 "c.txt")
+                  ]
+        getFileSizeSum fileTree `shouldBe` 37000
+    describe "getSubtree" $ do
+      it "gets subtree with b root" $ do
+        let fileTree =
+              Node
+                (Dir "/")
+                $ S.fromList
+                  [ Node
+                      (Dir "a")
+                      $ S.fromList
+                        [ Leaf (File 12000 "d.txt")
+                        ],
+                    Node
+                      (Dir "b")
+                      $ S.fromList
+                        [ Leaf (File 15000 "e.txt")
+                        ],
+                    Leaf (File 10000 "c.txt")
+                  ]
+        let expectedFileTree =
+              Node
+                (Dir "b")
+                $ S.fromList
+                  [ Leaf (File 15000 "e.txt")
+                  ]
+        getSubtree (Dir "b") fileTree `shouldBe` (Just expectedFileTree)
 
     describe "parseFileTree" $ do
       let terminalLines =

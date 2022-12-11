@@ -85,16 +85,16 @@ getParentDir (Dir childDirName) (Node dir children) =
         else listToMaybe $ L.concatMap (maybeToList . getThisDirParent) childrenList
 getParentDir _ _ = Nothing
 
---   case L.filter isChild childNodes of
---     (_ : _) -> [dir]
---     _ -> L.concatMap (getParentDir (Dir childDirName)) childNodes
---   where
---     isNode (Node _ _) = True
---     isNode _ = False
---     childNodes = L.filter isNode children
---     isChild (Node (Dir dirname) []) = dirname == childDirName
---     isChild _ = False
--- getParentDir dir ft = error $ "Could not process " ++ show dir ++ " and " ++ show ft
+getSubtree :: Dir -> FileTree -> Maybe FileTree
+getSubtree (Dir targetDirName) subtree@(Node (Dir dirName) children) =
+  if targetDirName == dirName
+    then Just subtree
+    else listToMaybe $ L.concatMap (maybeToList . getSubtree (Dir targetDirName)) $ S.toList children
+getSubtree _ (Leaf _) = Nothing
+
+getFileSizeSum :: FileTree -> Int
+getFileSizeSum (Leaf (File n _)) = n
+getFileSizeSum (Node _ children) = L.sum $ S.toList $ S.map getFileSizeSum children
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
