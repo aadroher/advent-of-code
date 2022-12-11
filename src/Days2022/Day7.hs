@@ -64,13 +64,16 @@ addFileTree (Dir targetDirName) newFt ft =
         then Node (Dir dirName) (children ++ [newFt])
         else Node (Dir dirName) $ addFileTree (Dir targetDirName) newFt <$> children
 
-getParentDir :: Dir -> FileTree -> Dir
-getParentDir (Dir targetDirName) (Node dir children) =
-  case L.filter isChild children of
-    (_ : _) -> dir
-    _ -> L'.head $ getParentDir (Dir targetDirName) <$> children
+getParentDir :: Dir -> FileTree -> [Dir]
+getParentDir (Dir childDirName) (Node dir children) =
+  case L.filter isChild childNodes of
+    (_ : _) -> [dir]
+    _ -> L.concatMap (getParentDir (Dir childDirName)) childNodes
   where
-    isChild (Node (Dir dirname) []) = dirname == targetDirName
+    isNode (Node _ _) = True
+    isNode _ = False
+    childNodes = L.filter isNode children
+    isChild (Node (Dir dirname) []) = dirname == childDirName
     isChild _ = False
 getParentDir dir ft = error $ "Could not process " ++ show dir ++ " and " ++ show ft
 
@@ -78,7 +81,7 @@ parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
-  ParsedCommand (Cd Parent) -> parseFileTree pls (getParentDir wd currentFt) currentFt
+  ParsedCommand (Cd Parent) -> parseFileTree pls (L'.head $ getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
   ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir []) currentFt
