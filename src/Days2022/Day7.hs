@@ -6,6 +6,8 @@ import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
 import RIO.Partial (fromJust)
+import RIO.Set (Set (..))
+import qualified RIO.Set as S
 import qualified RIO.Text as T
 import Text.Regex.TDFA ((=~))
 import Util (calculateResult)
@@ -20,13 +22,13 @@ data Command = Cd !DirReference | Ls
 --   deriving (Eq, Show)
 
 data File = File !Int !Text
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 newtype Dir = Dir Text
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
-data FileTree = Leaf File | Node Dir [FileTree]
-  deriving (Eq, Show)
+data FileTree = Leaf File | Node Dir (Set FileTree)
+  deriving (Eq, Ord, Show)
 
 data ParsedLine = ParsedCommand !Command | ParsedDir !Dir | ParsedFile !File
   deriving (Eq, Show)
@@ -61,21 +63,22 @@ addFileTree (Dir targetDirName) newFt ft =
     Leaf _ -> ft
     Node (Dir dirName) children ->
       if dirName == targetDirName
-        then Node (Dir dirName) (children ++ [newFt])
-        else Node (Dir dirName) $ addFileTree (Dir targetDirName) newFt <$> children
+        then Node (Dir dirName) (S.insert newFt children)
+        else Node (Dir dirName) $ S.map (addFileTree (Dir targetDirName) newFt) children
 
 getParentDir :: Dir -> FileTree -> [Dir]
-getParentDir (Dir childDirName) (Node dir children) =
-  case L.filter isChild childNodes of
-    (_ : _) -> [dir]
-    _ -> L.concatMap (getParentDir (Dir childDirName)) childNodes
-  where
-    isNode (Node _ _) = True
-    isNode _ = False
-    childNodes = L.filter isNode children
-    isChild (Node (Dir dirname) []) = dirname == childDirName
-    isChild _ = False
-getParentDir dir ft = error $ "Could not process " ++ show dir ++ " and " ++ show ft
+getParentDir (Dir childDirName) (Node dir children) = undefined
+
+--   case L.filter isChild childNodes of
+--     (_ : _) -> [dir]
+--     _ -> L.concatMap (getParentDir (Dir childDirName)) childNodes
+--   where
+--     isNode (Node _ _) = True
+--     isNode _ = False
+--     childNodes = L.filter isNode children
+--     isChild (Node (Dir dirname) []) = dirname == childDirName
+--     isChild _ = False
+-- getParentDir dir ft = error $ "Could not process " ++ show dir ++ " and " ++ show ft
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
@@ -84,5 +87,5 @@ parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedCommand (Cd Parent) -> parseFileTree pls (L'.head $ getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
-  ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir []) currentFt
+  ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir S.empty) currentFt
   ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt

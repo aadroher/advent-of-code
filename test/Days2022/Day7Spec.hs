@@ -15,6 +15,7 @@ import Days2022.Day7
     parseLine,
   )
 import Import
+import qualified RIO.Set as S
 import Test.Hspec
 
 spec :: Spec
@@ -36,24 +37,25 @@ spec = do
 
     describe "addFileTree" $ do
       it "adds a file to the root" $ do
-        let ft = Node (Dir "/") []
+        let ft = Node (Dir "/") S.empty
         let newFt = addFileTree (Dir "/") (Leaf (File 500 "a.txt")) ft
-        let expectedFt = Node (Dir "/") [Leaf (File 500 "a.txt")]
+        let expectedFt = Node (Dir "/") $ S.fromList [Leaf (File 500 "a.txt")]
         newFt `shouldBe` expectedFt
       it "adds a dir to the root" $ do
-        let ft = Node (Dir "/") []
-        let newFt = addFileTree (Dir "/") (Node (Dir "a") []) ft
-        let expectedFt = Node (Dir "/") [Node (Dir "a") []]
+        let ft = Node (Dir "/") S.empty
+        let newFt = addFileTree (Dir "/") (Node (Dir "a") S.empty) ft
+        let expectedFt = Node (Dir "/") $ S.fromList [Node (Dir "a") S.empty]
         newFt `shouldBe` expectedFt
       it "adds a file to a descendent" $ do
-        let ft = Node (Dir "/") [Node (Dir "a") [], Node (Dir "b") []]
+        let ft = Node (Dir "/") $ S.fromList [Node (Dir "a") S.empty, Node (Dir "b") S.empty]
         let newFt = addFileTree (Dir "b") (Leaf (File 500 "a.txt")) ft
         let expectedFt =
               Node
                 (Dir "/")
-                [ Node (Dir "a") [],
-                  Node (Dir "b") [Leaf (File 500 "a.txt")]
-                ]
+                $ S.fromList
+                  [ Node (Dir "a") S.empty,
+                    Node (Dir "b") $ S.fromList [Leaf (File 500 "a.txt")]
+                  ]
         newFt `shouldBe` expectedFt
 
     describe "parseFileTree" $ do
@@ -80,15 +82,18 @@ spec = do
         let expectedFileTree =
               Node
                 (Dir "/")
-                [ Node
-                    (Dir "a")
-                    [ Leaf (File 12000 "d.txt")
-                    ],
-                  Node
-                    (Dir "b")
-                    [ Leaf (File 15000 "e.txt")
-                    ],
-                  Leaf (File 10000 "c.txt")
-                ]
-        let rootFt = Node (Dir "/") []
+                $ S.fromList
+                  [ Node
+                      (Dir "a")
+                      $ S.fromList
+                        [ Leaf (File 12000 "d.txt")
+                        ],
+                    Node
+                      (Dir "b")
+                      $ S.fromList
+                        [ Leaf (File 15000 "e.txt")
+                        ],
+                    Leaf (File 10000 "c.txt")
+                  ]
+        let rootFt = Node (Dir "/") S.empty
         parseFileTree parsedLines (Dir "/") rootFt `shouldBe` expectedFileTree
