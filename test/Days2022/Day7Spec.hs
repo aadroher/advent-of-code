@@ -15,6 +15,7 @@ import Days2022.Day7
     getFileSizeSum,
     getFileTreesOfSizeLE,
     getParentDir,
+    getSizeSumOfFileTreesOfSizeLE,
     getSubtree,
     parseFileTree,
     parseLine,
@@ -23,6 +24,32 @@ import Import
 import qualified RIO.Set as S
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
+
+exampleTerminalLines =
+  [ "$ cd /",
+    "$ ls",
+    "dir a",
+    "14848514 b.txt",
+    "8504156 c.dat",
+    "dir d",
+    "$ cd a",
+    "$ ls",
+    "dir e",
+    "29116 f",
+    "2557 g",
+    "62596 h.lst",
+    "$ cd e",
+    "$ ls",
+    "584 i",
+    "$ cd ..",
+    "$ cd ..",
+    "$ cd d",
+    "$ ls",
+    "4060174 j",
+    "8033020 d.log",
+    "5626152 d.ext",
+    "7214296 k"
+  ]
 
 spec :: Spec
 spec = do
@@ -148,6 +175,7 @@ spec = do
                        Dir "a",
                        Dir "b"
                      ]
+
     describe "getFileTreesOfSizeLE" $ do
       let fileTree =
             Node
@@ -178,6 +206,16 @@ spec = do
                        (Dir "a", 12000),
                        (Dir "b", 15000)
                      ]
+      it "solves the example" $ do
+        let parsedLines = parseLine <$> exampleTerminalLines
+        let fileTree = parseFileTree parsedLines (Dir "/") (Node (Dir "/") S.empty)
+        getFileTreesOfSizeLE 100000 fileTree `shouldBe` [(Dir "a", 94853), (Dir "e", 584)]
+
+    describe "getSizeSumOfFileTreesOfSizeLE" $ do
+      it "solves the example" $ do
+        let parsedLines = parseLine <$> exampleTerminalLines
+        let fileTree = parseFileTree parsedLines (Dir "/") (Node (Dir "/") S.empty)
+        getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 95437
 
     describe "parseFileTree" $ do
       let terminalLines =
@@ -199,6 +237,7 @@ spec = do
               "15000 e.txt"
             ]
       let parsedLines = parseLine <$> terminalLines
+
       it "parses minimal example" $ do
         let expectedFileTree =
               Node

@@ -108,6 +108,9 @@ getFileTreesOfSizeLE n ft =
   let fileTreeSizes = (\dir -> (dir, (getFileSizeSum . fromJust) (getSubtree dir ft))) <$> getDirs ft
    in L.filter ((n >=) . snd) fileTreeSizes
 
+getSizeSumOfFileTreesOfSizeLE :: Int -> FileTree -> Int
+getSizeSumOfFileTreesOfSizeLE n ft = L.sum $ snd <$> getFileTreesOfSizeLE n ft
+
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
