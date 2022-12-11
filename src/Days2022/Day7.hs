@@ -9,6 +9,7 @@ import RIO.Partial (fromJust)
 import RIO.Set (Set (..))
 import qualified RIO.Set as S
 import qualified RIO.Text as T
+import Text.Pretty.Simple (pShow, pString)
 import Text.Regex.TDFA ((=~))
 import Util (calculateResult)
 
@@ -17,9 +18,6 @@ data DirReference = Root | Parent | Child !Text
 
 data Command = Cd !DirReference | Ls
   deriving (Eq, Show)
-
--- data Node = Dir !Text | File !Int !Text
---   deriving (Eq, Show)
 
 data File = File !Int !Text
   deriving (Eq, Ord, Show)
@@ -120,3 +118,11 @@ parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedCommand Ls -> parseFileTree pls wd currentFt
   ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir S.empty) currentFt
   ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt
+
+calculateFirstResult :: FilePath -> IO Text
+calculateFirstResult =
+  calculateResult
+    parseLine
+    (getSizeSumOfFileTreesOfSizeLE 100000 . parseFileTreeBase)
+  where
+    parseFileTreeBase pls = parseFileTree pls (Dir "/") (Node (Dir "/") S.empty)

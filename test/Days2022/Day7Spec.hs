@@ -22,9 +22,12 @@ import Days2022.Day7
   )
 import Import
 import qualified RIO.Set as S
+import qualified RIO.Text as T
 import Test.Hspec
 import Text.Pretty.Simple (pPrint)
+import Util (getFilePath)
 
+exampleTerminalLines :: [Text]
 exampleTerminalLines =
   [ "$ cd /",
     "$ ls",
@@ -217,6 +220,15 @@ spec = do
         let fileTree = parseFileTree parsedLines (Dir "/") (Node (Dir "/") S.empty)
         getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 95437
 
+      it "solves the received data" $ do
+        let filePath = getFilePath "22-7-1"
+        pPrint filePath
+        fileContents <- readFileUtf8 filePath
+        let inputValues = parseLine <$> T.lines fileContents
+        let fileTree = parseFileTree inputValues (Dir "/") (Node (Dir "/") S.empty)
+        pPrint fileTree
+        getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 7726269
+
     describe "parseFileTree" $ do
       let terminalLines =
             [ "$ cd /",
@@ -256,6 +268,4 @@ spec = do
                     Leaf (File 10000 "c.txt")
                   ]
         let rootFt = Node (Dir "/") S.empty
-        pPrint expectedFileTree
-        pPrint $ parseFileTree parsedLines (Dir "/") rootFt
         parseFileTree parsedLines (Dir "/") rootFt `shouldBe` expectedFileTree
