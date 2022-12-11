@@ -13,6 +13,7 @@ import Days2022.Day7
     addFileTree,
     getDirs,
     getFileSizeSum,
+    getFileTreesOfSizeLE,
     getParentDir,
     getSubtree,
     parseFileTree,
@@ -147,6 +148,37 @@ spec = do
                        Dir "a",
                        Dir "b"
                      ]
+    describe "getFileTreesOfSizeLE" $ do
+      let fileTree =
+            Node
+              (Dir "/")
+              $ S.fromList
+                [ Node
+                    (Dir "a")
+                    $ S.fromList
+                      [ Leaf (File 12000 "d.txt")
+                      ],
+                  Node
+                    (Dir "b")
+                    $ S.fromList
+                      [ Leaf (File 15000 "e.txt")
+                      ],
+                  Leaf (File 10000 "c.txt")
+                ]
+      it "12000 -> [a]" $ do
+        getFileTreesOfSizeLE 12000 fileTree `shouldBe` [(Dir "a", 12000)]
+      it "15000 -> [a, b]" $ do
+        getFileTreesOfSizeLE 15000 fileTree
+          `shouldBe` [ (Dir "a", 12000),
+                       (Dir "b", 15000)
+                     ]
+      it "40000 -> [/, a, b]" $ do
+        getFileTreesOfSizeLE 40000 fileTree
+          `shouldBe` [ (Dir "/", 37000),
+                       (Dir "a", 12000),
+                       (Dir "b", 15000)
+                     ]
+
     describe "parseFileTree" $ do
       let terminalLines =
             [ "$ cd /",

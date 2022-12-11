@@ -95,13 +95,18 @@ getSubtree (Dir targetDirName) subtree@(Node (Dir dirName) children) =
           S.toList children
 getSubtree _ (Leaf _) = Nothing
 
+getDirs :: FileTree -> [Dir]
+getDirs (Leaf _) = []
+getDirs (Node dir children) = dir : L.concatMap getDirs (S.toList children)
+
 getFileSizeSum :: FileTree -> Int
 getFileSizeSum (Leaf (File n _)) = n
 getFileSizeSum (Node _ children) = L.sum $ S.toList $ S.map getFileSizeSum children
 
-getDirs :: FileTree -> [Dir]
-getDirs (Leaf _) = []
-getDirs (Node dir children) = dir : L.concatMap getDirs (S.toList children)
+getFileTreesOfSizeLE :: Int -> FileTree -> [(Dir, Int)]
+getFileTreesOfSizeLE n ft =
+  let fileTreeSizes = (\dir -> (dir, (getFileSizeSum . fromJust) (getSubtree dir ft))) <$> getDirs ft
+   in L.filter ((n >=) . snd) fileTreeSizes
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
