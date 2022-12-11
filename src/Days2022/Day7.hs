@@ -89,12 +89,19 @@ getSubtree :: Dir -> FileTree -> Maybe FileTree
 getSubtree (Dir targetDirName) subtree@(Node (Dir dirName) children) =
   if targetDirName == dirName
     then Just subtree
-    else listToMaybe $ L.concatMap (maybeToList . getSubtree (Dir targetDirName)) $ S.toList children
+    else
+      listToMaybe $
+        L.concatMap (maybeToList . getSubtree (Dir targetDirName)) $
+          S.toList children
 getSubtree _ (Leaf _) = Nothing
 
 getFileSizeSum :: FileTree -> Int
 getFileSizeSum (Leaf (File n _)) = n
 getFileSizeSum (Node _ children) = L.sum $ S.toList $ S.map getFileSizeSum children
+
+getDirs :: FileTree -> [Dir]
+getDirs (Leaf _) = []
+getDirs (Node dir children) = dir : L.concatMap getDirs (S.toList children)
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
