@@ -5,6 +5,7 @@ module Days2022.Day7 where
 import Import
 import qualified RIO.List as L
 import qualified RIO.List.Partial as L'
+import RIO.Partial (fromJust)
 import qualified RIO.Text as T
 import Text.Regex.TDFA ((=~))
 import Util (calculateResult)
@@ -63,21 +64,21 @@ addFileTree (Dir targetDirName) newFt ft =
         then Node (Dir dirName) (children ++ [newFt])
         else Node (Dir dirName) $ addFileTree (Dir targetDirName) newFt <$> children
 
-parentDir :: Dir -> FileTree -> Dir
-parentDir (Dir targetDirName) (Node dir children) =
-  case L.find isChild children of
-    Just _ -> dir
-    Nothing -> undefined
+getParentDir :: Dir -> FileTree -> Dir
+getParentDir (Dir targetDirName) (Node dir children) =
+  case L.filter isChild children of
+    (_ : _) -> dir
+    _ -> L'.head $ getParentDir (Dir targetDirName) <$> children
   where
     isChild (Node (Dir dirname) []) = dirname == targetDirName
     isChild _ = False
-parentDir _ _ = undefined
+getParentDir dir ft = error $ "Could not process " ++ show dir ++ " and " ++ show ft
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
-  ParsedCommand (Cd Parent) -> parseFileTree pls (parentDir wd currentFt) currentFt
+  ParsedCommand (Cd Parent) -> parseFileTree pls (getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
   ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir []) currentFt
