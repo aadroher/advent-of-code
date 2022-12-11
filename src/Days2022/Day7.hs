@@ -63,11 +63,27 @@ addFileTree (Dir targetDirName) newFt ft =
     Leaf _ -> ft
     Node (Dir dirName) children ->
       if dirName == targetDirName
-        then Node (Dir dirName) (S.insert newFt children)
+        then Node (Dir dirName) (insertIfNotPresent children)
         else Node (Dir dirName) $ S.map (addFileTree (Dir targetDirName) newFt) children
+  where
+    isChild (Node (Dir newDirName) _) (Node (Dir existingDirName) _) = newDirName == existingDirName
+    isChild _ _ = False
+    insertIfNotPresent children =
+      if S.size (S.filter (isChild newFt) children) == 0
+        then S.insert newFt children
+        else children
 
-getParentDir :: Dir -> FileTree -> [Dir]
-getParentDir (Dir childDirName) (Node dir children) = undefined
+getParentDir :: Dir -> FileTree -> Maybe Dir
+getParentDir (Dir childDirName) (Node dir children) =
+  let isNodeWithSameName (Node (Dir dirName) _) = childDirName == dirName
+      isNodeWithSameName _ = False
+      childrenWithSameName = S.filter isNodeWithSameName children
+      getThisDirParent = getParentDir (Dir childDirName)
+      childrenList = S.toList children
+   in if S.size childrenWithSameName == 1
+        then Just dir
+        else listToMaybe $ L.concatMap (maybeToList . getThisDirParent) childrenList
+getParentDir _ _ = Nothing
 
 --   case L.filter isChild childNodes of
 --     (_ : _) -> [dir]
@@ -84,7 +100,7 @@ parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
-  ParsedCommand (Cd Parent) -> parseFileTree pls (L'.head $ getParentDir wd currentFt) currentFt
+  ParsedCommand (Cd Parent) -> parseFileTree pls (fromJust $ getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
   ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir S.empty) currentFt

@@ -11,12 +11,14 @@ import Days2022.Day7
     FileTree (..),
     ParsedLine (..),
     addFileTree,
+    getParentDir,
     parseFileTree,
     parseLine,
   )
 import Import
 import qualified RIO.Set as S
 import Test.Hspec
+import Text.Pretty.Simple (pPrint)
 
 spec :: Spec
 spec = do
@@ -58,6 +60,21 @@ spec = do
                   ]
         newFt `shouldBe` expectedFt
 
+    describe "getParentDir" $ do
+      it "returns nothing for root" $ do
+        let ft = Node (Dir "/") S.empty
+        getParentDir (Dir "/") ft `shouldBe` Nothing
+      it "returns nothing for file" $ do
+        let ft = Leaf $ File 500 "a.txt"
+        getParentDir (Dir "/") ft `shouldBe` Nothing
+      it "returns root" $ do
+        let ft =
+              Node (Dir "/") $
+                S.fromList
+                  [ Node (Dir "a") S.empty
+                  ]
+        getParentDir (Dir "a") ft `shouldBe` Just (Dir "/")
+
     describe "parseFileTree" $ do
       let terminalLines =
             [ "$ cd /",
@@ -96,4 +113,6 @@ spec = do
                     Leaf (File 10000 "c.txt")
                   ]
         let rootFt = Node (Dir "/") S.empty
+        pPrint expectedFileTree
+        pPrint $ parseFileTree parsedLines (Dir "/") rootFt
         parseFileTree parsedLines (Dir "/") rootFt `shouldBe` expectedFileTree
