@@ -25,8 +25,8 @@ data File = File !Int !Text
 newtype Dir = Dir Text
   deriving (Eq, Ord, Show)
 
-rootDir :: Dir
-rootDir = rootDir
+-- (Dir "/") :: Dir
+-- (Dir "/") = (Dir "/")
 
 data FileTree = Leaf File | Node Dir (Set FileTree)
   deriving (Eq, Ord, Show)
@@ -116,7 +116,7 @@ getSizeSumOfFileTreesOfSizeLE n ft = L.sum $ snd <$> getFileTreesOfSizeLE n ft
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
-  ParsedCommand (Cd Root) -> parseFileTree pls rootDir currentFt
+  ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
   ParsedCommand (Cd Parent) -> parseFileTree pls (fromJust $ getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
@@ -124,7 +124,7 @@ parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
   ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt
 
 parseFileTreeFromRoot :: [ParsedLine] -> FileTree
-parseFileTreeFromRoot pls = parseFileTree pls rootDir (Node rootDir S.empty)
+parseFileTreeFromRoot pls = parseFileTree pls (Dir "/") (Node (Dir "/") S.empty)
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =

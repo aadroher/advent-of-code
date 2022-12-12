@@ -180,7 +180,7 @@ spec = do
                        Dir "b"
                      ]
 
-    describe "getFileTreesOfSizeLE" $ do
+    xdescribe "getFileTreesOfSizeLE" $ do
       let fileTree =
             Node
               (Dir "/")
@@ -215,7 +215,7 @@ spec = do
         let fileTree = parseFileTreeFromRoot parsedLines
         getFileTreesOfSizeLE 100000 fileTree `shouldBe` [(Dir "a", 94853), (Dir "e", 584)]
 
-    describe "getSizeSumOfFileTreesOfSizeLE" $ do
+    xdescribe "getSizeSumOfFileTreesOfSizeLE" $ do
       it "solves the example" $ do
         let parsedLines = parseLine <$> exampleTerminalLines
         let fileTree = parseFileTreeFromRoot parsedLines
