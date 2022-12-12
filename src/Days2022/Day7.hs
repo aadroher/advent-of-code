@@ -25,6 +25,9 @@ data File = File !Int !Text
 newtype Dir = Dir Text
   deriving (Eq, Ord, Show)
 
+rootDir :: Dir
+rootDir = rootDir
+
 data FileTree = Leaf File | Node Dir (Set FileTree)
   deriving (Eq, Ord, Show)
 
@@ -72,6 +75,7 @@ addFileTree (Dir targetDirName) newFt ft =
         else children
 
 getParentDir :: Dir -> FileTree -> Maybe Dir
+getParentDir (Dir "/") _ = Nothing
 getParentDir (Dir childDirName) (Node dir children) =
   let isNodeWithSameName (Node (Dir dirName) _) = childDirName == dirName
       isNodeWithSameName _ = False
@@ -112,17 +116,18 @@ getSizeSumOfFileTreesOfSizeLE n ft = L.sum $ snd <$> getFileTreesOfSizeLE n ft
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
 parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
-  ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
+  ParsedCommand (Cd Root) -> parseFileTree pls rootDir currentFt
   ParsedCommand (Cd Parent) -> parseFileTree pls (fromJust $ getParentDir wd currentFt) currentFt
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
   ParsedCommand Ls -> parseFileTree pls wd currentFt
   ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir S.empty) currentFt
   ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt
 
+parseFileTreeFromRoot :: [ParsedLine] -> FileTree
+parseFileTreeFromRoot pls = parseFileTree pls rootDir (Node rootDir S.empty)
+
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
   calculateResult
     parseLine
-    (getSizeSumOfFileTreesOfSizeLE 100000 . parseFileTreeBase)
-  where
-    parseFileTreeBase pls = parseFileTree pls (Dir "/") (Node (Dir "/") S.empty)
+    (getSizeSumOfFileTreesOfSizeLE 100000 . parseFileTreeFromRoot)

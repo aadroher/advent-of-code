@@ -18,6 +18,7 @@ import Days2022.Day7
     getSizeSumOfFileTreesOfSizeLE,
     getSubtree,
     parseFileTree,
+    parseFileTreeFromRoot,
     parseLine,
   )
 import Import
@@ -153,7 +154,7 @@ spec = do
                 $ S.fromList
                   [ Leaf (File 15000 "e.txt")
                   ]
-        getSubtree (Dir "b") fileTree `shouldBe` (Just expectedFileTree)
+        getSubtree (Dir "b") fileTree `shouldBe` Just expectedFileTree
 
     describe "getDirs" $ do
       it "gets the dirs from the example" $ do
@@ -211,22 +212,22 @@ spec = do
                      ]
       it "solves the example" $ do
         let parsedLines = parseLine <$> exampleTerminalLines
-        let fileTree = parseFileTree parsedLines (Dir "/") (Node (Dir "/") S.empty)
+        let fileTree = parseFileTreeFromRoot parsedLines
         getFileTreesOfSizeLE 100000 fileTree `shouldBe` [(Dir "a", 94853), (Dir "e", 584)]
 
     describe "getSizeSumOfFileTreesOfSizeLE" $ do
       it "solves the example" $ do
         let parsedLines = parseLine <$> exampleTerminalLines
-        let fileTree = parseFileTree parsedLines (Dir "/") (Node (Dir "/") S.empty)
+        let fileTree = parseFileTreeFromRoot parsedLines
         getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 95437
 
       it "solves the received data" $ do
         let filePath = getFilePath "22-7-1"
-        pPrint filePath
+        -- pPrint filePath
         fileContents <- readFileUtf8 filePath
         let inputValues = parseLine <$> T.lines fileContents
-        let fileTree = parseFileTree inputValues (Dir "/") (Node (Dir "/") S.empty)
-        pPrint fileTree
+        let fileTree = parseFileTreeFromRoot inputValues
+        -- pPrint fileTree
         getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 7726269
 
     describe "parseFileTree" $ do
@@ -267,5 +268,4 @@ spec = do
                         ],
                     Leaf (File 10000 "c.txt")
                   ]
-        let rootFt = Node (Dir "/") S.empty
-        parseFileTree parsedLines (Dir "/") rootFt `shouldBe` expectedFileTree
+        parseFileTreeFromRoot parsedLines `shouldBe` expectedFileTree
