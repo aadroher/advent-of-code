@@ -1,6 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Days2022.Day7 where
+module Days2022.Day7
+  ( Command (..),
+    Dir (..),
+    DirReference (..),
+    File (..),
+    FileTree (..),
+    ParsedLine (..),
+    addFileTree,
+    getDirs,
+    getFileSizeSum,
+    getFileTreesOfSizeLE,
+    getParentDir,
+    getSizeSumOfFileTreesOfSizeLE,
+    getSubtree,
+    parseFileTree,
+    parseFileTreeFromRoot,
+    parseLine,
+    calculateFirstResult,
+  )
+where
 
 import Import
 import qualified RIO.List as L
@@ -13,7 +32,7 @@ import Text.Pretty.Simple (pShow, pString)
 import Text.Regex.TDFA ((=~))
 import Util (calculateResult)
 
-data DirReference = Root | Parent | Child !Text
+data DirReference = RootReference | ParentReference | ChildReference !Text
   deriving (Eq, Show)
 
 data Command = Cd !DirReference | Ls
@@ -25,9 +44,6 @@ data File = File !Int !Text
 newtype Dir = Dir Text
   deriving (Eq, Ord, Show)
 
--- (Dir "/") :: Dir
--- (Dir "/") = (Dir "/")
-
 data FileTree = Leaf File | Node Dir (Set FileTree)
   deriving (Eq, Ord, Show)
 
@@ -36,9 +52,9 @@ data ParsedLine = ParsedCommand !Command | ParsedDir !Dir | ParsedFile !File
 
 parseDirReference :: Text -> DirReference
 parseDirReference l = case l of
-  "$ cd /" -> Root
-  "$ cd .." -> Parent
-  _ -> Child $ T.drop 5 l
+  "$ cd /" -> RootReference
+  "$ cd .." -> ParentReference
+  _ -> ChildReference $ T.drop 5 l
 
 parseCommand :: Text -> Command
 parseCommand l
@@ -115,13 +131,13 @@ getSizeSumOfFileTreesOfSizeLE n ft = L.sum $ snd <$> getFileTreesOfSizeLE n ft
 
 parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
-parseFileTree (parsedLine : pls) wd currentFt = case parsedLine of
-  ParsedCommand (Cd Root) -> parseFileTree pls (Dir "/") currentFt
-  ParsedCommand (Cd Parent) -> parseFileTree pls (fromJust $ getParentDir wd currentFt) currentFt
-  ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName) currentFt
-  ParsedCommand Ls -> parseFileTree pls wd currentFt
-  ParsedDir newDir -> parseFileTree pls wd $ addFileTree wd (Node newDir S.empty) currentFt
-  ParsedFile newFile -> parseFileTree pls wd $ addFileTree wd (Leaf newFile) currentFt
+parseFileTree (parsedLine : pls) currentDir currentFt = case parsedLine of
+  ParsedCommand (Cd RootReference) -> parseFileTree pls (Dir "/") currentFt
+  ParsedCommand (Cd ParentReference) -> parseFileTree pls (fromJust $ getParentDir currentDir currentFt) currentFt
+  ParsedCommand (Cd (ChildReference dirName)) -> parseFileTree pls (Dir dirName) currentFt
+  ParsedCommand Ls -> parseFileTree pls currentDir currentFt
+  ParsedDir newDir -> parseFileTree pls currentDir $ addFileTree currentDir (Node newDir S.empty) currentFt
+  ParsedFile newFile -> parseFileTree pls currentDir $ addFileTree currentDir (Leaf newFile) currentFt
 
 parseFileTreeFromRoot :: [ParsedLine] -> FileTree
 parseFileTreeFromRoot pls = parseFileTree pls (Dir "/") (Node (Dir "/") S.empty)
