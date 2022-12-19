@@ -14,14 +14,13 @@ import Days2022.Day7
     getDirs,
     getFileSizeSum,
     getFileTreesOfSizeLE,
-    getParentDir,
     getSizeSumOfFileTreesOfSizeLE,
     getSubtree,
-    parseFileTree,
     parseFileTreeFromRoot,
     parseLine,
   )
 import Import
+import qualified RIO.List as L
 import qualified RIO.Set as S
 import qualified RIO.Text as T
 import Test.Hspec
@@ -94,21 +93,6 @@ spec = do
                     Node (Dir "b") $ S.fromList [Leaf (File 500 "a.txt")]
                   ]
         newFt `shouldBe` expectedFt
-
-    describe "getParentDir" $ do
-      it "returns nothing for root" $ do
-        let ft = Node (Dir "/") S.empty
-        getParentDir (Dir "/") ft `shouldBe` Nothing
-      it "returns nothing for file" $ do
-        let ft = Leaf $ File 500 "a.txt"
-        getParentDir (Dir "/") ft `shouldBe` Nothing
-      it "returns root" $ do
-        let ft =
-              Node (Dir "/") $
-                S.fromList
-                  [ Node (Dir "a") S.empty
-                  ]
-        getParentDir (Dir "a") ft `shouldBe` Just (Dir "/")
 
     describe "getFileSizeSum" $ do
       it "works on example" $ do
@@ -226,7 +210,7 @@ spec = do
         -- pPrint filePath
         fileContents <- readFileUtf8 filePath
         let inputValues = parseLine <$> T.lines fileContents
-        let fileTree = parseFileTreeFromRoot inputValues
+        let fileTree = parseFileTreeFromRoot $ L.drop 1 inputValues
         -- pPrint fileTree
         getSizeSumOfFileTreesOfSizeLE 100000 fileTree `shouldBe` 7726269
 
@@ -249,7 +233,7 @@ spec = do
               "$ ls",
               "15000 e.txt"
             ]
-      let parsedLines = parseLine <$> terminalLines
+      let parsedLines = parseLine <$> L.drop 1 terminalLines
 
       it "parses minimal example" $ do
         let expectedFileTree =

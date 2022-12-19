@@ -11,7 +11,6 @@ module Days2022.Day7
     getDirs,
     getFileSizeSum,
     getFileTreesOfSizeLE,
-    getParentDir,
     getSizeSumOfFileTreesOfSizeLE,
     getSubtree,
     parseFileTree,
@@ -32,7 +31,7 @@ import Text.Pretty.Simple (pShow, pString)
 import Text.Regex.TDFA ((=~))
 import Util (calculateResult)
 
-data DirReference = RootReference | ParentReference | ChildReference !Text
+data DirReference = Root | Parent | Child !Text
   deriving (Eq, Show)
 
 data Command = Cd !DirReference | Ls
@@ -52,9 +51,9 @@ data ParsedLine = ParsedCommand !Command | ParsedDir !Dir | ParsedFile !File
 
 parseDirReference :: Text -> DirReference
 parseDirReference l = case l of
-  "$ cd /" -> RootReference
-  "$ cd .." -> ParentReference
-  _ -> ChildReference $ T.drop 5 l
+  "$ cd /" -> Root
+  "$ cd .." -> Parent
+  _ -> Child $ T.drop 5 l
 
 parseCommand :: Text -> Command
 parseCommand l
@@ -90,19 +89,6 @@ addFileTree (Dir targetDirName) newFt ft =
         then S.insert newFt children
         else children
 
-getParentDir :: Dir -> FileTree -> Maybe Dir
-getParentDir (Dir "/") _ = Nothing
-getParentDir (Dir childDirName) (Node dir children) =
-  let isNodeWithSameName (Node (Dir dirName) _) = childDirName == dirName
-      isNodeWithSameName _ = False
-      childrenWithSameName = S.filter isNodeWithSameName children
-      getThisDirParent = getParentDir (Dir childDirName)
-      childrenList = S.toList children
-   in if S.size childrenWithSameName == 1
-        then Just dir
-        else listToMaybe $ L.concatMap (maybeToList . getThisDirParent) childrenList
-getParentDir _ _ = Nothing
-
 getSubtree :: Dir -> FileTree -> Maybe FileTree
 getSubtree (Dir targetDirName) subtree@(Node (Dir dirName) children) =
   if targetDirName == dirName
@@ -129,18 +115,24 @@ getFileTreesOfSizeLE n ft =
 getSizeSumOfFileTreesOfSizeLE :: Int -> FileTree -> Int
 getSizeSumOfFileTreesOfSizeLE n ft = L.sum $ snd <$> getFileTreesOfSizeLE n ft
 
-parseFileTree :: [ParsedLine] -> Dir -> FileTree -> FileTree
+parseFileTree :: [ParsedLine] -> [Dir] -> FileTree -> FileTree
 parseFileTree [] _ currentFt = currentFt
-parseFileTree (parsedLine : pls) currentDir currentFt = case parsedLine of
-  ParsedCommand (Cd RootReference) -> parseFileTree pls (Dir "/") currentFt
-  ParsedCommand (Cd ParentReference) -> parseFileTree pls (fromJust $ getParentDir currentDir currentFt) currentFt
-  ParsedCommand (Cd (ChildReference dirName)) -> parseFileTree pls (Dir dirName) currentFt
-  ParsedCommand Ls -> parseFileTree pls currentDir currentFt
-  ParsedDir newDir -> parseFileTree pls currentDir $ addFileTree currentDir (Node newDir S.empty) currentFt
-  ParsedFile newFile -> parseFileTree pls currentDir $ addFileTree currentDir (Leaf newFile) currentFt
+parseFileTree (parsedLine : pls) currentPath currentFt = case parsedLine of
+  ParsedCommand (Cd Root) -> parseFileTree pls [Dir "/"] currentFt
+  ParsedCommand (Cd Parent) -> case currentPath of
+    (_ : (parentDir : ancestors)) -> parseFileTree pls (parentDir : ancestors) currentFt
+    _ -> undefined
+  ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName : currentPath) currentFt
+  ParsedCommand Ls -> parseFileTree pls currentPath currentFt
+  ParsedDir newDir -> case currentPath of
+    (currentDir : _) -> parseFileTree pls currentPath $ addFileTree currentDir (Node newDir S.empty) currentFt
+    _ -> undefined
+  ParsedFile newFile -> case currentPath of
+    (currentDir : _) -> parseFileTree pls currentPath $ addFileTree currentDir (Leaf newFile) currentFt
+    _ -> undefined
 
 parseFileTreeFromRoot :: [ParsedLine] -> FileTree
-parseFileTreeFromRoot pls = parseFileTree pls (Dir "/") (Node (Dir "/") S.empty)
+parseFileTreeFromRoot pls = parseFileTree pls [Dir "/"] (Node (Dir "/") S.empty)
 
 calculateFirstResult :: FilePath -> IO Text
 calculateFirstResult =
