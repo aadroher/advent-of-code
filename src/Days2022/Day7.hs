@@ -73,21 +73,21 @@ parseLine l
   | (T.unpack l =~ ("^[0-9]+ .*$" :: String)) :: Bool = ParsedFile $ uncurry File (parseFile l)
   | otherwise = undefined
 
-addFileTree :: Dir -> FileTree -> FileTree -> FileTree
-addFileTree (Dir targetDirName) newFt ft =
-  case ft of
-    Leaf _ -> ft
-    Node (Dir dirName) children ->
-      if dirName == targetDirName
-        then Node (Dir dirName) (insertIfNotPresent children)
-        else Node (Dir dirName) $ S.map (addFileTree (Dir targetDirName) newFt) children
+addFileTree :: [Dir] -> FileTree -> FileTree -> FileTree
+addFileTree [Dir targetDirName] newFt node@(Node (Dir dirName) children) =
+  if targetDirName == dirName
+    then Node (Dir dirName) (S.insert newFt (S.filter (notChildWithRootName newFt) children))
+    else node
   where
-    isChild (Node (Dir newDirName) _) (Node (Dir existingDirName) _) = newDirName == existingDirName
-    isChild _ _ = False
-    insertIfNotPresent children =
-      if S.size (S.filter (isChild newFt) children) == 0
-        then S.insert newFt children
-        else children
+    notChildWithRootName (Node (Dir newSubRootName) _) (Node (Dir name) _) = name /= newSubRootName
+    notChildWithRootName _ _ = True
+addFileTree (_ : descendents) newFt (Node (Dir dirName) children) =
+  Node (Dir dirName) $ S.map (addFileTreeIfNode descendents newFt) children
+  where
+    addFileTreeIfNode ds nft node@(Node _ _) = addFileTree ds nft node
+    addFileTreeIfNode _ _ leaf@(Leaf _) = leaf
+addFileTree _ _ (Leaf _) = error "cannot add tree to file"
+addFileTree _ _ _ = error "addFileTree failed"
 
 getSubtree :: Dir -> FileTree -> Maybe FileTree
 getSubtree (Dir targetDirName) subtree@(Node (Dir dirName) children) =
@@ -124,12 +124,8 @@ parseFileTree (parsedLine : pls) currentPath currentFt = case parsedLine of
     _ -> undefined
   ParsedCommand (Cd (Child dirName)) -> parseFileTree pls (Dir dirName : currentPath) currentFt
   ParsedCommand Ls -> parseFileTree pls currentPath currentFt
-  ParsedDir newDir -> case currentPath of
-    (currentDir : _) -> parseFileTree pls currentPath $ addFileTree currentDir (Node newDir S.empty) currentFt
-    _ -> undefined
-  ParsedFile newFile -> case currentPath of
-    (currentDir : _) -> parseFileTree pls currentPath $ addFileTree currentDir (Leaf newFile) currentFt
-    _ -> undefined
+  ParsedDir newDir -> parseFileTree pls currentPath $ addFileTree (L.reverse currentPath) (Node newDir S.empty) currentFt
+  ParsedFile newFile -> parseFileTree pls currentPath $ addFileTree (L.reverse currentPath) (Leaf newFile) currentFt
 
 parseFileTreeFromRoot :: [ParsedLine] -> FileTree
 parseFileTreeFromRoot pls = parseFileTree pls [Dir "/"] (Node (Dir "/") S.empty)

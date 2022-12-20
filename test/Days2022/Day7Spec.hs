@@ -74,17 +74,17 @@ spec = do
     describe "addFileTree" $ do
       it "adds a file to the root" $ do
         let ft = Node (Dir "/") S.empty
-        let newFt = addFileTree (Dir "/") (Leaf (File 500 "a.txt")) ft
+        let newFt = addFileTree [Dir "/"] (Leaf (File 500 "a.txt")) ft
         let expectedFt = Node (Dir "/") $ S.fromList [Leaf (File 500 "a.txt")]
         newFt `shouldBe` expectedFt
       it "adds a dir to the root" $ do
         let ft = Node (Dir "/") S.empty
-        let newFt = addFileTree (Dir "/") (Node (Dir "a") S.empty) ft
+        let newFt = addFileTree [Dir "/"] (Node (Dir "a") S.empty) ft
         let expectedFt = Node (Dir "/") $ S.fromList [Node (Dir "a") S.empty]
         newFt `shouldBe` expectedFt
       it "adds a file to a descendent" $ do
         let ft = Node (Dir "/") $ S.fromList [Node (Dir "a") S.empty, Node (Dir "b") S.empty]
-        let newFt = addFileTree (Dir "b") (Leaf (File 500 "a.txt")) ft
+        let newFt = addFileTree [Dir "/", Dir "b"] (Leaf (File 500 "a.txt")) ft
         let expectedFt =
               Node
                 (Dir "/")
