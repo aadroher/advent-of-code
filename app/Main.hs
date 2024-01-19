@@ -22,10 +22,10 @@ main = do
                 <> short 'v'
                 <> help "Verbose output?"
             )
-            <*> argument
-              str
-              ( metavar "exercise"
-              )
+          <*> argument
+            str
+            ( metavar "exercise"
+            )
       )
       empty
   lo <- logOptionsHandle stderr (optionsVerbose options)
